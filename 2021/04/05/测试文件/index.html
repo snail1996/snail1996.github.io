@@ -1,11 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  
-  
-  <title>测试文件 | Snail&#39;s blog</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.lug.ustc.edu.cn/css?family=Lato:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Roboto Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"snail1996.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":false,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
   <meta name="description" content="##雾计算的概念雾计算与云计算相对，是其在边缘网络上的拓展。云计算与雾计算的对比云计算可以资源共享、弹性资源租用、按需购买，拥有海量存储和丰富的计算能力。由于其部署在互联网的中心，因此离日常中的终端（比如用户手机、智能穿戴设备等）较远，因此形象地称之为云计算（云高高在上，离地面较远）。云计算虽能提供优质的计算、存储等服务，但网络边缘的数据传到云存储中心的链路通常很长，并且同一时间内用户数据传输很多">
 <meta property="og:type" content="article">
 <meta property="og:title" content="测试文件">
@@ -17,197 +31,359 @@
 <meta property="article:modified_time" content="2021-04-05T02:55:51.062Z">
 <meta property="article:author" content="Xianbin Zhou">
 <meta name="twitter:card" content="summary">
-  
-    <link rel="alternate" href="/atom.xml" title="Snail's blog" type="application/atom+xml">
-  
-  
-    <link rel="shortcut icon" href="/favicon.png">
-  
-  
-    
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
 
-  
-  
-<link rel="stylesheet" href="/css/style.css">
+<link rel="canonical" href="https://snail1996.github.io/2021/04/05/%E6%B5%8B%E8%AF%95%E6%96%87%E4%BB%B6/">
 
-  
-    
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
 
-  
-<meta name="generator" content="Hexo 5.4.0"></head>
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
 
-<body>
-  <div id="container">
-    <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Snail&#39;s blog</a>
-      </h1>
-      
-        <h2 id="subtitle-wrap">
-          <a href="/" id="subtitle">surpass</a>
-        </h2>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"></a>
-        
-          <a class="main-nav-link" href="/">Home</a>
-        
-          <a class="main-nav-link" href="/archives">Archives</a>
-        
-      </nav>
-      <nav id="sub-nav">
-        
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
-        
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://snail1996.github.io"></form>
-      </div>
+  <title>测试文件 | Snail's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
     </div>
   </div>
-</header>
 
-      <div class="outer">
-        <section id="main"><article id="post-测试文件" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2021/04/05/%E6%B5%8B%E8%AF%95%E6%96%87%E4%BB%B6/" class="article-date">
-  <time class="dt-published" datetime="2021-04-05T10:50:36.000Z" itemprop="datePublished">2021-04-05</time>
-</a>
-    
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Snail's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">surpass</p>
   </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 class="p-name article-title" itemprop="headline name">
-      测试文件
-    </h1>
-  
 
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://snail1996.github.io/2021/04/05/%E6%B5%8B%E8%AF%95%E6%96%87%E4%BB%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xianbin Zhou">
+      <meta itemprop="description" content="My universe will never be the same!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Snail's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          测试文件
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-04-05 10:50:36 / Modified: 02:55:51" itemprop="dateCreated datePublished" datetime="2021-04-05T10:50:36Z">2021-04-05</time>
+            </span>
+
+          
+
+        </div>
       </header>
+
     
-    <div class="e-content article-entry" itemprop="articleBody">
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
         <p>##雾计算的概念<br>雾计算与云计算相对，是其在边缘网络上的拓展。<br>云计算与雾计算的对比<br>云计算可以资源共享、弹性资源租用、按需购买，拥有海量存储和丰富的计算能力。由于其部署在互联网的中心，因此离日常中的终端（比如用户手机、智能穿戴设备等）较远，因此形象地称之为云计算（云高高在上，离地面较远）。<br>云计算虽能提供优质的计算、存储等服务，但网络边缘的数据传到云存储中心的链路通常很长，并且同一时间内用户数据传输很多需要很大的网络带宽。云服务器与终端较远会导致网络时延，因而不能满足实时性要求很高的应用场景。另外，云服务器是在网络中心，并不能感知传输到它的数据来源的地理分布，而且不支持移动性。<br>##雾计算的特点<br>针对上面的缺陷，雾计算便被提出。与云计算相比，雾计算有以下特点：<br>位置感知、低延时。雾计算框架中的雾节点往往分布在边缘位置，能感知其所在范围内设备的位置，而且雾节点与终端设备的通信时延相比设备与云服务器的时延大大缩减，因而可以支持延时需求高的应用场景。<br>广泛地理分布。与中心化的云形成鲜明的对比，雾节点会根据连接网络中各个终端设备的地理分布，相应地广泛分布。<br>大规模终端节点。接入网络的终端设备除了像用户手机之类的智能设备外，还有各种各样的传感器，监测湿度、温度等多种物理量，这些设备呈现出低存储、低计算能力的特点，构成分布式的系统。由此整个网络中节点的规模空前巨大。<br>实时交互和无线接入。终端和雾节点的通信延时极低确保能实时交互，这能满足时延要求高的应用场景，比如自动驾驶等。终端和雾节点之间通过无线连接。<br>异质性和互操作性。雾节点可以以不同的形式呈现，应用于不同的环境。来自于终端的信息往往需要整合处理，因此需要跨域操作，节点间需要合作。<br>在线分析和云雾协作。雾节点能对来自终端的数据进行在线分析，并且可以和云数据中心进行交互。<br>##云计算的应用场景<br>车联网。智能交通灯等智能设备监测交通实时状况，实现车辆与车辆、车辆与接入点、接入点与接入点之间的实时交互。<br>智能电网。在智能电网中，能量负载均衡应用可以在网络边缘设备上运行，基于能量需求，可用性和最低价格等因素可以自动地切换到像太阳能、风能 等可选择的能源。网络边缘的雾收集器处理智能传感器和设备生成的数据，并且向制动器发出控制命令。它们还要过滤在本地处理的数据，并将剩余的数据发送到更高层，用于可视化和实时事务分析的报告。<br>无线传感器和致动网络。雾设备制动器（雾计算服务器）可以通过创建闭环系统来控制系统，并且测量过程的稳定性和振荡行为。以此来弥补传统传感器需要额外施加物理动作实现相应功能打开。关闭等要求。<br>智能家居。各类传感器实时监测环境中的物理量，收集的数据交由雾节点协作处理，从而传递给系统进行智能决策。雾节点之间也可以协作，为更高级别的决策生成依据。<br>##雾计算网络框架<br>雾计算的网络框架是三层框架，第一层是智能终端层，该层可以是移动手机、各类传感器等，特点是存储。计算资源受限；第二层是雾计算节点层，该层具有适度的计算和存储资源；第三层是云数据中心，这一层具有海量存储和超强的计算能力。三层的位置关系为：第一层和第二层靠的近，第三层与第二层靠的很远。<br>##雾计算中的研究问题<br>计算卸载。计算卸载可以克服移动设备上的资源限制，因为一些计算密集型任务就应用的性 能而言可以从卸载中获益，从而节省计算资源和电池寿命。计算卸载考虑的是终端的计算资源受限，可以将复杂的计算卸载到雾节点服务器以及云服务器，但是如何运用好的卸载策略需要考虑计算能量、计算代价以及计算时延等。<br>边缘缓存。边缘缓存指的是将需要频繁访问的网络内容放在离用户较近、访问速度较快的 边缘网络设备中（也即雾设备）。边缘缓存技术的提出明显缓解了用户频繁请求云服务中心获取文件的压力。边缘缓存通常包含两个紧密相关的问题：缓存文件位置和缓存文件传递。文件缓存位置问题包括决定每一个缓存的位置和大小，选择数据库中的某一个文件放在某一个雾节点，并且如何下载文件到雾节点。缓存文件传递问题是如何发送文件给请求该文件的用户。边缘缓存考虑的是终端的存储资源受限，制定合理的边缘缓存策略使得终端可以迅速下载雾中数据，便于数据后续处理。<br>##雾计算与属性基加密的关系<br>智能设备由于其存储和计算资源的局限性，总会想方设法解决对自己所有（或者所产生）数据的存储计算问题，并且希望访问控制的主动权掌握在自己手里。自然想到的解决办法是将将数据外包。和云计算类似，只不过雾计算在框架上增加了一个层次，即在网络的边缘增加大量的雾节点。云计算中，属性基加密方法是一个有前途的密码方案，可以提供细粒度的访问控制，终端自定义访问结构，终端将数据加密上传到云存储，其他用户只要满足访问结构便可以从云上下载并解密密文。在雾计算中，数据外包同样可以运用属性基加密的方式，提供细粒度的访问控制。只不过在雾计算中，终端设备可以将数据上传到雾节点或者云服务器，雾节点和云服务器可以进行服务上的交互。上传到雾中的数据可以直接被雾覆盖的其他终端或者用户所下载，相当于一个局部的概念；而上传到云中的数据可以被所有网络中的用户或者终端下载，相当于一个全局的概念。属性基加密运用到云计算上解决的问题，同样可以运用到雾计算中。</p>
 
-      
     </div>
-    <footer class="article-footer">
-      <a data-url="https://snail1996.github.io/2021/04/05/%E6%B5%8B%E8%AF%95%E6%96%87%E4%BB%B6/" data-id="ckn411i310001jsf4h6d783xs" data-title="测试文件" class="article-share-link">Share</a>
-      
-      
-      
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/04/04/hello-world/" rel="prev" title="Hello World">
+      <i class="fa fa-chevron-left"></i> Hello World
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xianbin Zhou"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xianbin Zhou</p>
+  <div class="site-description" itemprop="description">My universe will never be the same!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/snail1996" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;snail1996" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zxb340825@163.com" title="E-Mail → mailto:zxb340825@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Xianbin Zhou</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
     </footer>
   </div>
-  
-    
-<nav id="article-nav">
-  
-  
-    <a href="/2021/04/04/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Hello World</div>
-    </a>
-  
-</nav>
 
   
-</article>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
 
 
-</section>
-        
-          <aside id="sidebar">
-  
-    
-
-  
-    
-
-  
-    
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a></li></ul>
-    </div>
-  </div>
+<script src="/js/schemes/muse.js"></script>
 
 
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2021/04/05/%E6%B5%8B%E8%AF%95%E6%96%87%E4%BB%B6/">测试文件</a>
-          </li>
-        
-          <li>
-            <a href="/2021/04/04/hello-world/">Hello World</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
+<script src="/js/next-boot.js"></script>
 
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
-  
-  <div class="outer">
-    <div id="footer-info" class="inner">
-      
-      &copy; 2021 Xianbin Zhou<br>
-      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
-    </div>
-  </div>
-</footer>
-
-    </div>
-    <nav id="mobile-nav">
-  
-    <a href="/" class="mobile-nav-link">Home</a>
-  
-    <a href="/archives" class="mobile-nav-link">Archives</a>
-  
-</nav>
-    
-
-
-<script src="/js/jquery-3.4.1.min.js"></script>
 
 
 
   
-<script src="/fancybox/jquery.fancybox.min.js"></script>
-
-
-
-
-<script src="/js/script.js"></script>
 
 
 
 
 
-  </div>
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
 </body>
 </html>
