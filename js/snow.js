@@ -1,3 +1,5 @@
+<script type="text/javascript" src="http://libs.baidu.com/jquery/1.8.3/jquery.js"></script>
+<script type="text/javascript" src="http://libs.baidu.com/jquery/1.8.3/jquery.min.js"></script>
 /*样式二*/
 /* 控制下雪 */
 function snowFall(snow) {
