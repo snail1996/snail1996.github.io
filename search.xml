@@ -7,7 +7,7 @@
 <p>2005年，A. Sahai和 B. Waters两位大佬提出模糊身份基加密<sup><a href="ref1">1</a></sup> （FIBE）的概念，并在论文的后面引入属性基加密；2006年，J. Bethencourt、 A. Sahai  和 B. Waters这三位大佬首次构建属性基加密方案<sup><a href="ref2">2</a></sup>（确切的来说是密钥策略属性基加密方案，KP-ABE），并在论文后面引入密文策略属性基加密方案；2007年，V. Goyal、 O. Pandey、 A. Sahai 和 B. Waters这四位大佬首次构建密文策略属性基加密方案<sup><a href="ref3">3</a></sup>，从此属性加秘密的研究拉开序幕。</p>
 <span id="more"></span>
 <p>属性集合好理解，也就是将用户用一系列的属性标签表示，那么访问结构到底是什么呢？在描述访问结构之前，首先介绍一下离散对数难题（Discrete Logarithm Problem）、拉格朗日插值算法和单调访问结构（Monotone Access Structure），然后引出属性基加密方案中常用的三种访问结构：与门访问结构（And-Gate），访问控制树（Access Tree）和线性秘密共享（LSSS）。</p>
-<h4 id="离散对数难题4"><a href="#离散对数难题4" class="headerlink" title="离散对数难题4"></a>离散对数难题<sup><a href="ref4">4</a></sup></h4><p>令$\alpha \in \mathbb{Z}_{p}$，$G$为一个乘法循环群，群的阶数为$p$，群的一个生成元为$g$，离散对数难题说的是：给定$g,g^a \in \mathbb{Z}_{p}^{<em>}$，对于任何多项式时间的攻击者，其计算出指数$a$的概率是可忽略的，即由$g,g^a \in \mathbb{Z}_{p}^{</em>}$计算出$a$是困难的。</p>
+<h4 id="离散对数难题4"><a href="#离散对数难题4" class="headerlink" title="离散对数难题4"></a>离散对数难题<sup><a href="ref4">4</a></sup></h4><p>令$\alpha \in \mathbb{Z}_{p}$，$G$为一个乘法循环群，群的阶数为$p$，群的一个生成元为$g$，离散对数难题说的是：给定$g,g^a \in G$，对于任何多项式时间的攻击者，其计算出指数$a$的概率是可忽略的，即由$g,g^a \in G$计算出$a$是困难的。</p>
 <h4 id="拉格朗日插值算法"><a href="#拉格朗日插值算法" class="headerlink" title="拉格朗日插值算法"></a>拉格朗日插值算法</h4><p>任意给定$k$阶多项式函数，已知给定$k+1$个取值点（互不重复）：$\left ( x_0,y_0 \right ),\left ( x_1,y_1 \right ),…,\left ( x_k,y_k \right )$，其中$i \neq  j$时$x_i \neq  x_j$。可以通过以下插值方式恢复多项式：</p>
 <script type="math/tex; mode=display">
 L\left ( x \right )=\sum _{j=0}^{k}y_jl_j\left ( x \right )</script><p>其中$l_j\left ( x \right )$为拉格朗日系数：</p>
