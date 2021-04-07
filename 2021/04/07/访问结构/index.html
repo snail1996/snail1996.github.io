@@ -22,30 +22,34 @@
     var CONFIG = {"hostname":"snail1996.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":false,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="My universe will never be the same!">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Blog of Firstfrozen">
-<meta property="og:url" content="https://snail1996.github.io/index.html">
+  <meta name="description" content="属性基加密算法（Attribute Based Encryption）是一种特殊的身份及加密算法，身份及加密算法将任何能唯一代表用户身份的信息作为公钥，这样一来大大降低了公钥管理的难度，而属性基加密将用户的身份表示为一系列的属性的集合，当且仅当属性集合满足访问结构时，才能解密成功。 2005年，A. Sahai和 B. Waters两位大佬提出模糊身份基加密1 （FIBE）的概念，并在论文的后面引">
+<meta property="og:type" content="article">
+<meta property="og:title" content="访问结构">
+<meta property="og:url" content="https://snail1996.github.io/2021/04/07/%E8%AE%BF%E9%97%AE%E7%BB%93%E6%9E%84/index.html">
 <meta property="og:site_name" content="Blog of Firstfrozen">
-<meta property="og:description" content="My universe will never be the same!">
+<meta property="og:description" content="属性基加密算法（Attribute Based Encryption）是一种特殊的身份及加密算法，身份及加密算法将任何能唯一代表用户身份的信息作为公钥，这样一来大大降低了公钥管理的难度，而属性基加密将用户的身份表示为一系列的属性的集合，当且仅当属性集合满足访问结构时，才能解密成功。 2005年，A. Sahai和 B. Waters两位大佬提出模糊身份基加密1 （FIBE）的概念，并在论文的后面引">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-04-07T13:29:28.000Z">
+<meta property="article:modified_time" content="2021-04-07T13:33:24.825Z">
 <meta property="article:author" content="Xianbin Zhou">
+<meta property="article:tag" content="属性基加密">
+<meta property="article:tag" content="访问结构">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://snail1996.github.io/">
+<link rel="canonical" href="https://snail1996.github.io/2021/04/07/%E8%AE%BF%E9%97%AE%E7%BB%93%E6%9E%84/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : true,
-    isPost : false,
+    isHome : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>Blog of Firstfrozen</title>
+  <title>访问结构 | Blog of Firstfrozen</title>
   
 
 
@@ -187,9 +191,10 @@
         <div class="content-wrap">
           
 
-          <div class="content index posts-expand">
+          <div class="content post posts-expand">
             
-      
+
+    
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
@@ -205,10 +210,9 @@
       <meta itemprop="name" content="Blog of Firstfrozen">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/04/07/%E8%AE%BF%E9%97%AE%E7%BB%93%E6%9E%84/" class="post-title-link" itemprop="url">访问结构</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          访问结构
+        </h1>
 
         <div class="post-meta">
             <span class="post-meta-item">
@@ -230,7 +234,14 @@
                 </span>
             </span>
 
-          <br>
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
             <span class="post-meta-item" title="本文字数">
               <span class="post-meta-item-icon">
                 <i class="far fa-file-word"></i>
@@ -255,7 +266,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>属性基加密算法（Attribute Based Encryption）是一种特殊的身份及加密算法，身份及加密算法将任何能唯一代表用户身份的信息作为公钥，这样一来大大降低了公钥管理的难度，而属性基加密将用户的身份表示为一系列的属性的集合，当且仅当属性集合满足访问结构时，才能解密成功。</p>
+        <p>属性基加密算法（Attribute Based Encryption）是一种特殊的身份及加密算法，身份及加密算法将任何能唯一代表用户身份的信息作为公钥，这样一来大大降低了公钥管理的难度，而属性基加密将用户的身份表示为一系列的属性的集合，当且仅当属性集合满足访问结构时，才能解密成功。</p>
 <p>2005年，A. Sahai和 B. Waters两位大佬提出模糊身份基加密<sup><a href="ref1">1</a></sup> （FIBE）的概念，并在论文的后面引入属性基加密；2006年，J. Bethencourt、 A. Sahai  和 B. Waters这三位大佬首次构建属性基加密方案<sup><a href="ref2">2</a></sup>（确切的来说是密钥策略属性基加密方案，KP-ABE），并在论文后面引入密文策略属性基加密方案；2007年，V. Goyal、 O. Pandey、 A. Sahai 和 B. Waters这四位大佬首次构建密文策略属性基加密方案<sup><a href="ref3">3</a></sup>，从此属性加秘密的研究拉开序幕。</p>
 <p>属性集合好理解，也就是将用户用一系列的属性标签表示，那么访问结构到底是什么呢？在描述访问结构之前，首先介绍一下离散对数难题（Discrete Logarithm Problem）、拉格朗日插值算法和单调访问结构（Monotone Access Structure），然后引出属性基加密方案中常用的三种访问结构：与门访问结构（And-Gate），访问控制树（Access Tree）和线性秘密共享（LSSS）。</p>
 <h4 id="离散对数难题4"><a href="#离散对数难题4" class="headerlink" title="离散对数难题4"></a>离散对数难题<sup><a href="ref4">4</a></sup></h4><p>令$\alpha \in \mathbb{Z}<em>{p}^{*}$，$G$为一个乘法循环群，群的阶数为$p$，群的一个生成元为$g$，离散对数难题说的是：给定$g$，$g^a \in \mathbb{Z}</em>{p}^{<em>}$，对于任何多项式时间的攻击者，其计算出指数$a$的概率是可忽略的，即由$g$，$g^a \in \mathbb{Z}_{p}^{</em>}$计算出$a$是困难的。</p>
@@ -288,117 +299,44 @@
 <p><span name="ref6" >L. Cheung and C. Newport, “Provably Secure Ciphertext Policy ABE,” in <em>Proceedings of ACM Conference on Computer and Commmunications Security</em>, pp. 456-465, 2007.</span></p>
 <p><span name="ref7" >S. Ruj, A. Nayak and I. Stojmenovic, “DACC: Distributed Access Control in Clouds,” in <em>2011IEEE 10th International Conference on Trust, Security and Privacy in Computing and Communications</em>, Changsha, 2011, pp. 91-98.</span></p>
 
-      
     </div>
 
     
     
     
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://snail1996.github.io/2021/04/05/%E9%9B%BE%E8%AE%A1%E7%AE%97%E4%B8%8E%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Xianbin Zhou">
-      <meta itemprop="description" content="My universe will never be the same!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog of Firstfrozen">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/04/05/%E9%9B%BE%E8%AE%A1%E7%AE%97%E4%B8%8E%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/" class="post-title-link" itemprop="url">雾计算与属性基加密</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-04-05 10:50:36" itemprop="dateCreated datePublished" datetime="2021-04-05T10:50:36+08:00">2021-04-05</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-04-07 21:25:02" itemprop="dateModified" datetime="2021-04-07T21:25:02+08:00">2021-04-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/" itemprop="url" rel="index"><span itemprop="name">属性基加密</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>2.1k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="雾计算的概念"><a href="#雾计算的概念" class="headerlink" title="雾计算的概念"></a>雾计算的概念</h4><p>雾计算与云计算相对，是其在边缘网络上的拓展。</p>
-<h4 id="云计算与雾计算的对比"><a href="#云计算与雾计算的对比" class="headerlink" title="云计算与雾计算的对比"></a>云计算与雾计算的对比</h4><p>云计算可以资源共享、弹性资源租用、按需购买，拥有海量存储和丰富的计算能力。由于其部署在互联网的中心，因此离日常中的终端（比如用户手机、智能穿戴设备等）较远，因此形象地称之为云计算（云高高在上，离地面较远）。<br>云计算虽能提供优质的计算、存储等服务，但网络边缘的数据传到云存储中心的链路通常很长，并且同一时间内用户数据传输很多需要很大的网络带宽。云服务器与终端较远会导致网络时延，因而不能满足实时性要求很高的应用场景。另外，云服务器是在网络中心，并不能感知传输到它的数据来源的地理分布，而且不支持移动性。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/04/05/%E9%9B%BE%E8%AE%A1%E7%AE%97%E4%B8%8E%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
+      <div>
         
-      
-    </div>
+          <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+        
+      </div>
 
-    
-    
-    
       <footer class="post-footer">
-        <div class="post-eof"></div>
+          <div class="post-tags">
+              <a href="/tags/%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/" rel="tag"># 属性基加密</a>
+              <a href="/tags/%E8%AE%BF%E9%97%AE%E7%BB%93%E6%9E%84/" rel="tag"># 访问结构</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/04/05/%E9%9B%BE%E8%AE%A1%E7%AE%97%E4%B8%8E%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/" rel="prev" title="雾计算与属性基加密">
+      <i class="fa fa-chevron-left"></i> 雾计算与属性基加密
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
       </footer>
+    
   </article>
   
   
-  
-
-
   
 
 
@@ -451,6 +389,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A6%BB%E6%95%A3%E5%AF%B9%E6%95%B0%E9%9A%BE%E9%A2%984"><span class="nav-number">1.</span> <span class="nav-text">离散对数难题4</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8B%89%E6%A0%BC%E6%9C%97%E6%97%A5%E6%8F%92%E5%80%BC%E7%AE%97%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">拉格朗日插值算法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95%E8%B0%83%E8%AE%BF%E9%97%AE%E7%BB%93%E6%9E%845"><span class="nav-number">3.</span> <span class="nav-text">单调访问结构5</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%8E%E9%97%A8%E8%AE%BF%E9%97%AE%E7%BB%93%E6%9E%846"><span class="nav-number">4.</span> <span class="nav-text">与门访问结构6</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%E6%A0%912"><span class="nav-number">5.</span> <span class="nav-text">访问控制树2</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89"><span class="nav-number">5.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%BB%A1%E8%B6%B3%E4%B8%80%E4%B8%AA%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%E6%A0%91"><span class="nav-number">5.2.</span> <span class="nav-text">满足一个访问控制树</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%E6%A0%91%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">5.3.</span> <span class="nav-text">访问控制树的定义</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E7%A7%98%E5%AF%86%E5%85%B1%E4%BA%AB5"><span class="nav-number">6.</span> <span class="nav-text">线性秘密共享5</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%89%E7%A7%8D%E8%AE%BF%E9%97%AE%E7%BB%93%E6%9E%84%E5%AF%B9%E6%AF%94"><span class="nav-number">7.</span> <span class="nav-text">三种访问结构对比</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -610,16 +549,6 @@
   
 
   
-  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
-  <script>
-      window.addEventListener('load', () => {
-      quicklink({
-        timeout : 3000,
-        priority: true,
-        ignores : [uri => uri.includes('#'),uri => uri === 'https://snail1996.github.io/',]
-      });
-      });
-  </script>
 
   
   <!--彩带2.自动飘动-->
