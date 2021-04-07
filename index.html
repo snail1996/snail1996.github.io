@@ -218,7 +218,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2021-04-07 21:29:28 / 修改时间：21:33:24" itemprop="dateCreated datePublished" datetime="2021-04-07T21:29:28+08:00">2021-04-07</time>
+              <time title="创建时间：2021-04-07 21:29:28 / 修改时间：21:50:54" itemprop="dateCreated datePublished" datetime="2021-04-07T21:29:28+08:00">2021-04-07</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -258,14 +258,18 @@
           <p>属性基加密算法（Attribute Based Encryption）是一种特殊的身份及加密算法，身份及加密算法将任何能唯一代表用户身份的信息作为公钥，这样一来大大降低了公钥管理的难度，而属性基加密将用户的身份表示为一系列的属性的集合，当且仅当属性集合满足访问结构时，才能解密成功。</p>
 <p>2005年，A. Sahai和 B. Waters两位大佬提出模糊身份基加密<sup><a href="ref1">1</a></sup> （FIBE）的概念，并在论文的后面引入属性基加密；2006年，J. Bethencourt、 A. Sahai  和 B. Waters这三位大佬首次构建属性基加密方案<sup><a href="ref2">2</a></sup>（确切的来说是密钥策略属性基加密方案，KP-ABE），并在论文后面引入密文策略属性基加密方案；2007年，V. Goyal、 O. Pandey、 A. Sahai 和 B. Waters这四位大佬首次构建密文策略属性基加密方案<sup><a href="ref3">3</a></sup>，从此属性加秘密的研究拉开序幕。</p>
 <p>属性集合好理解，也就是将用户用一系列的属性标签表示，那么访问结构到底是什么呢？在描述访问结构之前，首先介绍一下离散对数难题（Discrete Logarithm Problem）、拉格朗日插值算法和单调访问结构（Monotone Access Structure），然后引出属性基加密方案中常用的三种访问结构：与门访问结构（And-Gate），访问控制树（Access Tree）和线性秘密共享（LSSS）。</p>
-<h4 id="离散对数难题4"><a href="#离散对数难题4" class="headerlink" title="离散对数难题4"></a>离散对数难题<sup><a href="ref4">4</a></sup></h4><p>令$\alpha \in \mathbb{Z}<em>{p}^{*}$，$G$为一个乘法循环群，群的阶数为$p$，群的一个生成元为$g$，离散对数难题说的是：给定$g$，$g^a \in \mathbb{Z}</em>{p}^{<em>}$，对于任何多项式时间的攻击者，其计算出指数$a$的概率是可忽略的，即由$g$，$g^a \in \mathbb{Z}_{p}^{</em>}$计算出$a$是困难的。</p>
-<h4 id="拉格朗日插值算法"><a href="#拉格朗日插值算法" class="headerlink" title="拉格朗日插值算法"></a>拉格朗日插值算法</h4><p>任意给定$k$阶多项式函数，已知给定$k+1$个取值点（互不重复）：$\left ( x_0,y_0 \right ),\left ( x_1,y_1 \right ),…,\left ( x_k,y_k \right )$，其中$i \neq  j$时$x_i \neq  x_j$。可以通过以下插值方式恢复多项式：<br>$$<br>L\left ( x \right )=\sum <em>{j=0}^{k}y_jl_j\left ( x \right )<br>$$<br>其中$l_j\left ( x \right )$为拉格朗日系数：<br>$$<br>l_j\left ( x \right )=\prod <em>{i=0,i\neq j}^k \frac{x-x_i}{x_j-x_i}= \frac{x-x_0}{x_j-x_0}…\frac{x-x</em>{j-1}}{x_j-x</em>{j-1}}\cdot \frac{x-x_{j+1}}{x_j-x_{j+1}}…\frac{x-x_k}{x_j-x_k}<br>$$<br>任意多于$k+1$个取值点都能复原多项式。</p>
-<h4 id="单调访问结构5"><a href="#单调访问结构5" class="headerlink" title="单调访问结构5"></a>单调访问结构<sup><a href="ref5">5</a></sup></h4><p>令$\left { P_1,P_2,…,P_n \right }$为一系列参与者的集合（属性基加密里边指的是属性），一个集合$ \mathbb{A} \subseteq 2^ { \left  { P_1,P_2,…,P_n \right }} $是单调的，当其满足：$\forall B,C$，如果$B\in \mathbb{A}$且$B\subseteq C$，则$C\in \mathbb{A}$。一个访问结构（单调访问结构）是$\left { P_1,P_2,…,P_n \right }$的幂集的非空子集，即$ \mathbb{A} \subseteq 2^ { \left  { P_1,P_2,…,P_n \right } \setminus \left  {\varnothing \right }} $，在$\mathbb{A}$中的集合为授权集合，不在$\mathbb{A}$的集合为非授权集合。</p>
-<h4 id="与门访问结构6"><a href="#与门访问结构6" class="headerlink" title="与门访问结构6"></a>与门访问结构<sup><a href="ref6">6</a></sup></h4><p>给定一个属性域$U=\left { 1,2,…,n \right }$，对于该属性域中的每一个属性$\underline{i}\in U$，有三个值可供选择：</p>
+<h4 id="离散对数难题4"><a href="#离散对数难题4" class="headerlink" title="离散对数难题4"></a>离散对数难题<sup><a href="ref4">4</a></sup></h4><p>令$\alpha \in \mathbb{Z}_{p}^{<em>}$，$G$为一个乘法循环群，群的阶数为$p$，群的一个生成元为$g$，离散对数难题说的是：给定$g$，$g^a \in \mathbb{Z}_{p}^{</em>}$，对于任何多项式时间的攻击者，其计算出指数$a$的概率是可忽略的，即由$g$，$g^a \in \mathbb{Z}_{p}^{*}$计算出$a$是困难的。</p>
+<h4 id="拉格朗日插值算法"><a href="#拉格朗日插值算法" class="headerlink" title="拉格朗日插值算法"></a>拉格朗日插值算法</h4><p>任意给定$k$阶多项式函数，已知给定$k+1$个取值点（互不重复）：$\left ( x_0,y_0 \right ),\left ( x_1,y_1 \right ),…,\left ( x_k,y_k \right )$，其中$i \neq  j$时$x_i \neq  x_j$。可以通过以下插值方式恢复多项式：</p>
+<script type="math/tex; mode=display">
+L\left ( x \right )=\sum _{j=0}^{k}y_jl_j\left ( x \right )</script><p>其中$l_j\left ( x \right )$为拉格朗日系数：</p>
+<script type="math/tex; mode=display">
+l_j\left ( x \right )=\prod _{i=0,i\neq j}^k \frac{x-x_i}{x_j-x_i}= \frac{x-x_0}{x_j-x_0}...\frac{x-x_{j-1}}{x_j-x_{j-1}}\cdot \frac{x-x_{j+1}}{x_j-x_{j+1}}...\frac{x-x_k}{x_j-x_k}</script><p>任意多于$k+1$个取值点都能复原多项式。</p>
+<h4 id="单调访问结构5"><a href="#单调访问结构5" class="headerlink" title="单调访问结构5"></a>单调访问结构<sup><a href="ref5">5</a></sup></h4><p>令$\left \{ P_1,P_2,…,P_n \right \}$为一系列参与者的集合（属性基加密里边指的是属性），一个集合$ \mathbb{A} \subseteq 2^ { \left  \{ P_1,P_2,…,P_n \right \}} $是单调的，当其满足：$\forall B,C$，如果$B\in \mathbb{A}$且$B\subseteq C$，则$C\in \mathbb{A}$。一个访问结构（单调访问结构）是$\left \{ P_1,P_2,…,P_n \right \}$的幂集的非空子集，即$ \mathbb{A} \subseteq 2^ { \left  \{ P_1,P_2,…,P_n \right \} \setminus \left  \{\varnothing \right \}} $，在$\mathbb{A}$中的集合为授权集合，不在$\mathbb{A}$的集合为非授权集合。</p>
+<h4 id="与门访问结构6"><a href="#与门访问结构6" class="headerlink" title="与门访问结构6"></a>与门访问结构<sup><a href="ref6">6</a></sup></h4><p>给定一个属性域$U=\left \{ 1,2,…,n \right \}$，对于该属性域中的每一个属性$\underline{i}\in U$，有三个值可供选择：</p>
 <p>$\underline{i}=+i$表示该属性有，$\underline{i}=-i$表示该属性没有，而$\underline{i}=dont care$表示该属性可有可无。访问结构可以表示为与门访问结构$W=\wedge _{i\in I}\underline{i}$，其中$I\subseteq U$表示设置的与访问结构有关的属性集合，因此对于$\underline{i}\in U \setminus I$，其属性都为$\underline{i}=dont care$。</p>
 <h4 id="访问控制树2"><a href="#访问控制树2" class="headerlink" title="访问控制树2"></a>访问控制树<sup><a href="ref2">2</a></sup></h4><h5 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h5><p>让$\mathcal{T}$表示一个访问控制树。树的非叶子节点$x$表示一个门限，记$k_x$为节点$x$的门限值，$num_x$为节点$x$的孩子节点总数，那么自然有$0&lt;k_x&lt;num_x$。当$k_x=1$时，即表示或门，当$k_x=num_x$时，即表示与门。树的叶子节点$x$与一个属性相联系，自然地，此时$k_x=1$。</p>
 <p>为了表示的方便，定义一些描述节点的函数。记$p\left ( x \right )$表示节点$x$的父亲节点，$index\left ( x \right )$表示在父亲节点看来该节点的索引值（像完全二叉树一样自左向右编号）。如果$x$是一个叶子节点，$attr\left ( x \right )$表示该节点关联的属性值。</p>
-<h5 id="满足一个访问控制树"><a href="#满足一个访问控制树" class="headerlink" title="满足一个访问控制树"></a>满足一个访问控制树</h5><p>让$\mathcal{T}$表示一个访问控制树，根节点为$r$。记$\mathcal{T}_x$为根节点为$x$的$\mathcal{T}$（$\mathcal{T}$就可以表示为$\mathcal{T}_r$）的子树。如果属性集合$\gamma$满足访问控制树$\mathcal{T}_x$，则$\mathcal{T}_x\left ( \gamma \right )=1$。$\mathcal{T}<em>x\left ( \gamma \right )$按如下的方式递归计算：如果$x$为非叶子节点，则计算$x$节点的所有孩子节点${x}’$的$\mathcal{T}</em>{x}’\left ( \gamma \right )$的值，$\mathcal{T}<em>x\left ( \gamma \right )=1$当且仅当至少$k_x$个$\mathcal{T}</em>{x}’\left ( \gamma \right )$返回1。如果$x$为叶子节点，则$\mathcal{T}_x\left ( \gamma \right )=1$当且仅当$attr\left ( x \right ) \in \gamma$。</p>
+<h5 id="满足一个访问控制树"><a href="#满足一个访问控制树" class="headerlink" title="满足一个访问控制树"></a>满足一个访问控制树</h5><p>让$\mathcal{T}$表示一个访问控制树，根节点为$r$。记$\mathcal{T}_x$为根节点为$x$的$\mathcal{T}$（$\mathcal{T}$就可以表示为$\mathcal{T}_r$）的子树。如果属性集合$\gamma$满足访问控制树$\mathcal{T}_x$，则$\mathcal{T}_x\left ( \gamma \right )=1$。$\mathcal{T}_x\left ( \gamma \right )$按如下的方式递归计算：如果$x$为非叶子节点，则计算$x$节点的所有孩子节点${x}’$的$\mathcal{T}_{x}’\left ( \gamma \right )$的值，$\mathcal{T}_x\left ( \gamma \right )=1$当且仅当至少$k_x$个$\mathcal{T}_{x}’\left ( \gamma \right )$返回1。如果$x$为叶子节点，则$\mathcal{T}_x\left ( \gamma \right )=1$当且仅当$attr\left ( x \right ) \in \gamma$。</p>
 <h5 id="访问控制树的定义"><a href="#访问控制树的定义" class="headerlink" title="访问控制树的定义"></a>访问控制树的定义</h5><p>对于每一个树中的节点$x$，选择与之对应的多项式$q_x$，多项式的选择遵循自上而下的方式（从根节点到叶子节点），具体如下：</p>
 <ul>
 <li>对于树中的节点$x$，将多项式$q_x$的最高次数设置为$d_x=k_x-1$，也即该节点门限值减一；</li>
@@ -273,12 +277,12 @@
 <li>对于树中的节点$x$，设置$q_x\left ( 0 \right )=q_{p\left(x\right)}\left ( index\left(x\right) \right )$ ，至于$q_x$的其他系数随机选择；</li>
 <li>构造属性基加密算法的时候，将叶子节点$z$的值$q_z\left ( 0 \right )$作为属性密钥的有关部件，这样通过拉格朗日插值算法就可以恢复出秘密值（与$y$有关的值）。</li>
 </ul>
-<h4 id="线性秘密共享5"><a href="#线性秘密共享5" class="headerlink" title="线性秘密共享5"></a>线性秘密共享<sup><a href="ref5">5</a></sup></h4><p>令$\mathbb{P}=\left { P_1,P_2,…,P_n \right }$为一系列参与者的集合，$\mathbb{P}$上的一个秘密共享方案$\prod $是线性的，当且仅当满足如下两个条件：</p>
+<h4 id="线性秘密共享5"><a href="#线性秘密共享5" class="headerlink" title="线性秘密共享5"></a>线性秘密共享<sup><a href="ref5">5</a></sup></h4><p>令$\mathbb{P}=\left \{ P_1,P_2,…,P_n \right \}$为一系列参与者的集合，$\mathbb{P}$上的一个秘密共享方案$\prod $是线性的，当且仅当满足如下两个条件：</p>
 <ul>
 <li>每个参与者关于秘密值$s$的份额构成$\mathbb{Z}_{p}$上的一给向量；</li>
-<li>存在一个秘密共享方案$\prod $的分享生成矩阵$M \in \mathbb{Z}<em>{p} ^ {l \times \theta}$，函数$\rho \left ( i \right )$将矩阵的第$i$行映射到一个$U$上的属性，即$\rho \left ( i \right ) \in U, \forall i \in \left [ l \right ]$。给定一个列向量$\overrightarrow{v}=\left ( s,r_2,…,r</em>{\theta} \right )$，其中$s \in \mathbb{Z}<em>{p}$是需要共享的秘密值，$r_2,…,r</em>{\theta}$在$\mathbb{Z}_{p}$上随机选取。$M\overrightarrow{v}$向量是根据秘密共享方案$\prod $的$l$份份额，第$i$份份额$\delta _i = \left ( Mv \right )_i$是属于属性$\rho \left ( i \right )$，即为$M$和$\overrightarrow{v}$的内积。</li>
+<li>存在一个秘密共享方案$\prod $的分享生成矩阵$M \in \mathbb{Z}_{p} ^ {l \times \theta}$，函数$\rho \left ( i \right )$将矩阵的第$i$行映射到一个$U$上的属性，即$\rho \left ( i \right ) \in U, \forall i \in \left [ l \right ]$。给定一个列向量$\overrightarrow{v}=\left ( s,r_2,…,r_{\theta} \right )$，其中$s \in \mathbb{Z}_{p}$是需要共享的秘密值，$r_2,…,r_{\theta}$在$\mathbb{Z}_{p}$上随机选取。$M\overrightarrow{v}$向量是根据秘密共享方案$\prod $的$l$份份额，第$i$份份额$\delta _i = \left ( Mv \right )_i$是属于属性$\rho \left ( i \right )$，即为$M$和$\overrightarrow{v}$的内积。</li>
 </ul>
-<p>线性秘密共享方案具有线性重构的特性。假设一个线性秘密共享方案$\prod $代表一个访问结构，令$A \in \mathbb{A} $表示一个授权的属性集合，索引集合$I \subset  \left { 1,…,l \right }$定义为$I=\left { i:\rho \left ( i \right ) \in A \right }$。根据线性重构的性质，则存在一系列常数的集合$\left { \omega_i \in \mathbb{Z}<em>p  \right }</em>{i \in I}$，使得$s=\sum _{i \in I} \omega _i\delta _i$。而且这些常数能在多项式时间内找到。对于任何非授权的集合，找不到满足条件的一组常数。</p>
+<p>线性秘密共享方案具有线性重构的特性。假设一个线性秘密共享方案$\prod $代表一个访问结构，令$A \in \mathbb{A} $表示一个授权的属性集合，索引集合$I \subset  \left \{ 1,…,l \right \}$定义为$I=\left \{ i:\rho \left ( i \right ) \in A \right \}$。根据线性重构的性质，则存在一系列常数的集合$\left \{ \omega_i \in \mathbb{Z}_p  \right \}_{i \in I}$，使得$s=\sum _{i \in I} \omega _i\delta _i$。而且这些常数能在多项式时间内找到。对于任何非授权的集合，找不到满足条件的一组常数。</p>
 <h4 id="三种访问结构对比"><a href="#三种访问结构对比" class="headerlink" title="三种访问结构对比"></a>三种访问结构对比</h4><p>从访问结构的表达力上说，与门访问结构是比较差的，因为其是属性的与的关系，所以匹配的条件比较严格，由最初的二值属性（有或者没有）在一定程度上拓展了其表达力。访问控制树和线性秘密共享方案是可以等价的，描述的都是单调的访问结构（单调访问结构直观上理解就是，a的属性集合满足访问结构，而a有的属性b都有，那么b的属性集合必然也满足访问结构），能支持与门、或门以及其他门限，因此表达力强一些。文献<sup><a href="ref7">7</a></sup> 描述了由访问控制树如何转化为线性秘密共享的生成矩阵（只含有0,1和-1）。</p>
 <p><span name="ref1" >A. Sahai and B. Waters, “Fuzzy Identity-Based Encryption,” in <em>Proceedings of the 24th annual international conference on Theory and Applications of Cryptographic Techniques</em>, Arahus, Denmark, 2005, pp. 457–473.</span></p>
 <p><span name="ref2" >J. Bethencourt, A. Sahai, and B. Waters, “Ciphertext-Policy Attribute-Based Encryption,” in <em>IEEE Symposium on Security &amp; Privacy</em>, Oakland, USA, May 2007, pp. 321–334.</span></p>
@@ -375,7 +379,7 @@
 
       
           <h4 id="雾计算的概念"><a href="#雾计算的概念" class="headerlink" title="雾计算的概念"></a>雾计算的概念</h4><p>雾计算与云计算相对，是其在边缘网络上的拓展。</p>
-<h4 id="云计算与雾计算的对比"><a href="#云计算与雾计算的对比" class="headerlink" title="云计算与雾计算的对比"></a>云计算与雾计算的对比</h4><p>云计算可以资源共享、弹性资源租用、按需购买，拥有海量存储和丰富的计算能力。由于其部署在互联网的中心，因此离日常中的终端（比如用户手机、智能穿戴设备等）较远，因此形象地称之为云计算（云高高在上，离地面较远）。<br>云计算虽能提供优质的计算、存储等服务，但网络边缘的数据传到云存储中心的链路通常很长，并且同一时间内用户数据传输很多需要很大的网络带宽。云服务器与终端较远会导致网络时延，因而不能满足实时性要求很高的应用场景。另外，云服务器是在网络中心，并不能感知传输到它的数据来源的地理分布，而且不支持移动性。</p>
+<h4 id="云计算与雾计算的对比"><a href="#云计算与雾计算的对比" class="headerlink" title="云计算与雾计算的对比"></a>云计算与雾计算的对比</h4><p>云计算可以资源共享、弹性资源租用、按需购买，拥有海量存储和丰富的计算能力。由于其部署在互联网的中心，因此离日常中的终端（比如用户手机、智能穿戴设备等）较远，因此形象地称之为云计算（云高高在上，离地面较远）。<br>云计算虽能提供优质的计算、存储等服务，但网络边缘的数据传到云存储中心的链路通常很长，并且同一时间内用户数据传输很多需要很大的网络带宽。云服务器与终端较远会导致网络时延，因而不能满足实时性要求很高的应用场景。另外，云服务器是在网络中心，并不能感知传输到它的数据来源的地理分布，而且不支持移动性。<br>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2021/04/05/%E9%9B%BE%E8%AE%A1%E7%AE%97%E4%B8%8E%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/#more" rel="contents">
@@ -608,6 +612,61 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+          load: ['[tex]/mhchem'],
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+          packages: {'[+]': ['mhchem']},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
   <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
@@ -625,7 +684,7 @@
   <!--彩带2.自动飘动-->
       <!-- <script src="https://g.joyinshare.com/hc/piao.js" type="text/javascript"></script> -->
       <script type="text/javascript" src="/js/ribbon_flow.js"></script>
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":140,"height":260},"moblie":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"live2d-widget-model-hijiki"},"display":{"position":"right","width":140,"height":260},"moblie":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
 </html>
 <!-- 引入jQuery -->
 <script type="text/javascript" src="//libs.baidu.com/jquery/1.8.3/jquery.min.js"></script>
