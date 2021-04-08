@@ -4,6 +4,7 @@
     <title>模糊身份基加密</title>
     <url>/2021/04/08/%E6%A8%A1%E7%B3%8A%E8%BA%AB%E4%BB%BD%E5%9F%BA%E5%8A%A0%E5%AF%86/</url>
     <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>属性基加密<sup><a href="ref1">1</a></sup> （ABE）的思想来源于模糊身份基加密<sup><a href="ref2">2</a></sup> （FIBE），那么在深入了解属性基加密之前，我们先来认识一下模糊身份基加密。模糊身份基加密的主要思想是：用户用一系列的属性$\omega $表示，密文用一系列的属性${\omega }’$表示，系统设定一个容忍值$d$，当二者属性的相交个数大于$d$，即$|{\omega }’\cap \omega|\geq d$时，方能解密成功。</p>
+<p>&lt;—!more—&gt;</p>
 <h4 id="双线性映射"><a href="#双线性映射" class="headerlink" title="双线性映射"></a>双线性映射</h4><p>双线性映射是基于Diffie-Hellman难题构建属性基加密算法的数学基础，此处的模糊身份基加密也用到了该数学基础。</p>
 <p>令$\mathbb{G}_1,\mathbb{G}_2$为两个阶为$p$的乘法循环群，$g$为$\mathbb{G}_1$的生成元，一个从$\mathbb{G}_1$到$\mathbb{G}_2$的映射$e:\mathbb{G}_1 \times \mathbb{G}_1\rightarrow  \mathbb{G}_2$是双线性的，当其满足以下三点：</p>
 <ul>
@@ -21,9 +22,9 @@ t_1,...t_{|U|},y.</script><h5 id="Key-Generation"><a href="#Key-Generation" clas
 E=\left ( {\omega}',{E}'=MY^s,\left \{ E_i =T_i^s\right \}_{i \in {\omega}'} \right ).</script><h5 id="Decryption"><a href="#Decryption" class="headerlink" title="Decryption"></a>Decryption</h5><p>假设用户的属性集合与蕴含在密文中的属性集合相交的属性个数多于$d$，即$|{\omega }’\cap \omega|\geq d$，那么他能按照如下方式成功解密。首先在属性交集${\omega }’\cap \omega$中任意选择$d$个属性集合$S$，然后根据拉格朗日插值算法，可以解密密文：</p>
 <script type="math/tex; mode=display">
 \begin {equation}
-{E}'/\prod _{i \in S}\left ( e\left ( D_i,E_i \right ) \right )^{\Delta_{i,S}\left ( 0 \right )} \\
-=Me\left ( g,g \right )^{sy}/ \prod _{i \in S}\left ( e\left ( g^{\frac{q\left ( i \right )}{t_i}},g^{st_i} \right ) \right )^{\Delta_{i,S}\left ( 0 \right )}\\
-=Me\left ( g,g \right )^{sy}/ \prod _{i \in S}\left ( e\left ( g,g \right )^{sq\left ( i \right )} \right )^{\Delta_{i,S}\left ( 0 \right )}\\
+{E}'/\prod _{i \in S}\left ( e\left ( D_i,E_i \right ) \right )^{\Delta_{i,S}\left ( 0 \right )} ||
+=Me\left ( g,g \right )^{sy}/ \prod _{i \in S}\left ( e\left ( g^{\frac{q\left ( i \right )}{t_i}},g^{st_i} \right ) \right )^{\Delta_{i,S}\left ( 0 \right )} ||
+=Me\left ( g,g \right )^{sy}/ \prod _{i \in S}\left ( e\left ( g,g \right )^{sq\left ( i \right )} \right )^{\Delta_{i,S}\left ( 0 \right )} ||
 =M
 \end {equation}</script><p>其中$\Delta_{i,S}\left ( 0 \right )$为拉格朗日系数的0值，$\Delta_{i,S}\left ( x \right ) = \prod _{j \in S,j\neq i}\frac{x-j}{i-j}$。</p>
 <h4 id="安全性证明"><a href="#安全性证明" class="headerlink" title="安全性证明"></a>安全性证明</h4><p>密码学中构建方案，通常将方案的安全性规约到某个数学困难问题，用反证法的思想，当难题是困难的，那么攻破方案就是困难的。FIBE方案是在选择身份模型下将方案规约到MBDH问题。以下描述模糊选择身份模型（Selective-ID模型，属性基加密中为Selective-Set模型）：</p>
@@ -35,9 +36,9 @@ E=\left ( {\omega}',{E}'=MY^s,\left \{ E_i =T_i^s\right \}_{i \in {\omega}'} \ri
 <p><strong>Guess</strong> 攻击者给出$b$的猜想${b}’$。</p>
 <p>以上游戏中攻击者的优势定义为$Pr\left [ {b}’=b \right ]-\frac{1}{2}$。</p>
 <p>以后会发现证明安全性的时候，以上攻击者和挑战者的游戏经常看到。在这里就不细讲证明的过程，后面会专门写一篇文章介绍方案的安全性证明。从FIBE的构造来看，主要运用的数学技巧是双线性映射和拉格朗日插值。这两个数学技巧是构建属性基加密方案的基础，FIBE只是用了一次插值，而前面介绍的访问控制树结构本质上是多次运用拉格朗日插值，然后构造成一个访问结构供方案使用，还有一些分层的FIBE（可以理解为分层的门限属性基加密），也是多次运用拉格朗日插值，比如文献<sup><a href="ref3">3</a></sup> 等。</p>
-<p><span name="ref1" >J. Bethencourt, A. Sahai, and B. Waters, “Ciphertext-Policy Attribute-<br>Based Encryption,” in <em>IEEE Symposium on Security &amp; Privacy</em>, Oakland,<br>USA, May 2007, pp. 321–334.</span></p>
-<p><span name="ref2" >A. Sahai and B. Waters, “Fuzzy Identity-Based Encryption,” in <em>Proceedings<br>of the 24th annual international conference on Theory and Applications<br>of Cryptographic Techniques</em>, Arahus, Denmark, 2005, pp. 457–473.</span></p>
-<p><span name="ref3">M. Chase, ‘‘Multi-Authority Attribute Based Encryption,’’ in <em>Proceedings of 4th Theory of Cryptography Conference on Theory of Cryptography (TCC’07)</em>, 2007, pp. 515-534.</span></p>
+<p><span name="ref1" >J. Bethencourt, A. Sahai, and B. Waters, “Ciphertext-Policy Attribute-Based Encryption,” in <em>IEEE Symposium on Security &amp; Privacy</em>, Oakland, USA, May 2007, pp. 321–334.</span></p>
+<p><span name="ref2" >A. Sahai and B. Waters, “Fuzzy Identity-Based Encryption,” in <em>Proceedings of the 24th annual international conference on Theory and Applications of Cryptographic Techniques</em>, Arahus, Denmark, 2005, pp. 457–473.</span></p>
+<p><span name="ref3">M. Chase, “Multi-Authority Attribute Based Encryption,” in <em>Proceedings of 4th Theory of Cryptography Conference on Theory of Cryptography (TCC’07)</em>, 2007, pp. 515-534.</span></p>
 ]]></content>
       <categories>
         <category>属性基加密</category>
