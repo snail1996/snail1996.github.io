@@ -30,7 +30,7 @@
 <meta property="og:description" content="引言属性基加密1 （ABE）的思想来源于模糊身份基加密2 （FIBE），那么在深入了解属性基加密之前，我们先来认识一下模糊身份基加密。模糊身份基加密的主要思想是：用户用一系列的属性$\omega $表示，密文用一系列的属性${\omega }’$表示，系统设定一个容忍值$d$，当二者属性的相交个数大于$d$，即$|{\omega }’\cap \omega|\geq d$时，方能解密成功。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-04-08T12:36:41.000Z">
-<meta property="article:modified_time" content="2021-04-08T13:05:43.733Z">
+<meta property="article:modified_time" content="2021-04-08T13:11:23.822Z">
 <meta property="article:author" content="Xianbin Zhou">
 <meta property="article:tag" content="属性基加密">
 <meta property="article:tag" content="访问结构">
@@ -222,7 +222,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2021-04-08 20:36:41 / 修改时间：21:05:43" itemprop="dateCreated datePublished" datetime="2021-04-08T20:36:41+08:00">2021-04-08</time>
+              <time title="创建时间：2021-04-08 20:36:41 / 修改时间：21:11:23" itemprop="dateCreated datePublished" datetime="2021-04-08T20:36:41+08:00">2021-04-08</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -288,12 +288,12 @@ t_1,...t_{|U|},y.</script><h5 id="Key-Generation"><a href="#Key-Generation" clas
 <script type="math/tex; mode=display">
 E=\left ( {\omega}',{E}'=MY^s,\left \{ E_i =T_i^s\right \}_{i \in {\omega}'} \right ).</script><h5 id="Decryption"><a href="#Decryption" class="headerlink" title="Decryption"></a>Decryption</h5><p>假设用户的属性集合与蕴含在密文中的属性集合相交的属性个数多于$d$，即$|{\omega }’\cap \omega|\geq d$，那么他能按照如下方式成功解密。首先在属性交集${\omega }’\cap \omega$中任意选择$d$个属性集合$S$，然后根据拉格朗日插值算法，可以解密密文：</p>
 <script type="math/tex; mode=display">
-\begin {eqnarray}
+\begin {align}
 {E}'/\prod _{i \in S}\left ( e\left ( D_i,E_i \right ) \right )^{\Delta_{i,S}\left ( 0 \right )} \nonumber \\
 =Me\left ( g,g \right )^{sy}/ \prod _{i \in S}\left ( e\left ( g^{\frac{q\left ( i \right )}{t_i}},g^{st_i} \right ) \right )^{\Delta_{i,S}\left ( 0 \right )} \nonumber \\
 =Me\left ( g,g \right )^{sy}/ \prod _{i \in S}\left ( e\left ( g,g \right )^{sq\left ( i \right )} \right )^{\Delta_{i,S}\left ( 0 \right )} \nonumber \\
 =M
-\end {eqnarray}</script><p>其中$\Delta_{i,S}\left ( 0 \right )$为拉格朗日系数的0值，$\Delta_{i,S}\left ( x \right ) = \prod _{j \in S,j\neq i}\frac{x-j}{i-j}$。</p>
+\end {align}  \nonumber</script><p>其中$\Delta_{i,S}\left ( 0 \right )$为拉格朗日系数的0值，$\Delta_{i,S}\left ( x \right ) = \prod _{j \in S,j\neq i}\frac{x-j}{i-j}$。</p>
 <h4 id="安全性证明"><a href="#安全性证明" class="headerlink" title="安全性证明"></a>安全性证明</h4><p>密码学中构建方案，通常将方案的安全性规约到某个数学困难问题，用反证法的思想，当难题是困难的，那么攻破方案就是困难的。FIBE方案是在选择身份模型下将方案规约到MBDH问题。以下描述模糊选择身份模型（Selective-ID模型，属性基加密中为Selective-Set模型）：</p>
 <p><strong>Init</strong> 攻击者声明想要挑战的身份$\alpha $（即一个属性集合）。</p>
 <p><strong>Setup</strong> 挑战者运行系统的Setup算法生成系统参数，将公共参数告诉攻击者。</p>
