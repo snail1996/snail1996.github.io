@@ -22,30 +22,34 @@
     var CONFIG = {"hostname":"snail1996.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":false,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="My universe will never be the same!">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Blog of Firstfrozen">
-<meta property="og:url" content="https://snail1996.github.io/index.html">
+  <meta name="description" content="引言千呼万唤，在前面的一些知识的铺垫中，终于引来了我们的主角：属性基加密（ABE）。都知道属性基加密的思想是让密文和密钥与属性集合和访问结构产生关联，当且仅当属性集合满足访问结构的时候，方能解密成功。那么根据这其中两两的对应关系，又可以将属性基加密分为两类，即密钥策略属性基加密1（KP-ABE）和密文策略属性基加密2（CP-ABE）。  KP-ABE: 用户的密钥中蕴含访问结构（访问策略），密文中">
+<meta property="og:type" content="article">
+<meta property="og:title" content="密文策略属性基加密">
+<meta property="og:url" content="https://snail1996.github.io/2021/04/09/%E5%AF%86%E6%96%87%E7%AD%96%E7%95%A5%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/index.html">
 <meta property="og:site_name" content="Blog of Firstfrozen">
-<meta property="og:description" content="My universe will never be the same!">
+<meta property="og:description" content="引言千呼万唤，在前面的一些知识的铺垫中，终于引来了我们的主角：属性基加密（ABE）。都知道属性基加密的思想是让密文和密钥与属性集合和访问结构产生关联，当且仅当属性集合满足访问结构的时候，方能解密成功。那么根据这其中两两的对应关系，又可以将属性基加密分为两类，即密钥策略属性基加密1（KP-ABE）和密文策略属性基加密2（CP-ABE）。  KP-ABE: 用户的密钥中蕴含访问结构（访问策略），密文中">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-04-09T14:08:55.000Z">
+<meta property="article:modified_time" content="2021-04-09T14:11:18.555Z">
 <meta property="article:author" content="Xianbin Zhou">
+<meta property="article:tag" content="属性基加密">
+<meta property="article:tag" content="访问结构">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://snail1996.github.io/">
+<link rel="canonical" href="https://snail1996.github.io/2021/04/09/%E5%AF%86%E6%96%87%E7%AD%96%E7%95%A5%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : true,
-    isPost : false,
+    isHome : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>Blog of Firstfrozen</title>
+  <title>密文策略属性基加密 | Blog of Firstfrozen</title>
   
 
 
@@ -187,9 +191,10 @@
         <div class="content-wrap">
           
 
-          <div class="content index posts-expand">
+          <div class="content post posts-expand">
             
-      
+
+    
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
@@ -205,10 +210,9 @@
       <meta itemprop="name" content="Blog of Firstfrozen">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/04/09/%E5%AF%86%E6%96%87%E7%AD%96%E7%95%A5%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/" class="post-title-link" itemprop="url">密文策略属性基加密</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          密文策略属性基加密
+        </h1>
 
         <div class="post-meta">
             <span class="post-meta-item">
@@ -230,7 +234,14 @@
                 </span>
             </span>
 
-          <br>
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
             <span class="post-meta-item" title="本文字数">
               <span class="post-meta-item-icon">
                 <i class="far fa-file-word"></i>
@@ -255,7 +266,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>千呼万唤，在前面的一些知识的铺垫中，终于引来了我们的主角：属性基加密（ABE）。都知道属性基加密的思想是让密文和密钥与属性集合和访问结构产生关联，当且仅当属性集合满足访问结构的时候，方能解密成功。那么根据这其中两两的对应关系，又可以将属性基加密分为两类，即密钥策略属性基加密<sup><a href="ref1">1</a></sup>（KP-ABE）和密文策略属性基加密<sup><a href="ref2">2</a></sup>（CP-ABE）。</p>
+        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>千呼万唤，在前面的一些知识的铺垫中，终于引来了我们的主角：属性基加密（ABE）。都知道属性基加密的思想是让密文和密钥与属性集合和访问结构产生关联，当且仅当属性集合满足访问结构的时候，方能解密成功。那么根据这其中两两的对应关系，又可以将属性基加密分为两类，即密钥策略属性基加密<sup><a href="ref1">1</a></sup>（KP-ABE）和密文策略属性基加密<sup><a href="ref2">2</a></sup>（CP-ABE）。</p>
 <ul>
 <li><strong>KP-ABE:</strong> 用户的密钥中蕴含访问结构（访问策略），密文中对应着一系列属性集合，当且仅当密文的属性集合满足用户密钥的访问结构时，用户才能解密成功。细想下来，用户是主体，只有特定的密文才能与之匹配，从而解密。</li>
 <li><strong>CP-ABE:</strong> 用户的密钥对应着一系列属性的集合，密文中蕴含着访问结构（策略），当且仅当用户的属性集合满足密文的访问结构时，用户才能解密成功。细想下来，密文是主体，只有特定的密钥才能与之匹配，从而解密。</li>
@@ -328,305 +339,44 @@ A = DecryptNode(CT,SK,r)=e(g,g)^{rq_R(0)} = e(g,g)^{rs}.</script><p>最后即可
 <p><span name="ref1" >V. Goyal, O. Pandey, A. Sahai, and B. Waters, “Attribute-Based Encryption for Fine-grained Access Control of Encrypted Data,” in <em>Proceedings of the 13th ACM Conference on Computer and Communications Security</em>, Alexandria, Virginia, USA, 2006, pp. 89–98.</span></p>
 <p><span name="ref2" >J. Bethencourt, A. Sahai, and B. Waters, “Ciphertext-Policy Attribute-Based Encryption,” in <em>IEEE Symposium on Security &amp; Privacy</em>, Oakland, USA, May 2007, pp. 321–334.</span></p>
 
-      
     </div>
 
     
     
     
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://snail1996.github.io/2021/04/08/%E6%A8%A1%E7%B3%8A%E8%BA%AB%E4%BB%BD%E5%9F%BA%E5%8A%A0%E5%AF%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Xianbin Zhou">
-      <meta itemprop="description" content="My universe will never be the same!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog of Firstfrozen">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/04/08/%E6%A8%A1%E7%B3%8A%E8%BA%AB%E4%BB%BD%E5%9F%BA%E5%8A%A0%E5%AF%86/" class="post-title-link" itemprop="url">模糊身份基加密</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-04-08 20:36:41 / 修改时间：21:17:46" itemprop="dateCreated datePublished" datetime="2021-04-08T20:36:41+08:00">2021-04-08</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/" itemprop="url" rel="index"><span itemprop="name">属性基加密</span></a>
-                </span>
-                  ，
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/%E8%BA%AB%E4%BB%BD%E5%9F%BA%E5%8A%A0%E5%AF%86/" itemprop="url" rel="index"><span itemprop="name">身份基加密</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>3.1k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>3 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>属性基加密<sup><a href="ref1">1</a></sup> （ABE）的思想来源于模糊身份基加密<sup><a href="ref2">2</a></sup> （FIBE），那么在深入了解属性基加密之前，我们先来认识一下模糊身份基加密。模糊身份基加密的主要思想是：用户用一系列的属性$\omega $表示，密文用一系列的属性${\omega }’$表示，系统设定一个容忍值$d$，当二者属性的相交个数大于$d$，即$|{\omega }’\cap \omega|\geq d$时，方能解密成功。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/04/08/%E6%A8%A1%E7%B3%8A%E8%BA%AB%E4%BB%BD%E5%9F%BA%E5%8A%A0%E5%AF%86/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
+      <div>
         
-      
-    </div>
-
+          <div>
     
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
     
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://snail1996.github.io/2021/04/07/%E8%AE%BF%E9%97%AE%E7%BB%93%E6%9E%84/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Xianbin Zhou">
-      <meta itemprop="description" content="My universe will never be the same!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog of Firstfrozen">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/04/07/%E8%AE%BF%E9%97%AE%E7%BB%93%E6%9E%84/" class="post-title-link" itemprop="url">访问结构</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-04-07 21:29:28" itemprop="dateCreated datePublished" datetime="2021-04-07T21:29:28+08:00">2021-04-07</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-04-08 21:12:57" itemprop="dateModified" datetime="2021-04-08T21:12:57+08:00">2021-04-08</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/" itemprop="url" rel="index"><span itemprop="name">属性基加密</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>5.2k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>5 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>属性基加密算法（Attribute Based Encryption）是一种特殊的身份及加密算法，身份及加密算法将任何能唯一代表用户身份的信息作为公钥，这样一来大大降低了公钥管理的难度，而属性基加密将用户的身份表示为一系列的属性的集合，当且仅当属性集合满足访问结构时，才能解密成功。<br>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/04/07/%E8%AE%BF%E9%97%AE%E7%BB%93%E6%9E%84/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
+</div>
         
-      
-    </div>
+      </div>
 
-    
-    
-    
       <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
+          <div class="post-tags">
+              <a href="/tags/%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/" rel="tag"># 属性基加密</a>
+              <a href="/tags/%E8%AE%BF%E9%97%AE%E7%BB%93%E6%9E%84/" rel="tag"># 访问结构</a>
+          </div>
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://snail1996.github.io/2021/04/05/%E9%9B%BE%E8%AE%A1%E7%AE%97%E4%B8%8E%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Xianbin Zhou">
-      <meta itemprop="description" content="My universe will never be the same!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Blog of Firstfrozen">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/04/05/%E9%9B%BE%E8%AE%A1%E7%AE%97%E4%B8%8E%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/" class="post-title-link" itemprop="url">雾计算与属性基加密</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-04-05 10:50:36" itemprop="dateCreated datePublished" datetime="2021-04-05T10:50:36+08:00">2021-04-05</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-04-08 21:12:35" itemprop="dateModified" datetime="2021-04-08T21:12:35+08:00">2021-04-08</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/" itemprop="url" rel="index"><span itemprop="name">属性基加密</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>2.1k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>2 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h4 id="雾计算的概念"><a href="#雾计算的概念" class="headerlink" title="雾计算的概念"></a>雾计算的概念</h4><p>雾计算与云计算相对，是其在边缘网络上的拓展。</p>
-<h4 id="云计算与雾计算的对比"><a href="#云计算与雾计算的对比" class="headerlink" title="云计算与雾计算的对比"></a>云计算与雾计算的对比</h4><p>云计算可以资源共享、弹性资源租用、按需购买，拥有海量存储和丰富的计算能力。由于其部署在互联网的中心，因此离日常中的终端（比如用户手机、智能穿戴设备等）较远，因此形象地称之为云计算（云高高在上，离地面较远）。<br>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/04/05/%E9%9B%BE%E8%AE%A1%E7%AE%97%E4%B8%8E%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
         
-      
-    </div>
 
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/04/08/%E6%A8%A1%E7%B3%8A%E8%BA%AB%E4%BB%BD%E5%9F%BA%E5%8A%A0%E5%AF%86/" rel="prev" title="模糊身份基加密">
+      <i class="fa fa-chevron-left"></i> 模糊身份基加密
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
       </footer>
+    
   </article>
   
   
-  
-
-
   
 
 
@@ -679,6 +429,7 @@ A = DecryptNode(CT,SK,r)=e(g,g)^{rq_R(0)} = e(g,g)^{rs}.</script><p>最后即可
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%95%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%89%E5%85%A8%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">安全模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#FIBE%E5%85%B7%E4%BD%93%E6%9E%84%E9%80%A0"><span class="nav-number">3.</span> <span class="nav-text">FIBE具体构造</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Setup"><span class="nav-number">3.1.</span> <span class="nav-text">Setup</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Encrypt-PK-M-mathcal-T"><span class="nav-number">3.2.</span> <span class="nav-text">Encrypt($PK,M,\mathcal{T}$)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#KeyGen-MK-S"><span class="nav-number">3.3.</span> <span class="nav-text">KeyGen($MK,S$)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Delegate-SK-widetilde-S"><span class="nav-number">3.4.</span> <span class="nav-text">Delegate($SK,\widetilde{S}$)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Decrypt-CT-SK"><span class="nav-number">3.5.</span> <span class="nav-text">Decrypt($CT,SK$)</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -891,16 +642,6 @@ A = DecryptNode(CT,SK,r)=e(g,g)^{rq_R(0)} = e(g,g)^{rs}.</script><p>最后即可
     
 
   
-  <script src="//cdn.jsdelivr.net/npm/quicklink@1/dist/quicklink.umd.js"></script>
-  <script>
-      window.addEventListener('load', () => {
-      quicklink({
-        timeout : 3000,
-        priority: true,
-        ignores : [uri => uri.includes('#'),uri => uri === 'https://snail1996.github.io/',]
-      });
-      });
-  </script>
 
   
   <!--彩带2.自动飘动-->
