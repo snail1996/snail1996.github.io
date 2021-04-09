@@ -218,7 +218,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2021-04-09 22:08:55 / 修改时间：22:11:18" itemprop="dateCreated datePublished" datetime="2021-04-09T22:08:55+08:00">2021-04-09</time>
+              <time title="创建时间：2021-04-09 22:08:55 / 修改时间：22:19:40" itemprop="dateCreated datePublished" datetime="2021-04-09T22:08:55+08:00">2021-04-09</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -255,79 +255,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>千呼万唤，在前面的一些知识的铺垫中，终于引来了我们的主角：属性基加密（ABE）。都知道属性基加密的思想是让密文和密钥与属性集合和访问结构产生关联，当且仅当属性集合满足访问结构的时候，方能解密成功。那么根据这其中两两的对应关系，又可以将属性基加密分为两类，即密钥策略属性基加密<sup><a href="ref1">1</a></sup>（KP-ABE）和密文策略属性基加密<sup><a href="ref2">2</a></sup>（CP-ABE）。</p>
-<ul>
-<li><strong>KP-ABE:</strong> 用户的密钥中蕴含访问结构（访问策略），密文中对应着一系列属性集合，当且仅当密文的属性集合满足用户密钥的访问结构时，用户才能解密成功。细想下来，用户是主体，只有特定的密文才能与之匹配，从而解密。</li>
-<li><strong>CP-ABE:</strong> 用户的密钥对应着一系列属性的集合，密文中蕴含着访问结构（策略），当且仅当用户的属性集合满足密文的访问结构时，用户才能解密成功。细想下来，密文是主体，只有特定的密钥才能与之匹配，从而解密。</li>
-</ul>
-<p>二者对比可以发现，CP-ABE中数据拥有者（加密明文得到密文的人）可以根据自己的需求，定义合适的访问结构，让他所期待的一群用户能够解密，这正好适合构建云环境或者雾环境中数据的安全共享方案，描述的是一对多、多对多的数据共享场景。因此下面着重介绍CP-ABE（后面的文章也都是CP-ABE方案）。</p>
-<h4 id="安全模型"><a href="#安全模型" class="headerlink" title="安全模型"></a>安全模型</h4><p><strong>Setup</strong> 挑战者运行Setup算法，将系统的公共参数$PK$给攻击者。</p>
-<p><strong>Phase 1</strong>攻击者对一系列的属性集合$S_1,S_2,…,S_{q_1}$进行密钥问询。</p>
-<p><strong>Challenge</strong>攻击者提交两个等长的明文$M_0$和$M_1$，此外，攻击者提交一个他希望挑战的访问结构$\mathbb{A}^+$，其中要求Phase 1阶段问询的属性集合$S_1,S_2,…,S_{q_1}$都不满足访问结构$\mathbb{A}^+$。挑战者抛掷一枚硬币$b \in \left \{ 0,1 \right \}$，然后用$\mathbb{A}^+$加密$M_b$。最后，挑战者将密文$CT^+$交给攻击者。</p>
-<p><strong>Phase 2 </strong> Phase 1阶段重复，但是问询的属性集合$S_{q_1+1},…,S_q$还是不能满足访问结构$\mathbb{A}^+$。</p>
-<p><strong>Guess</strong> 攻击者给出$b$的猜想$b^\prime$。</p>
-<p>定义上述交互游戏中攻击者的优势为$Pr\left [ {b}’-b \right ]=\frac{1}{2}$。</p>
-<p>上述的攻击者和挑战者的游戏在模糊身份基加密中有所介绍，但是不同的是：模糊身份基加密中是选择身份模型（selective-ID），而属性基加密中是选择集合模型（selective-set）。而且上述模型有两个地方需要注意：</p>
-<ul>
-<li>以上模型没有Init阶段（在模糊身份基加密的模型中有init阶段），称之为选择明文攻击下不可区分安全（IND-CPA）。如果在Init阶段攻击者声明想要挑战的访问结构，则称之为选择安全模型。很显然，选择安全模型描述的安全性弱一些。</li>
-<li>若是在Phase 1阶段还适应性地查询密文，则称之为适应性选择密文攻击安全模型1（CCA1），若是继续在Phase 2阶段还适应性地查询密文，则称之为适应性选择密文攻击安全模型2（CCA2)。很显然，就安全性而言，IND-CPA、CCA1、CCA2依次增强。</li>
-</ul>
-<h4 id="FIBE具体构造"><a href="#FIBE具体构造" class="headerlink" title="FIBE具体构造"></a>FIBE具体构造</h4><h5 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a><strong>Setup</strong></h5><p>系统选择双线性群$\mathbb{G}_0$，阶数为$p$，生成元为$g$。然后随机选择两个指数$\alpha ,\beta \in \mathbb{Z}_p$，系统公开参数为：</p>
-<script type="math/tex; mode=display">
-PK=\left ( \mathbb{G}_0,g,h=g^\beta ,f=g^{1/\beta },e\left ( g,g \right )^\alpha  \right ).</script><p>主密钥为：$MK=\left ( \beta ,g^\alpha  \right )$。</p>
-<h5 id="Encrypt-PK-M-mathcal-T"><a href="#Encrypt-PK-M-mathcal-T" class="headerlink" title="Encrypt($PK,M,\mathcal{T}$)"></a>Encrypt($PK,M,\mathcal{T}$)</h5><p>用访问控制树$\mathcal{T}$对消息$M$进行加密，具体过程如下：</p>
-<p>针对树$\mathcal{T}$中的每一个节点$x$（包括联系属性的叶子节点），选择一个与之对应的多项式$q_x$。多项式$q_x$的的最高次数为$d_x=k_x-1$。</p>
-<p>多项式的选取遵循由根节点到叶子节点（从上到下）的方式。从根节点$R$开始，选择秘密值$s \in \mathbb{Z}_p$，并设置$q_R \left(0 \right)=s$，然后随机选择其他项的次数。对于其他节点$x$，递归的设置$q_x \left( 0 \right) = q_{p\left(x \right)} \left(index\left(x \right) \right)$，至于$q_x$的其他系数随机选择。</p>
-<p>记$Y$为树$\mathcal{T}$的叶子节点的集合，然后密文可以表示为：</p>
-<script type="math/tex; mode=display">
-CT=\left( \mathcal{T}, \widetilde{C}=Me\left ( g,g \right )^{\alpha s},C=h^s,\forall j \in S:C_y=g^{q_y \left(0 \right )},
-C_y^\prime=H \left(att \left(y \right) \right) ^ {q_y \left( 0  \right )} \right).</script><p>其中，$att \left(y \right)$表示的是叶子节点$y$对应的属性，$H \left( \right)$表示将属性映射到$\mathbb{G}_0$。</p>
-<h5 id="KeyGen-MK-S"><a href="#KeyGen-MK-S" class="headerlink" title="KeyGen($MK,S$)"></a>KeyGen($MK,S$)</h5><p>给定一个用户的属性集合$S$，输出对应的密钥$SK$，具体如下：</p>
-<p>随机选择$r \in \mathbb{Z}_p$，对于$\forall j \in S$， 随机选择$r_j \in \mathbb{Z}_p$，然后计算密钥如下：</p>
-<script type="math/tex; mode=display">
-SK=\left( D=g^{\left(\alpha +r \right)/\beta}, \forall j \in S: D_j=g^r\cdot H(j)^{r_j}, D_j^\prime=g^{r_j} \right).</script><h5 id="Delegate-SK-widetilde-S"><a href="#Delegate-SK-widetilde-S" class="headerlink" title="Delegate($SK,\widetilde{S}$)"></a>Delegate($SK,\widetilde{S}$)</h5><p>这个算法的作用是给属性比自己少的用户生成密钥（Delegate字面意思为委派，相当于自己得到密钥后，成了一个“小”的密钥产生中心（KGC）），具体过程如下：</p>
-<p>给定另一个属性集合$\widetilde{S}$，满足$\widetilde{S} \subseteq S$。由于已经知道了$S$对应的密钥$SK=(D,\forall j \in S: D_j, D_j^\prime)$，则在此基础上随机选择$\widetilde{r} \in \mathbb{Z}_p$，对于$\forall k \in \widetilde{S}$， 随机选择$\widetilde{r}_k \in \mathbb{Z}_p$，产生$\widetilde{S}$对应的密钥如下：</p>
-<script type="math/tex; mode=display">
-\widetilde{SK}=(\widetilde{D}=Df^{\widetilde{r}},\forall k \in \widetilde{S}:
-\widetilde{D}_k=D_kg^{\widetilde{r}}H(k)^{\widetilde{r}_k},\widetilde{D}_k^\prime=D_k^\prime g^{\widetilde{r}_k}).</script><h5 id="Decrypt-CT-SK"><a href="#Decrypt-CT-SK" class="headerlink" title="Decrypt($CT,SK$)"></a>Decrypt($CT,SK$)</h5><p>密文的形式为：</p>
-<script type="math/tex; mode=display">
-CT=\left( \mathcal{T}, \widetilde{C}=Me\left ( g,g \right )^{\alpha s},C=h^s,\forall j \in S:C_y=g^{q_y \left(0 \right )},C_y^\prime=H \left(att \left(y \right) \right) ^ {q_y \left( 0  \right )} \right).</script><p>密钥的形式为：</p>
-<script type="math/tex; mode=display">
-SK=\left( D=g^{\left(\alpha +r \right)/\beta}, \forall j \in S: D_j=g^r\cdot H(j)^{r_j}, D_j^\prime=g^{r_j} \right).</script><p>首先定义一个递归的函数$DecryptNode(CT,SK,x)$（由下到上）:</p>
-<ul>
-<li><p>如果$x$为叶子节点，记$i=att(x)$。</p>
-<ul>
-<li><p>若$i \in S$（用户拥有属性$i$），则</p>
-<script type="math/tex; mode=display">
-DecryptNode(CT,SK,x) = \frac{e(D_i, C_x)}{e(D_i^\prime , C_x^ \prime)}= \frac{e(g^r \cdot H(x)^{r_i}, h^{q_x(0)})}{e(g^{r_i} , H(i)^{q_x(0)})} = e(g,g)^{rq_x(0)}.</script></li>
-<li><p>若$i \notin S$，则定义$DecryptNode(CT,SK,x) =\perp $。</p>
-</li>
-</ul>
-</li>
-<li><p>如果$x$为非叶子节点，则$DecryptNode(CT,SK,x)$的计算规则如下：</p>
-<ul>
-<li><p>对于$x$节点的所有孩子节点$z$，调用$F_z = DecryptNode(CT,SK,z)$函数，记$F_z \neq \perp $的所有节点的集合为$S^ \prime$，若$|S^ \prime|&lt;k_x$，则$DecryptNode(CT,SK,x) =\perp $。</p>
-</li>
-<li><p>相反的话，则选取$S^ \prime$集合中任意$k_x$个元素组成集合$S_x$，按如下方式计算$DecryptNode(CT,SK,x)$：</p>
-<script type="math/tex; mode=display">
-\begin{align}
-F_z=\prod _{z \in S_x} F_z ^{\Delta _{i,S_x^ \prime} (0)} \nonumber
-=\prod _{z \in S_x} (e(g,g) ^ {rq_z(0)}) ^ {\Delta _{i,S_x^ \prime} (0)} \nonumber
-=\prod _{z \in S_x} (e(g,g) ^ {rq_{p(z)}(index(z))}) ^ {\Delta _{i,S_x^ \prime} (0)} \nonumber
-=\prod _{z \in S_x} (e(g,g)  ^ {r \cdot q_x(i) \cdot \Delta _{i,S_x^ \prime} (0)} \nonumber
-=e(g,g)^{rq_x(0)}.\nonumber
-\end{align}</script></li>
-</ul>
-</li>
-</ul>
-<p>从递归函数的形式上看，尽管叶子节点和非叶子节点的具体计算方式不一样，但是有着统一的形式，因此只要能够依次满足条件地计算出树中适当个数的节点秘密值，就可以解密根节点的秘密值。即当属性集合$S$满足访问结构$\mathcal{T}$，那么就可以解密得到:</p>
-<script type="math/tex; mode=display">
-A = DecryptNode(CT,SK,r)=e(g,g)^{rq_R(0)} = e(g,g)^{rs}.</script><p>最后即可解密成功：</p>
-<script type="math/tex; mode=display">
-\widetilde{C}/(e(C,D)/A) = \widetilde{C}/(e(h^s,g^{((\alpha + r)/\beta )})/e(g,g)^{rs}) = M.</script><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>以上便是最初的CP-ABE方案的构造，访问结构由访问控制树的形式给出，方案中除了基本的系统初始化、密钥生成、加密和解密四个步骤外，还有一个密钥“委派”的步骤，这个可能是受分层身份基加密（HIBE)的影响。文中抵抗共谋攻击的方式是靠随机数$r$，对于每一个用户都会有一个不同的$r$，从递归函数$DecryptNode$可以看出每一步计算都有$r$项参与，如果没有足够多的项是无法解密根节点的秘密值，进而无法解密密文，而不同的$r$得到的结果不能进行拉格朗日插值，算出结果。以后的ABE方案侧重于用户撤销、属性撤销、多个属性权威等等安全需求，这些在之后的文章中有介绍。</p>
-<p><span name="ref1" >V. Goyal, O. Pandey, A. Sahai, and B. Waters, “Attribute-Based Encryption for Fine-grained Access Control of Encrypted Data,” in <em>Proceedings of the 13th ACM Conference on Computer and Communications Security</em>, Alexandria, Virginia, USA, 2006, pp. 89–98.</span></p>
-<p><span name="ref2" >J. Bethencourt, A. Sahai, and B. Waters, “Ciphertext-Policy Attribute-Based Encryption,” in <em>IEEE Symposium on Security &amp; Privacy</em>, Oakland, USA, May 2007, pp. 321–334.</span></p>
-
+          <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>千呼万唤，在前面的一些知识的铺垫中，终于引来了我们的主角：属性基加密（ABE）。都知道属性基加密的思想是让密文和密钥与属性集合和访问结构产生关联，当且仅当属性集合满足访问结构的时候，方能解密成功。那么根据这其中两两的对应关系，又可以将属性基加密分为两类，即密钥策略属性基加密<sup><a href="ref1">1</a></sup>（KP-ABE）和密文策略属性基加密<sup><a href="ref2">2</a></sup>（CP-ABE）。<br>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/04/09/%E5%AF%86%E6%96%87%E7%AD%96%E7%95%A5%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
