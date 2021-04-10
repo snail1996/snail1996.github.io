@@ -1,6 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>ABE-2EPSR</title>
+    <url>/2021/04/10/ABE-2EPSR/</url>
+    <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>本文主要介绍CP-ABE的两种具体实现，这个实现是在Waters大佬<sup><a href="ref1">1</a></sup>（你一定不陌生，因为前面谈到FIBE、KP-ABE还有CP-ABE都有他的身影）的论文里的。正如论文的标题描述的那样（An Expressive, Efficient, and Provably Secure Realization），这些实现都将线性秘密共享（LSSS）作为访问结构，进而依赖特定的难题，完成安全性的规约证明。<br><span id="more"></span><br>Waters论文中详细介绍了三种具体方案的构造，但是前两种被学者们“开发”的多，因此在这里着重介绍前两种。第一种基于Decisional q-PBDHE困难假设，第二种基于BDHE假设。<br>无论是哪一种构造，方案的安全模型是和CP-ABE里边的安全模型是一样的。ABE</p>
+<h4 id="第一种构造"><a href="#第一种构造" class="headerlink" title="第一种构造"></a>第一种构造</h4><h5 id="Decisional-q-PBDHE-Assumption"><a href="#Decisional-q-PBDHE-Assumption" class="headerlink" title="Decisional q-PBDHE Assumption"></a>Decisional q-PBDHE Assumption</h5><p>判定型q-PBDHE假设描述为：选择一个乘法循环群 $\mathbb{G}_1$，阶数为$p$（$p$的选择依赖于具体方案的安全参数），令$a,s, b_1, …, b_q \in \mathbb{Z}_p$随机选取，$g$为群$\mathbb{G}$的生成元，如果攻击者获得向量$\overrightarrow{y} =$</p>
+<script type="math/tex; mode=display">
+\begin{align}
+g,g^s,g^a,...,g^{a^q},,g^{a^{q+2}},...,g^{a^{2q}} \nonumber \\
+\forall_{1\leq j\leq q}  g^{sb_j},g^{a/b_j},...,g^{a^q / b_j},,g^{a^{q+2} / b_j},...,g^{a^{2q} / b_j} \nonumber\\
+\forall_{1<\leq j,k\leq q,k\neq j} g^{a \cdot s \cdot b_k / b_j}, ..., g^{a^q \cdot s \cdot b_k / b_j} \nonumber
+\end{align}</script><p>那么他分辨$e(g,g)^{a^{q+1}s} \in \mathbb{G}_2$和$ \mathbb{G}_2$上的一个随机元素$R$是困难的。<br>论文中定义攻击者决定$\mathbb{G}_1$上的q-PBDHE困难问题的优势为：</p>
+<script type="math/tex; mode=display">
+|Pr[\mathcal{B}(\overrightarrow{y},T=e(g,g)^{a^{q+1}s})=0]-Pr[\mathcal{B}(\overrightarrow{y},T=R)=0]|</script><p>注意这个地方定义的优势和前面FIBE以及CP-ABE中的优势不一样，但是描述的本质是一样的。</p>
+<h5 id="方案的具体构造"><a href="#方案的具体构造" class="headerlink" title="方案的具体构造"></a>方案的具体构造</h5><h6 id="Setup-U"><a href="#Setup-U" class="headerlink" title="Setup($U$)"></a><strong>Setup($U$)</strong></h6><p>算法输入系统的总属性个数$U$，然后生成系统参数，包括阶数为$p$的乘法循环群$\mathbb{G}_1，生成元$g$。然后随机生成$U$个与系统属性有关的元素$h_1,…,h_U \in \mathbb{G}_1$，此外，选择两个指数$\alpha ,a \in \mathbb{Z}_p$。<br>系统的公开参数为</p>
+<script type="math/tex; mode=display">
+PK=(g,e(g,g)^\alpha ,g^a,h_1,...,h_U)</script><p>系统的主密钥为$MSK=g^ \alpha$。</p>
+<h6 id="Encrypt-PK-M-rho-M"><a href="#Encrypt-PK-M-rho-M" class="headerlink" title="Encrypt($PK,(M, \rho) ,M$)"></a><strong>Encrypt($PK,(M, \rho) ,M$)</strong></h6><p>加密算法将$PK$和消息$M$作为输入。首先选择一个线性秘密共享方案的访问结构$(M, \rho)$，函数$\rho$将矩阵$M \in \mathbb{Z} ^l \times n$的每一行映射到一个属性。<br>首先选择随机向量$\overrightarrow{v} = (s,y_2,…,y_n) \in \mathbb{Z}_p^n$，$y2,…,y_n$的作用是来分享秘密值$s$。$\forall i \in {1,2,…,l}$，计算$\lambda _i = M_i\overrightarrow{v}$，其中$M_i$ 表示矩阵$M$的第$i$行。此外，随机选择$r_1,…,r_l \in \mathbb{Z}_p$，然后得到密文形式为：</p>
+<script type="math/tex; mode=display">
+CT=((M, \rho),Me(g,g)^{\alpha s},C ^\prime = g^s,\forall i \in [l]:C_i=g^{a\lambda _i}h_{\rho(i)}^{-r_i},C_i^\prime = g^{r_i}).</script><h6 id="KeyGen-MSK-S"><a href="#KeyGen-MSK-S" class="headerlink" title="KeyGen($MSK, S$)"></a><strong>KeyGen($MSK, S$)</strong></h6><p>密钥生成算法将主密钥$MSK$和用户的属性集合$S$作为输入。算法随机选择$t \in \mathbb{Z}_p$，然后产生密钥为：</p>
+<script type="math/tex; mode=display">
+SK=(K=g^\alpha g^{at},L=g^t,\forall x \in S:K_x = h_x^t).</script><h6 id="Decrypt-CT-SK"><a href="#Decrypt-CT-SK" class="headerlink" title="Decrypt($CT,SK$)"></a><strong>Decrypt($CT,SK$)</strong></h6><p>解密算法将密文$CT$和密钥$SK$作为输入。如果密钥$SK$对应的属性集合$S$满足访问结构，则根据LSSS的线性重构的性质，可以得到一组常数$\left \{ \omega _i \in \mathbb{Z}_p \right \}_{i \in I}$，使得$\sum _{i \in I}\omega_i \lambda _i = s$，其中$i \in [l]$为$i:\rho (i) \in S$，表示$S$和访问结构的属性交集。然后便可以通过如下方式解密：</p>
+<script type="math/tex; mode=display">
+\begin{align}
+e(C^\prime,K)/( \prod _{i \in I} (e(C_i,L)e(D_i,K_{\rho(i)}))^{\omega _i})= \nonumber\\
+e(g,g)^{\alpha s}e(g,g)^{ast}/( \prod _{i \in I} e(g,g)^{ta\lambda _i \omega _i})=e(g,g)^{\alpha s} \nonumber
+\end{align}</script><p>进而就能从$C$部件中恢复出明文$M$。</p>
+<h5 id="第二种构造"><a href="#第二种构造" class="headerlink" title="第二种构造"></a>第二种构造</h5><h6 id="Decisional-BDHE-Assumption"><a href="#Decisional-BDHE-Assumption" class="headerlink" title="Decisional BDHE Assumption"></a>Decisional BDHE Assumption</h6><p>判定型q-BDHE假设描述为：选择一个乘法循环群 $\mathbb{G}_1$，阶数为$p$（$p$的选择依赖于具体方案的安全参数），令$a,s \in \mathbb{Z}_p$随机选取，$g$为群$\mathbb{G}_1$的生成元，如果攻击者获得向量</p>
+<script type="math/tex; mode=display">
+\overrightarrow{y} =(g,g^{a^1}, ..., g^{a^q}, , g^{a^{q+2}}, ..., g^{a^{2q}}, g^s)</script><p>那么他分辨$e(g,g)^{a^{q+1}s} \in \mathbb{G}_2$和$ \mathbb{G}_2$上的一个随机元素$R$是困难的。<br>论文中定义攻击者决定$\mathbb{G}_1$上的q-BDHE困难问题的优势为：</p>
+<script type="math/tex; mode=display">
+|Pr[\mathcal{B}(\overrightarrow{y},T=e(g,g)^{a^{q+1}s})=0]-Pr[\mathcal{B}(\overrightarrow{y},T=R)=0]|</script><h5 id="方案的具体构造-1"><a href="#方案的具体构造-1" class="headerlink" title="方案的具体构造"></a>方案的具体构造</h5><h6 id="Setup-U-1"><a href="#Setup-U-1" class="headerlink" title="Setup($U$)"></a><strong>Setup($U$)</strong></h6><p>算法输入系统的总属性个数$U$，然后生成系统参数，包括阶数为$p$的乘法循环群$\mathbb{G}_1，生成元$g$。然后随机生成$U$个与系统属性有关的元素$h_1,…,h_U \in \mathbb{G}_1$，此外，选择两个指数$\alpha ,a \in \mathbb{Z}_p$。<br>系统的公开参数为</p>
+<script type="math/tex; mode=display">
+PK=(g,e(g,g)^\alpha ,g^a,h_1,...,h_U)</script><p>系统的主密钥为$MSK=g^ \alpha$。</p>
+<h6 id="Encrypt-PK-M-rho-M-1"><a href="#Encrypt-PK-M-rho-M-1" class="headerlink" title="Encrypt($PK,(M, \rho) ,M$)"></a><strong>Encrypt($PK,(M, \rho) ,M$)</strong></h6><p>加密算法将$PK$和消息$M$作为输入。首先选择一个线性秘密共享方案的访问结构$(M, \rho)$，函数$\rho$将矩阵$M \in \mathbb{Z} ^l \times n$的每一行映射到一个属性。<br>首先选择随机向量$\overrightarrow{v} = (s,y_2,…,y_n) \in \mathbb{Z}_p^n$，$y2,…,y_n$的作用是来分享秘密值$s$。$\forall i \in {1,2,…,l}$，计算$\lambda _i = M_i\overrightarrow{v}$，其中$M_i$ 表示矩阵$M$的第$i$行。然后得到密文形式为：</p>
+<script type="math/tex; mode=display">
+CT=((M, \rho),C=Me(g,g)^{\alpha s},C ^\prime = g^s,\forall i \in [l]:C_i=g^{a\lambda _i}h_{\rho(i)}^{-s}).</script><h6 id="KeyGen-MSK-S-1"><a href="#KeyGen-MSK-S-1" class="headerlink" title="KeyGen($MSK, S$)"></a><strong>KeyGen($MSK, S$)</strong></h6><p>密钥生成算法将主密钥$MSK$和用户的属性集合$S$作为输入。算法随机选择$t \in \mathbb{Z}_p$，然后产生密钥为：</p>
+<script type="math/tex; mode=display">
+SK=(K=g^\alpha g^{at},L=g^t,\forall x \in S:K_x = h_x^t).</script><h6 id="Decrypt-CT-SK-1"><a href="#Decrypt-CT-SK-1" class="headerlink" title="Decrypt($CT,SK$)"></a><strong>Decrypt($CT,SK$)</strong></h6><p>解密算法将密文$CT$和密钥$SK$作为输入。如果密钥$SK$对应的属性集合$S$满足访问结构，则根据LSSS的线性重构的性质，可以得到一组常数$\left \{ \omega _i \in \mathbb{Z}_p \right \}_{i \in I}$，使得$\sum _{i \in I}\omega_i \lambda _i = s$，其中$i \in [l]$为$i:\rho (i) \in S$，表示$S$和访问结构的属性交集。然后便可以通过如下方式解密：</p>
+<script type="math/tex; mode=display">
+\begin{align}
+e(C^\prime,K)/( \prod _{i \in I} (e(C_i,L)e(C^ \prime,K_{\rho(i)}))^{\omega _i})= \nonumber \\
+e(g,g)^{\alpha s}e(g,g)^{ast}/( \prod _{i \in I} e(g,g)^{ta\lambda _i \omega _i})=e(g,g)^{\alpha s} \nonumber
+\end{align}</script><p>进而就能从$C$部件中恢复出明文$M$。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>从以上描述的两种构造方式来看，其访问结构均为线性秘密共享，初一看两个方案的整体差不多。就密文而言，第一种构造对于每个属性有两项，而第二种构造只有一项；就密钥而言，二者产生的是一样的。两种构造最大的差别就是基于的难题形式不同（本质上都是离散对数难题，Diffie-Hellman难题只是很多的变种）。由于第一种构造基于q-PBDHE假设，比较复杂，第二种构造基于q-BDHE，相对简单。这两种方案的构造为后面的ABE的构造带来启示，许多ABE方案都是在这两种方案上拓展的。此外，这两个方案还是仅仅针对基本的四个过程，后面的ABE方案会关注属性撤销、多个权威机构、防止共谋攻击等安全需求。ABE方案的设计能兼顾更多地安全需求自然是更好地，更符合现实场景，进而更实用。<br><span name="ref1" >B. Waters, “Ciphertext-policy attribute-based encryption: An expres- sive, efficient, and provably secure realization,” in <em>Proc. PKC’11</em>,2011, pp. 53–70, Springer.</span></p>
+]]></content>
+      <categories>
+        <category>属性基加密</category>
+      </categories>
+      <tags>
+        <tag>属性基加密</tag>
+        <tag>访问结构</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>密文策略属性基加密</title>
     <url>/2021/04/09/%E5%AF%86%E6%96%87%E7%AD%96%E7%95%A5%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/</url>
     <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>千呼万唤，在前面的一些知识的铺垫中，终于引来了我们的主角：属性基加密（ABE）。都知道属性基加密的思想是让密文和密钥与属性集合和访问结构产生关联，当且仅当属性集合满足访问结构的时候，方能解密成功。那么根据这其中两两的对应关系，又可以将属性基加密分为两类，即密钥策略属性基加密<sup><a href="ref1">1</a></sup>（KP-ABE）和密文策略属性基加密<sup><a href="ref2">2</a></sup>（CP-ABE）。<br><span id="more"></span></p>
