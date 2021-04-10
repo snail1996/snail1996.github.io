@@ -4,7 +4,7 @@
     <title>ABE-2EPSR</title>
     <url>/2021/04/10/ABE-2EPSR/</url>
     <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>本文主要介绍CP-ABE的两种具体实现，这个实现是在Waters大佬<sup><a href="ref1">1</a></sup>（你一定不陌生，因为前面谈到FIBE、KP-ABE还有CP-ABE都有他的身影）的论文里的。正如论文的标题描述的那样（An Expressive, Efficient, and Provably Secure Realization），这些实现都将线性秘密共享（LSSS）作为访问结构，进而依赖特定的难题，完成安全性的规约证明。<br><span id="more"></span><br>Waters论文中详细介绍了三种具体方案的构造，但是前两种被学者们“开发”的多，因此在这里着重介绍前两种。第一种基于Decisional q-PBDHE困难假设，第二种基于BDHE假设。<br>无论是哪一种构造，方案的安全模型是和CP-ABE里边的安全模型是一样的。</p>
-<h4 id="第一种构造"><a href="#第一种构造" class="headerlink" title="第一种构造"></a>第一种构造</h4><h5 id="Decisional-q-PBDHE-Assumption"><a href="#Decisional-q-PBDHE-Assumption" class="headerlink" title="Decisional q-PBDHE Assumption"></a>Decisional q-PBDHE Assumption</h5><p>判定型q-PBDHE假设描述为：选择一个乘法循环群 $\mathbb{G}_1$，阶数为$p$（$p$的选择依赖于具体方案的安全参数），令$a,s, b_1, …, b_q \in \mathbb{Z}_p$随机选取，$g$为群$\mathbb{G}$的生成元，如果攻击者获得向量$\overrightarrow{y} =$</p>
+<h4 id="第一种构造"><a href="#第一种构造" class="headerlink" title="第一种构造"></a>第一种构造</h4><h5 id="Decisional-q-PBDHE-Assumption"><a href="#Decisional-q-PBDHE-Assumption" class="headerlink" title="Decisional q-PBDHE Assumption"></a>Decisional q-PBDHE Assumption</h5><p>判定型q-PBDHE假设描述为：选择一个乘法循环群 $\mathbb{G}_1$，阶数为$p$（$p$的选择依赖于具体方案的安全参数），令$a,s, b_1, …, b_q \in \mathbb{Z}_p$随机选取，$g$为群$\mathbb{G}_1$的生成元，如果攻击者获得向量$\overrightarrow{y} =$</p>
 <script type="math/tex; mode=display">
 \begin{align}
 g,g^s,g^a,...,g^{a^q},,g^{a^{q+2}},...,g^{a^{2q}} \nonumber \\
