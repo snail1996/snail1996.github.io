@@ -16,7 +16,7 @@
 <h5 id="方案的具体构造"><a href="#方案的具体构造" class="headerlink" title="方案的具体构造"></a>方案的具体构造</h5><h6 id="Setup-U"><a href="#Setup-U" class="headerlink" title="Setup($U$)"></a><strong>Setup($U$)</strong></h6><p>算法输入系统的总属性个数$U$，然后生成系统参数，包括阶数为$p$的乘法循环群$\mathbb{G}_1$，生成元$g$。然后随机生成$U$个与系统属性有关的元素$h_1,…,h_U \in \mathbb{G}_1$，此外，选择两个指数$\alpha ,a \in \mathbb{Z}_p$。<br>系统的公开参数为</p>
 <script type="math/tex; mode=display">
 PK=(g,e(g,g)^\alpha ,g^a,h_1,...,h_U)</script><p>系统的主密钥为$MSK=g^ \alpha$。</p>
-<h6 id="Encrypt-PK-M-rho-mathcal-M"><a href="#Encrypt-PK-M-rho-mathcal-M" class="headerlink" title="Encrypt($PK,(M, \rho) ,\mathcal{M}$)"></a><strong>Encrypt($PK,(M, \rho) ,\mathcal{M}$)</strong></h6><p>加密算法将$PK$和消息$\mathcal{M}$作为输入。首先选择一个线性秘密共享方案的访问结构$(M, \rho)$，函数$\rho$将矩阵$M \in \mathbb{Z}_p ^{l \times n}$的每一行映射到一个属性。<br>首先选择随机向量$\overrightarrow{v} = (s,y_2,…,y_n) \in \mathbb{Z}_p^n$，$y_2,…,y_n$的作用是来分享秘密值$s$。$\forall i \in {1,2,…,l}$，计算$\lambda _i = M_i\overrightarrow{v}$，其中$M_i$ 表示矩阵$M$的第$i$行。此外，随机选择$r_1,…,r_l \in \mathbb{Z}_p$，然后得到密文形式为：</p>
+<h6 id="Encrypt-PK-M-rho-mathcal-M"><a href="#Encrypt-PK-M-rho-mathcal-M" class="headerlink" title="Encrypt($PK,(M, \rho) ,\mathcal{M}$)"></a><strong>Encrypt($PK,(M, \rho) ,\mathcal{M}$)</strong></h6><p>加密算法将$PK$和消息$\mathcal{M}$作为输入。首先选择一个线性秘密共享方案的访问结构$(M, \rho)$，函数$\rho$将矩阵$M \in \mathbb{Z}_p ^{l \times n}$的每一行映射到一个属性。<br>首先选择随机向量$\overrightarrow{v} = (s,y_2,…,y_n) \in \mathbb{Z}_p^n$，$y_2,…,y_n$的作用是来分享秘密值$s$。$\forall i \in \left\{1,2,…,l \right\}$，计算$\lambda _i = M_i\overrightarrow{v}$，其中$M_i$ 表示矩阵$M$的第$i$行。此外，随机选择$r_1,…,r_l \in \mathbb{Z}_p$，然后得到密文形式为：</p>
 <script type="math/tex; mode=display">
 CT=((M, \rho),\mathcal{M}e(g,g)^{\alpha s},C ^\prime = g^s,\forall i \in [l]:C_i=g^{a\lambda _i}h_{\rho(i)}^{-r_i},C_i^\prime = g^{r_i}).</script><h6 id="KeyGen-MSK-S"><a href="#KeyGen-MSK-S" class="headerlink" title="KeyGen($MSK, S$)"></a><strong>KeyGen($MSK, S$)</strong></h6><p>密钥生成算法将主密钥$MSK$和用户的属性集合$S$作为输入。算法随机选择$t \in \mathbb{Z}_p$，然后产生密钥为：</p>
 <script type="math/tex; mode=display">
@@ -33,7 +33,7 @@ SK=(K=g^\alpha g^{at},L=g^t,\forall x \in S:K_x = h_x^t).</script><h6 id="Decryp
 |Pr[\mathcal{B}(\overrightarrow{y},T=e(g,g)^{a^{q+1}s})=0]-Pr[\mathcal{B}(\overrightarrow{y},T=R)=0]|</script><h5 id="方案的具体构造-1"><a href="#方案的具体构造-1" class="headerlink" title="方案的具体构造"></a>方案的具体构造</h5><h6 id="Setup-U-1"><a href="#Setup-U-1" class="headerlink" title="Setup($U$)"></a><strong>Setup($U$)</strong></h6><p>算法输入系统的总属性个数$U$，然后生成系统参数，包括阶数为$p$的乘法循环群$\mathbb{G}_1$，生成元$g$。然后随机生成$U$个与系统属性有关的元素$h_1,…,h_U \in \mathbb{G}_1$，此外，选择两个指数$\alpha ,a \in \mathbb{Z}_p$。<br>系统的公开参数为</p>
 <script type="math/tex; mode=display">
 PK=(g,e(g,g)^\alpha ,g^a,h_1,...,h_U)</script><p>系统的主密钥为$MSK=g^ \alpha$。</p>
-<h6 id="Encrypt-PK-M-rho-mathcal-M-1"><a href="#Encrypt-PK-M-rho-mathcal-M-1" class="headerlink" title="Encrypt($PK,(M, \rho) ,\mathcal{M}$)"></a><strong>Encrypt($PK,(M, \rho) ,\mathcal{M}$)</strong></h6><p>加密算法将$PK$和消息$\mathcal{M}$作为输入。首先选择一个线性秘密共享方案的访问结构$(M, \rho)$，函数$\rho$将矩阵$M \in \mathbb{Z} _p^{l \times n}$的每一行映射到一个属性。<br>首先选择随机向量$\overrightarrow{v} = (s,y_2,…,y_n) \in \mathbb{Z}_p^n$，$y_2,…,y_n$的作用是来分享秘密值$s$。$\forall i \in {1,2,…,l}$，计算$\lambda _i = M_i\overrightarrow{v}$，其中$M_i$ 表示矩阵$M$的第$i$行。然后得到密文形式为：</p>
+<h6 id="Encrypt-PK-M-rho-mathcal-M-1"><a href="#Encrypt-PK-M-rho-mathcal-M-1" class="headerlink" title="Encrypt($PK,(M, \rho) ,\mathcal{M}$)"></a><strong>Encrypt($PK,(M, \rho) ,\mathcal{M}$)</strong></h6><p>加密算法将$PK$和消息$\mathcal{M}$作为输入。首先选择一个线性秘密共享方案的访问结构$(M, \rho)$，函数$\rho$将矩阵$M \in \mathbb{Z} _p^{l \times n}$的每一行映射到一个属性。<br>首先选择随机向量$\overrightarrow{v} = (s,y_2,…,y_n) \in \mathbb{Z}_p^n$，$y_2,…,y_n$的作用是来分享秘密值$s$。$\forall i \in \left\{1,2,…,l \right\}$，计算$\lambda _i = M_i\overrightarrow{v}$，其中$M_i$ 表示矩阵$M$的第$i$行。然后得到密文形式为：</p>
 <script type="math/tex; mode=display">
 CT=((M, \rho),C=\mathcal{M}e(g,g)^{\alpha s},C ^\prime = g^s,\forall i \in [l]:C_i=g^{a\lambda _i}h_{\rho(i)}^{-s}).</script><h6 id="KeyGen-MSK-S-1"><a href="#KeyGen-MSK-S-1" class="headerlink" title="KeyGen($MSK, S$)"></a><strong>KeyGen($MSK, S$)</strong></h6><p>密钥生成算法将主密钥$MSK$和用户的属性集合$S$作为输入。算法随机选择$t \in \mathbb{Z}_p$，然后产生密钥为：</p>
 <script type="math/tex; mode=display">
@@ -120,7 +120,9 @@ SK_t=\left( D=g^{\left(\alpha +r \right)/\beta}, \forall \lambda_j \in \Lambda :
 <ul>
 <li><p>若$i \in \Lambda$（用户拥有属性$i$），则</p>
 <script type="math/tex; mode=display">
-DecryptNode(CT,SK,x) = \frac{e(D_i, C_x)}{e(D_i^\prime , C_x^ \prime)}= \frac{e(g^r \cdot H(x)^{r_i}, h^{q_x(0)})}{(e(g^{r_i})^{1/K_{\lambda_x}} , (H(i)^{q_x(0)})^{K_{\lambda_x}})} = e(g,g)^{rq_x(0)}.</script></li>
+\begin{aligned}
+&DecryptNode(CT,SK,x) = \frac{e(D_i, C_x)}{e(D_i^\prime , C_x^ \prime)}= \nonumber \\ &\frac{e(g^r \cdot H(x)^{r_i}, h^{q_x(0)})}{(e(g^{r_i})^{1/K_{\lambda_x}} , (H(i)^{q_x(0)})^{K_{\lambda_x}})} = e(g,g)^{rq_x(0)}. \nonumber
+\end{aligned}</script></li>
 <li><p>若$i \notin \Lambda$，则定义$DecryptNode(CT,SK,x) =\perp $。</p>
 </li>
 </ul>
@@ -151,9 +153,10 @@ A = DecryptNode(CT,SK,r)=e(g,g)^{rq_R(0)} = e(g,g)^{rs}.</script><p>最后即可
 </ul>
 <script type="math/tex; mode=display">
 \begin{aligned}
-CT^\prime=\left( \mathcal{T}, \widetilde{C}=Me\left ( g,g \right )^{\alpha (s+s^\prime)},C=h^{s+s^\prime},C_i=g^{q_i \left(0 \right )+s^\prime},C_i^\prime=\left(H \left(\lambda_i \right) ^ {q_i \left( 0  \right )+s^\prime} \right)^{K_{\lambda_y}^\prime}, \\ \forall y \in Y\setminus \left\{i \right\}:C_y=g^{q_y \left(0 \right )+s^\prime},C_y^\prime=\left(H \left(\lambda_y \right) ^ {q_y \left( 0  \right )+s^\prime} \right)^{K_{\lambda_y}}\right).
+& CT^\prime=\left( \mathcal{T}, \widetilde{C}=Me\left ( g,g \right )^{\alpha (s+s^\prime)},C=h^{s+s^\prime},C_i=g^{q_i \left(0 \right )+s^\prime},C_i^\prime=\left(H \left(\lambda_i \right) ^ {q_i \left( 0  \right )+s^\prime} \right)^{K_{\lambda_y}^\prime}, \nonumber \\
+ \forall y \in Y\setminus \left\{i \right\}:C_y=g^{q_y \left(0 \right )+s^\prime},C_y^\prime=\left(H \left(\lambda_y \right) ^ {q_y \left( 0  \right )+s^\prime} \right)^{K_{\lambda_y}}\right). \nonumber
 \end{aligned}</script><ul>
-<li>由于群$G_i$中有成员变动，那么此时的最小覆盖密钥发生了改变，重新计算$KEK(G_i)$，然后更新$Hdr$为$Hdr=\left( \left\{E_K(K_{\lambda_i}^\prime) \right\}_{K \in KEK(G_i)}，\forall y \in Y:\left\{E_K(K_{\lambda_y}) \right\}_{K \in KEK(G_y)}\right)$</li>
+<li>由于群$G_i$中有成员变动，那么此时的最小覆盖密钥发生了改变，重新计算$KEK(G_i)$，然后更新$Hdr$为$Hdr=\left( \left\{E_K(K_{\lambda_i}^\prime) \right\}_{K \in KEK(G_i)}，\forall y \in Y:\left\{E_K(K_{\lambda_y}) \right\}_{K \in KEK(G_y)}\right)$。</li>
 </ul>
 <h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>Hur1-ABE首次提出属性群的概念，通过属性群借助KEK树的技巧完成属性的撤销。属性群的提出为属性的撤销机制开辟了道路，后续的ABE方案中有许多学者沿袭这一概念，从而衍生出不同的属性撤销方案，比如说接下来的Hur2-ABE方案等。然而方案并不能抵抗撤销用户与未撤销用户之间的共谋，这是因为属性群中对应的每个节点的节点密钥不变，而且CSP会根据用户所在的位置将其路径密钥发送给用户，如果用户将路径密钥给撤销用户，或者更直接一点，用户直接将解密的属性群密钥给撤销用户，这样一来，撤销用户还是可以自己更新到正确的密钥，从而解密最近的密文。</p>
 <p><span name="ref1" >J. Hur and D. K. Noh, “Attribute-based Access Control with Efficient Revocation in Data Outsourcing Systems,” IEEE Transactions on Parallel and Distributed Systems, vol. 22, no. 7, pp. 1214–1221, Jul. 2011.</span></p>
