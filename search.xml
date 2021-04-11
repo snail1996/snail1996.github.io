@@ -3,29 +3,29 @@
   <entry>
     <title>ABE-2EPSR</title>
     <url>/2021/04/10/ABE-2EPSR/</url>
-    <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>本文主要介绍CP-ABE的两种具体实现，这个实现是在Waters大佬<sup><a href="ref1">1</a></sup>（你一定不陌生，因为前面谈到FIBE、KP-ABE还有CP-ABE都有他的身影）的论文里的。正如论文的标题描述的那样（An Expressive, Efficient, and Provably Secure Realization），这些实现都将线性秘密共享（LSSS）作为访问结构，进而依赖特定的难题，完成安全性的规约证明。<br><span id="more"></span><br>Waters论文中详细介绍了三种具体方案的构造，但是前两种被学者们“开发”的多，因此在这里着重介绍前两种。第一种基于Decisional q-PBDHE困难假设，第二种基于BDHE假设。<br>无论是哪一种构造，方案的安全模型是和CP-ABE里边的安全模型是一样的。</p>
+    <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>本文主要介绍CP-ABE的两种具体实现，这个实现是在Waters大佬<sup><a href="ref1">1</a></sup>（你一定不陌生，因为前面谈到FIBE、KP-ABE还有CP-ABE都有他的身影）的论文里的。正如论文的标题描述的那样（An Expressive, Efficient, and Provably Secure Realization），这些实现都将线性秘密共享（LSSS）作为访问结构，进而依赖特定的难题，完成安全性的规约证明。<br><span id="more"></span><br>Waters论文中详细介绍了三种具体方案的构造，但是前两种被学者们“开发”的多，因此在这里着重介绍前两种。第一种基于Decisional q-PBDHE困难假设，第二种基于BDHE假设。无论是哪一种构造，方案的安全模型是和CP-ABE里边的安全模型是一样的。</p>
 <h4 id="第一种构造"><a href="#第一种构造" class="headerlink" title="第一种构造"></a>第一种构造</h4><h5 id="Decisional-q-PBDHE-Assumption"><a href="#Decisional-q-PBDHE-Assumption" class="headerlink" title="Decisional q-PBDHE Assumption"></a>Decisional q-PBDHE Assumption</h5><p>判定型q-PBDHE假设描述为：选择一个乘法循环群 $\mathbb{G}_1$，阶数为$p$（$p$的选择依赖于具体方案的安全参数），令$a,s, b_1, …, b_q \in \mathbb{Z}_p$随机选取，$g$为群$\mathbb{G}_1$的生成元，如果攻击者获得向量$\overrightarrow{y} =$</p>
 <script type="math/tex; mode=display">
 \begin{align}
-g,g^s,g^a,...,g^{a^q},,g^{a^{q+2}},...,g^{a^{2q}} \nonumber \\
-\forall_{1\leq j\leq q}  g^{sb_j},g^{a/b_j},...,g^{a^q / b_j},,g^{a^{q+2} / b_j},...,g^{a^{2q} / b_j} \nonumber\\
-\forall_{1<\leq j,k\leq q,k\neq j} g^{a \cdot s \cdot b_k / b_j}, ..., g^{a^q \cdot s \cdot b_k / b_j} \nonumber
+&g,g^s,g^a,...,g^{a^q},,g^{a^{q+2}},...,g^{a^{2q}} \nonumber \\
+&\forall_{1\leq j\leq q}  g^{sb_j},g^{a/b_j},...,g^{a^q / b_j},,g^{a^{q+2} / b_j},...,g^{a^{2q} / b_j} \nonumber\\
+&\forall_{1<\leq j,k\leq q,k\neq j} g^{a \cdot s \cdot b_k / b_j}, ..., g^{a^q \cdot s \cdot b_k / b_j} \nonumber
 \end{align}</script><p>那么他分辨$e(g,g)^{a^{q+1}s} \in \mathbb{G}_2$和$ \mathbb{G}_2$上的一个随机元素$R$是困难的。<br>论文中定义攻击者决定$\mathbb{G}_1$上的q-PBDHE困难问题的优势为：</p>
 <script type="math/tex; mode=display">
 |Pr[\mathcal{B}(\overrightarrow{y},T=e(g,g)^{a^{q+1}s})=0]-Pr[\mathcal{B}(\overrightarrow{y},T=R)=0]|</script><p>注意这个地方定义的优势和前面FIBE以及CP-ABE中的优势不一样，但是描述的本质是一样的。</p>
 <h5 id="方案的具体构造"><a href="#方案的具体构造" class="headerlink" title="方案的具体构造"></a>方案的具体构造</h5><h6 id="Setup-U"><a href="#Setup-U" class="headerlink" title="Setup($U$)"></a><strong>Setup($U$)</strong></h6><p>算法输入系统的总属性个数$U$，然后生成系统参数，包括阶数为$p$的乘法循环群$\mathbb{G}_1$，生成元$g$。然后随机生成$U$个与系统属性有关的元素$h_1,…,h_U \in \mathbb{G}_1$，此外，选择两个指数$\alpha ,a \in \mathbb{Z}_p$。<br>系统的公开参数为</p>
 <script type="math/tex; mode=display">
 PK=(g,e(g,g)^\alpha ,g^a,h_1,...,h_U)</script><p>系统的主密钥为$MSK=g^ \alpha$。</p>
-<h6 id="Encrypt-PK-M-rho-M"><a href="#Encrypt-PK-M-rho-M" class="headerlink" title="Encrypt($PK,(M, \rho) ,M$)"></a><strong>Encrypt($PK,(M, \rho) ,M$)</strong></h6><p>加密算法将$PK$和消息$M$作为输入。首先选择一个线性秘密共享方案的访问结构$(M, \rho)$，函数$\rho$将矩阵$M \in \mathbb{Z}_p ^{l \times n}$的每一行映射到一个属性。<br>首先选择随机向量$\overrightarrow{v} = (s,y_2,…,y_n) \in \mathbb{Z}_p^n$，$y_2,…,y_n$的作用是来分享秘密值$s$。$\forall i \in {1,2,…,l}$，计算$\lambda _i = M_i\overrightarrow{v}$，其中$M_i$ 表示矩阵$M$的第$i$行。此外，随机选择$r_1,…,r_l \in \mathbb{Z}_p$，然后得到密文形式为：</p>
+<h6 id="Encrypt-PK-M-rho-mathcal-M"><a href="#Encrypt-PK-M-rho-mathcal-M" class="headerlink" title="Encrypt($PK,(M, \rho) ,\mathcal{M}$)"></a><strong>Encrypt($PK,(M, \rho) ,\mathcal{M}$)</strong></h6><p>加密算法将$PK$和消息$\mathcal{M}$作为输入。首先选择一个线性秘密共享方案的访问结构$(M, \rho)$，函数$\rho$将矩阵$M \in \mathbb{Z}_p ^{l \times n}$的每一行映射到一个属性。<br>首先选择随机向量$\overrightarrow{v} = (s,y_2,…,y_n) \in \mathbb{Z}_p^n$，$y_2,…,y_n$的作用是来分享秘密值$s$。$\forall i \in {1,2,…,l}$，计算$\lambda _i = M_i\overrightarrow{v}$，其中$M_i$ 表示矩阵$M$的第$i$行。此外，随机选择$r_1,…,r_l \in \mathbb{Z}_p$，然后得到密文形式为：</p>
 <script type="math/tex; mode=display">
-CT=((M, \rho),Me(g,g)^{\alpha s},C ^\prime = g^s,\forall i \in [l]:C_i=g^{a\lambda _i}h_{\rho(i)}^{-r_i},C_i^\prime = g^{r_i}).</script><h6 id="KeyGen-MSK-S"><a href="#KeyGen-MSK-S" class="headerlink" title="KeyGen($MSK, S$)"></a><strong>KeyGen($MSK, S$)</strong></h6><p>密钥生成算法将主密钥$MSK$和用户的属性集合$S$作为输入。算法随机选择$t \in \mathbb{Z}_p$，然后产生密钥为：</p>
+CT=((M, \rho),\mathcal{M}e(g,g)^{\alpha s},C ^\prime = g^s,\forall i \in [l]:C_i=g^{a\lambda _i}h_{\rho(i)}^{-r_i},C_i^\prime = g^{r_i}).</script><h6 id="KeyGen-MSK-S"><a href="#KeyGen-MSK-S" class="headerlink" title="KeyGen($MSK, S$)"></a><strong>KeyGen($MSK, S$)</strong></h6><p>密钥生成算法将主密钥$MSK$和用户的属性集合$S$作为输入。算法随机选择$t \in \mathbb{Z}_p$，然后产生密钥为：</p>
 <script type="math/tex; mode=display">
 SK=(K=g^\alpha g^{at},L=g^t,\forall x \in S:K_x = h_x^t).</script><h6 id="Decrypt-CT-SK"><a href="#Decrypt-CT-SK" class="headerlink" title="Decrypt($CT,SK$)"></a><strong>Decrypt($CT,SK$)</strong></h6><p>解密算法将密文$CT$和密钥$SK$作为输入。如果密钥$SK$对应的属性集合$S$满足访问结构，则根据LSSS的线性重构的性质，可以得到一组常数$\left \{ \omega _i \in \mathbb{Z}_p \right \}_{i \in I}$，使得$\sum _{i \in I}\omega_i \lambda _i = s$，其中$I \subset  [l]$为$I=\left \{ i:\rho (i) \in S \right \}$，表示$S$和访问结构的属性交集。然后便可以通过如下方式解密：</p>
 <script type="math/tex; mode=display">
-\begin{align}
-e(C^\prime,K)/( \prod _{i \in I} (e(C_i,L)e(D_i,K_{\rho(i)}))^{\omega _i})= \nonumber\\
-e(g,g)^{\alpha s}e(g,g)^{ast}/( \prod _{i \in I} e(g,g)^{ta\lambda _i \omega _i})=e(g,g)^{\alpha s} \nonumber
-\end{align}</script><p>进而就能从$C$部件中恢复出明文$M$。</p>
+\begin{aligned}
+&e(C^\prime,K)/( \prod _{i \in I} (e(C_i,L)e(D_i,K_{\rho(i)}))^{\omega _i})= \nonumber\\
+&e(g,g)^{\alpha s}e(g,g)^{ast}/( \prod _{i \in I} e(g,g)^{ta\lambda _i \omega _i})=e(g,g)^{\alpha s} \nonumber
+\end{aligned}</script><p>进而就能从$C$部件中恢复出明文$\mathcal{M}$。</p>
 <h4 id="第二种构造"><a href="#第二种构造" class="headerlink" title="第二种构造"></a>第二种构造</h4><h5 id="Decisional-BDHE-Assumption"><a href="#Decisional-BDHE-Assumption" class="headerlink" title="Decisional BDHE Assumption"></a>Decisional BDHE Assumption</h5><p>判定型q-BDHE假设描述为：选择一个乘法循环群 $\mathbb{G}_1$，阶数为$p$（$p$的选择依赖于具体方案的安全参数），令$a,s \in \mathbb{Z}_p$随机选取，$g$为群$\mathbb{G}_1$的生成元，如果攻击者获得向量</p>
 <script type="math/tex; mode=display">
 \overrightarrow{y} =(g,g^{a^1}, ..., g^{a^q}, , g^{a^{q+2}}, ..., g^{a^{2q}}, g^s)</script><p>那么他分辨$e(g,g)^{a^{q+1}s} \in \mathbb{G}_2$和$ \mathbb{G}_2$上的一个随机元素$R$是困难的。<br>论文中定义攻击者决定$\mathbb{G}_1$上的q-BDHE困难问题的优势为：</p>
@@ -33,16 +33,16 @@ e(g,g)^{\alpha s}e(g,g)^{ast}/( \prod _{i \in I} e(g,g)^{ta\lambda _i \omega _i}
 |Pr[\mathcal{B}(\overrightarrow{y},T=e(g,g)^{a^{q+1}s})=0]-Pr[\mathcal{B}(\overrightarrow{y},T=R)=0]|</script><h5 id="方案的具体构造-1"><a href="#方案的具体构造-1" class="headerlink" title="方案的具体构造"></a>方案的具体构造</h5><h6 id="Setup-U-1"><a href="#Setup-U-1" class="headerlink" title="Setup($U$)"></a><strong>Setup($U$)</strong></h6><p>算法输入系统的总属性个数$U$，然后生成系统参数，包括阶数为$p$的乘法循环群$\mathbb{G}_1$，生成元$g$。然后随机生成$U$个与系统属性有关的元素$h_1,…,h_U \in \mathbb{G}_1$，此外，选择两个指数$\alpha ,a \in \mathbb{Z}_p$。<br>系统的公开参数为</p>
 <script type="math/tex; mode=display">
 PK=(g,e(g,g)^\alpha ,g^a,h_1,...,h_U)</script><p>系统的主密钥为$MSK=g^ \alpha$。</p>
-<h6 id="Encrypt-PK-M-rho-M-1"><a href="#Encrypt-PK-M-rho-M-1" class="headerlink" title="Encrypt($PK,(M, \rho) ,M$)"></a><strong>Encrypt($PK,(M, \rho) ,M$)</strong></h6><p>加密算法将$PK$和消息$M$作为输入。首先选择一个线性秘密共享方案的访问结构$(M, \rho)$，函数$\rho$将矩阵$M \in \mathbb{Z} _p^{l \times n}$的每一行映射到一个属性。<br>首先选择随机向量$\overrightarrow{v} = (s,y_2,…,y_n) \in \mathbb{Z}_p^n$，$y_2,…,y_n$的作用是来分享秘密值$s$。$\forall i \in {1,2,…,l}$，计算$\lambda _i = M_i\overrightarrow{v}$，其中$M_i$ 表示矩阵$M$的第$i$行。然后得到密文形式为：</p>
+<h6 id="Encrypt-PK-M-rho-mathcal-M-1"><a href="#Encrypt-PK-M-rho-mathcal-M-1" class="headerlink" title="Encrypt($PK,(M, \rho) ,\mathcal{M}$)"></a><strong>Encrypt($PK,(M, \rho) ,\mathcal{M}$)</strong></h6><p>加密算法将$PK$和消息$\mathcal{M}$作为输入。首先选择一个线性秘密共享方案的访问结构$(M, \rho)$，函数$\rho$将矩阵$M \in \mathbb{Z} _p^{l \times n}$的每一行映射到一个属性。<br>首先选择随机向量$\overrightarrow{v} = (s,y_2,…,y_n) \in \mathbb{Z}_p^n$，$y_2,…,y_n$的作用是来分享秘密值$s$。$\forall i \in {1,2,…,l}$，计算$\lambda _i = M_i\overrightarrow{v}$，其中$M_i$ 表示矩阵$M$的第$i$行。然后得到密文形式为：</p>
 <script type="math/tex; mode=display">
-CT=((M, \rho),C=Me(g,g)^{\alpha s},C ^\prime = g^s,\forall i \in [l]:C_i=g^{a\lambda _i}h_{\rho(i)}^{-s}).</script><h6 id="KeyGen-MSK-S-1"><a href="#KeyGen-MSK-S-1" class="headerlink" title="KeyGen($MSK, S$)"></a><strong>KeyGen($MSK, S$)</strong></h6><p>密钥生成算法将主密钥$MSK$和用户的属性集合$S$作为输入。算法随机选择$t \in \mathbb{Z}_p$，然后产生密钥为：</p>
+CT=((M, \rho),C=\mathcal{M}e(g,g)^{\alpha s},C ^\prime = g^s,\forall i \in [l]:C_i=g^{a\lambda _i}h_{\rho(i)}^{-s}).</script><h6 id="KeyGen-MSK-S-1"><a href="#KeyGen-MSK-S-1" class="headerlink" title="KeyGen($MSK, S$)"></a><strong>KeyGen($MSK, S$)</strong></h6><p>密钥生成算法将主密钥$MSK$和用户的属性集合$S$作为输入。算法随机选择$t \in \mathbb{Z}_p$，然后产生密钥为：</p>
 <script type="math/tex; mode=display">
 SK=(K=g^\alpha g^{at},L=g^t,\forall x \in S:K_x = h_x^t).</script><h6 id="Decrypt-CT-SK-1"><a href="#Decrypt-CT-SK-1" class="headerlink" title="Decrypt($CT,SK$)"></a><strong>Decrypt($CT,SK$)</strong></h6><p>解密算法将密文$CT$和密钥$SK$作为输入。如果密钥$SK$对应的属性集合$S$满足访问结构，则根据LSSS的线性重构的性质，可以得到一组常数$\left \{ \omega _i \in \mathbb{Z}_p \right \}_{i \in I}$，使得$\sum _{i \in I}\omega_i \lambda _i = s$，其中$I \subset  [l]$为$I=\left \{ i:\rho (i) \in S \right \}$，表示$S$和访问结构的属性交集。然后便可以通过如下方式解密：</p>
 <script type="math/tex; mode=display">
-\begin{align}
-e(C^\prime,K)/( \prod _{i \in I} (e(C_i,L)e(C^ \prime,K_{\rho(i)}))^{\omega _i})= \nonumber \\
-e(g,g)^{\alpha s}e(g,g)^{ast}/( \prod _{i \in I} e(g,g)^{ta\lambda _i \omega _i})=e(g,g)^{\alpha s} \nonumber
-\end{align}</script><p>进而就能从$C$部件中恢复出明文$M$。</p>
+\begin{aligned}
+&e(C^\prime,K)/( \prod _{i \in I} (e(C_i,L)e(C^ \prime,K_{\rho(i)}))^{\omega _i})= \nonumber \\
+&e(g,g)^{\alpha s}e(g,g)^{ast}/( \prod _{i \in I} e(g,g)^{ta\lambda _i \omega _i})=e(g,g)^{\alpha s} \nonumber
+\end{aligned}</script><p>进而就能从$C$部件中恢复出明文$\mathcal{M}$。</p>
 <h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>从以上描述的两种构造方式来看，其访问结构均为线性秘密共享，初一看两个方案的整体差不多。就密文而言，第一种构造对于每个属性有两项，而第二种构造只有一项；就密钥而言，二者产生的是一样的。两种构造最大的差别就是基于的难题形式不同（本质上都是离散对数难题，Diffie-Hellman难题只是很多的变种）。由于第一种构造基于q-PBDHE假设，比较复杂，第二种构造基于q-BDHE，相对简单。这两种方案的构造为后面的ABE的构造带来启示，许多ABE方案都是在这两种方案上拓展的。此外，这两个方案还是仅仅针对基本的四个过程，后面的ABE方案会关注属性撤销、多个权威机构、防止共谋攻击等安全需求。ABE方案的设计能兼顾更多地安全需求自然是更好地，更符合现实场景，进而更实用。<br><span name="ref1" >B. Waters, “Ciphertext-policy attribute-based encryption: An expressive, efficient, and provably secure realization,” in <em>Proc. PKC’11</em>, 2011, pp. 53–70, Springer.</span></p>
 ]]></content>
       <categories>
@@ -51,6 +51,121 @@ e(g,g)^{\alpha s}e(g,g)^{ast}/( \prod _{i \in I} e(g,g)^{ta\lambda _i \omega _i}
       <tags>
         <tag>属性基加密</tag>
         <tag>访问结构</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hur1-ABE</title>
+    <url>/2021/04/11/Hur1-ABE/</url>
+    <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>前面多次提到了属性撤销和防止共谋攻击的概念，这两个安全需求在属性基加密方案的设计方面至关重要，必须得考虑到。为什么这么说呢？根据前面构造的CP-ABE方案的细节，我们知道一个用户的密钥和系统中的密文中都包含许多个部件，大致可分为两类，一类是与属性有关的，一类是与属性无关的。</p>
+<span id="more"></span>
+<p>用户的私钥是根据他所拥有的属性来生成并分发的，不是说属性基加密的解密条件是当且仅当用户的属性集合满足密文的访问策略吗？光凭借自己的属性无法达到条件，自然的想法是几个用户拿出自己的属性密钥拼凑试图解密密文，因为几个人的属性拼凑起来就有可能满足访问结构了。还有，用户所拥有的属性并不是一层不变的，可能某个时刻因某种原因，用户的某个属性不在拥有了，那么他还能拥有解密的能力吗？显然以上两种情况都是不允许解密的。下面给属性撤销和防止共谋攻击下定义。</p>
+<ul>
+<li>属性撤销：一个用户的某个属性撤销了，而该属性是密文中访问结构的关键属性，即该用户的属性集合不再满足访问结构，那么他原则上不能解密最新上传的密文。<ul>
+<li>如果撤销的属性并不影响，即该用户的当前属性集合仍然满足访问结构的话，他仍可以解密。</li>
+<li>该用户原来的密钥还是可以解密原来的密文，因为在撤销之前，他的属性集合是满足条件的。</li>
+</ul>
+</li>
+<li>共谋攻击：多个实体本身不能单独解密密文，试图将各自的密钥结合起来以达到解密密文的目的。<ul>
+<li>这里是用实体，因为在实际场景中除了用户之外，还有存储密文的云服务器、网络攻击者等其他实体。</li>
+</ul>
+</li>
+</ul>
+<p>本文主要介绍Hur和Noh的方案构造，之所以取名字为Hur1-ABE<sup><a href="ref1">1</a></sup>，是与Hur后来提出的Hur2-ABE<sup><a href="ref2">2</a></sup>相区别的，Hur2-ABE在后边会具体介绍。</p>
+<h4 id="KEK树描述"><a href="#KEK树描述" class="headerlink" title="KEK树描述"></a>KEK树描述</h4><p>Hur1-ABE实现属性撤销的方式，是借助KEK树这一特殊结构，并将用户根据不同的属性创建属性群，然后针对每一个属性群，构造一颗KEK树。这个KEK树的结构主要作用是共享群密钥，从而相应地嵌入到密文密钥中，以便日后的属性撤销。那么我们来看一看KEK树是怎样的一种结构吧。</p>
+<p><img src=".\KEK Tree.PNG" width="80%"></p>
+<p>KEK树本质上是一颗二叉树，树的每一个叶子节点和一个用户相联系。树中的每一个节点$v_j$都有一个密钥更新密钥$KEK_j$，为了方案的理解，定义一些与之有关的概念。</p>
+<ul>
+<li>路径节点集合$path(y)$：描述的是叶子节点到根节点的路径节点的集合，比如$v_9$节点的路径节点$path(v_9)= \left\{v_4,v_2,v_1 \right \}$。</li>
+<li>路径节点密钥$PK_i$：描述的是用户$u_i$对应的叶子节点$y$的路径节点KEK的集合，比如用户$u_2$的路径节点密钥$PK_2=\left \{ KEK4, KEK_2, KEK_1 \right \}$。</li>
+</ul>
+<p>若与树有关的属性群为$G_i$，则与该群有关的概念如下。</p>
+<ul>
+<li>最小覆盖集合$cover(G_i)$：描述的是树中最少的涵盖所有未撤销属性的用户的节点集合，假设上图中撤销用户为$\left \{u_6,u_8 \right\}$，则$cover(G_i)=\left\{ v_2,v_{12},v_{14}\right\}$。</li>
+<li>最小覆盖密钥$KEK(G_i)$：描述的是最小覆盖集合$cover(G_i)$对应的密钥更新密钥，假设如上，则$KEK(G_i)=\left\{ KEK_2,KEK_{12},KEK_{14}\right \}$。</li>
+</ul>
+<h4 id="方案具体构造"><a href="#方案具体构造" class="headerlink" title="方案具体构造"></a>方案具体构造</h4><h5 id="System-Setup"><a href="#System-Setup" class="headerlink" title="System Setup"></a><strong>System Setup</strong></h5><p>在系统初始化阶段，可信机构（TA)选择双线性群$\mathbb{G}_0$，阶数为$p$，生成元为$g$。然后随机选择两个指数$\alpha ,\beta \in \mathbb{Z}_p$，系统公开参数为：</p>
+<script type="math/tex; mode=display">
+PK=\left ( \mathbb{G}_0,g,h=g^\beta ,e\left ( g,g \right )^\alpha  \right ).</script><p>主密钥为：$MK=\left ( \beta ,g^\alpha  \right )$。</p>
+<h5 id="Key-Generation"><a href="#Key-Generation" class="headerlink" title="Key Generation"></a>Key Generation</h5><h6 id="属性密钥生成"><a href="#属性密钥生成" class="headerlink" title="属性密钥生成"></a>属性密钥生成</h6><p>给定一个用户的属性集合$\Lambda $，输出对应的密钥$SK$，具体如下：</p>
+<p>TA针对每一个用户$u_t \in U$($U$为系统用户的集合)，随机选择$r \in \mathbb{Z}_p$，对于每一个属性$\forall \lambda _j \in \Lambda $， 随机选择$r_j \in \mathbb{Z}_p$，然后计算密钥如下：</p>
+<script type="math/tex; mode=display">
+SK_t=\left( D=g^{\left(\alpha +r \right)/\beta}, \forall j \in \Lambda : D_j=g^r\cdot H(j)^{r_j}, D_j^\prime=g^{r_j} \right).</script><p>此阶段和CP-ABE里边的密钥生成过程是一致的。然后TA将相关的属性群信息$\left\{G_j:\lambda_j \in \Lambda \right\}$给云服务器CSP（存储密文的地方），比如说用户$u_1,u_2,u_3$的属性集合分别为$\left\{\lambda_1,\lambda_2,\lambda_3\right\}$，$\left\{\lambda_2,\lambda_3\right\}$和$\left\{\lambda_1,\lambda_3\right\}$，那么TA将$G_1=\left\{ u_1,u_3 \right\}$，$G_2=\left\{ u_1,u_2 \right\}$和$G_1=\left\{ u_1,u_2,u_3 \right\}$发送给CSP。</p>
+<h6 id="CSP更新密钥"><a href="#CSP更新密钥" class="headerlink" title="CSP更新密钥"></a>CSP更新密钥</h6><p>然后CSP针对TA发送的每一个属性群构建KEK树，每一个用户被分配到一个叶子节点位置，树中的每一个节点$v_j$都有一个KEK密钥$KEK_j$。每一个用户$u_t \in  U$接收他的路径节点密钥，比如用户$u_2$的路径节点密钥为$PK_2=\left\{ KEK_9,KEK_4,KEK_2,KEK_1 \right\}$。</p>
+<h5 id="Data-Outsourcing"><a href="#Data-Outsourcing" class="headerlink" title="Data Outsourcing"></a>Data Outsourcing</h5><p>数据拥有者定义一个访问结构$\mathcal{T}$（访问控制树形式），然后按如下方式进行加密：</p>
+<p>针对树$\mathcal{T}$中的每一个节点$x$（包括联系属性的叶子节点），选择一个与之对应的多项式$q_x$。多项式$q_x$的的最高次数为$d_x=k_x-1$。</p>
+<p>多项式的选取遵循由根节点到叶子节点（从上到下）的方式。从根节点$R$开始，选择秘密值$s \in \mathbb{Z}_p$，并设置$q_R \left(0 \right)=s$，然后随机选择其他项的次数。对于其他节点$x$，递归的设置$q_x \left( 0 \right) = q_{p\left(x \right)} \left(index\left(x \right) \right)$，至于$q_x$的其他系数随机选择。</p>
+<p>记$Y$为树$\mathcal{T}$的叶子节点的集合，然后密文可以表示为：</p>
+<script type="math/tex; mode=display">
+CT=\left( \mathcal{T}, \widetilde{C}=Me\left ( g,g \right )^{\alpha s},C=h^s,\forall y \in Y:C_y=g^{q_y \left(0 \right )},
+C_y^\prime=H \left(\lambda_y \right) ^ {q_y \left( 0  \right )} \right).</script><p>其中，$\lambda_y$表示的是叶子节点$y$对应的属性，$H \left(\cdot \right)$表示将属性映射到$\mathbb{G}_0$。</p>
+<p>此阶段和CP-ABE方案中的加密阶段一致。</p>
+<h5 id="Data-Re-Encryption"><a href="#Data-Re-Encryption" class="headerlink" title="Data Re-Encryption"></a>Data Re-Encryption</h5><p>此阶段CSP将重加密密文$CT$，具体如下：</p>
+<ul>
+<li>对于访问结构中涉及到的属性群$\left\{ G_y:y \in Y \right\}$，CSP随机选择属性群密钥$K_{\lambda_y} \in \mathbb{Z}_p$，然后重加密$CT$进而产生$CT^\prime$。</li>
+</ul>
+<script type="math/tex; mode=display">
+CT^\prime=\left( \mathcal{T}, \widetilde{C}=Me\left ( g,g \right )^{\alpha s},C=h^s,\forall y \in Y:C_y=g^{q_y \left(0 \right )},C_y^\prime=\left(H \left(\lambda_y \right) ^ {q_y \left( 0  \right )} \right)^{K_{\lambda_y}}\right).</script><ul>
+<li>对于每一个群$G_i$，计算得到其最小覆盖密钥$KEK(G_i)$。比如$G_i=\left\{ u_1,u_2,u_3,u_4,u_5,u_7 \right\}$，那么$KEK(G_i)=\left\{ KEK_2,KEK_{12},KEK_{14}\right \}$。</li>
+<li>用所有的最小覆盖密钥加密该群的属性群密钥，即$\left\{E_K(K_{\lambda_y}) \right\}_{K \in KEK(G_y)}$（$E$为对称加密），然后所有的属性都是如此，公开此参数，即$Hdr=\left( \forall y \in Y:\left\{E_K(K_{\lambda_y}) \right\}_{K \in KEK(G_y)}\right)$。</li>
+</ul>
+<h5 id="Data-Decryption"><a href="#Data-Decryption" class="headerlink" title="Data Decryption"></a>Data Decryption</h5><p>密文的形式为：</p>
+<script type="math/tex; mode=display">
+CT^\prime=\left( \mathcal{T}, \widetilde{C}=Me\left ( g,g \right )^{\alpha s},C=h^s,\forall y \in Y:C_y=g^{q_y \left(0 \right )},C_y^\prime=\left(H \left(\lambda_y \right) ^ {q_y \left( 0  \right )} \right)^{K_{\lambda_y}}\right).</script><p>密钥的形式为：</p>
+<script type="math/tex; mode=display">
+SK_t=\left( D=g^{\left(\alpha +r \right)/\beta}, \forall \lambda_j \in \Lambda : D_j=g^r\cdot H(j)^{r_j}, D_j^\prime=g^{r_j} \right).</script><h6 id="属性群密钥解密"><a href="#属性群密钥解密" class="headerlink" title="属性群密钥解密"></a>属性群密钥解密</h6><p>当用户收到$Hdr$后，首先解密属性群密钥。如果用户$u_t$持有属性$\lambda_j$，那么他能解密$K_{\lambda_j}$，因为有且仅有一个$KEK \in KEK(G_j)\cap PK_t$，也就是说$Hdr$中含有诸多$K_{\lambda_j}$的密文（用不同的对称密钥加密），而$u_t$恰好有一把对称密钥可以解密。得到群密钥$K_{\lambda_j}$之后，用户$u_t$更新自己的私钥为：</p>
+<script type="math/tex; mode=display">
+SK_t=\left( D=g^{\left(\alpha +r \right)/\beta}, \forall \lambda_j \in \Lambda : D_j=g^r\cdot H(j)^{r_j}, D_j^\prime=(g^{r_j})^{1/K_{\lambda_j}} \right).</script><h6 id="密文解密"><a href="#密文解密" class="headerlink" title="密文解密"></a>密文解密</h6><p>首先定义一个递归的函数$DecryptNode(CT^\prime,SK,x)$（由下到上）:</p>
+<ul>
+<li><p>如果$x$为叶子节点，记$i=\lambda_x$。</p>
+<ul>
+<li><p>若$i \in \Lambda$（用户拥有属性$i$），则</p>
+<script type="math/tex; mode=display">
+DecryptNode(CT,SK,x) = \frac{e(D_i, C_x)}{e(D_i^\prime , C_x^ \prime)}= \frac{e(g^r \cdot H(x)^{r_i}, h^{q_x(0)})}{(e(g^{r_i})^{1/K_{\lambda_x}} , (H(i)^{q_x(0)})^{K_{\lambda_x}})} = e(g,g)^{rq_x(0)}.</script></li>
+<li><p>若$i \notin \Lambda$，则定义$DecryptNode(CT,SK,x) =\perp $。</p>
+</li>
+</ul>
+</li>
+<li><p>如果$x$为非叶子节点，则$DecryptNode(CT,SK,x)$的计算规则如下：</p>
+<ul>
+<li><p>对于$x$节点的所有孩子节点$z$，调用$F_z = DecryptNode(CT,SK,z)$函数，记$F_z \neq \perp $的所有节点的集合为$S^ \prime$，若$|S^ \prime|&lt;k_x$，则$DecryptNode(CT,SK,x) =\perp $。</p>
+</li>
+<li><p>相反的话，则选取$S^ \prime$集合中任意$k_x$个元素组成集合$S_x$，按如下方式计算$DecryptNode(CT,SK,x)$：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+&F_z=\prod _{z \in S_x} F_z ^{\Delta _{i,S_x^ \prime} (0)} \nonumber \\
+&=\prod _{z \in S_x} (e(g,g) ^ {rq_z(0)}) ^ {\Delta _{i,S_x^ \prime} (0)} \nonumber \\
+&=\prod _{z \in S_x} (e(g,g) ^ {rq_{p(z)}(index(z))}) ^ {\Delta _{i,S_x^ \prime} (0)} \nonumber \\
+&=\prod _{z \in S_x} (e(g,g)  ^ {r \cdot q_x(i) \cdot \Delta _{i,S_x^ \prime} (0)} \nonumber \\
+&=e(g,g)^{rq_x(0)}.\nonumber
+\end{aligned}</script></li>
+</ul>
+</li>
+</ul>
+<p>从递归函数的形式上看，尽管叶子节点和非叶子节点的具体计算方式不一样，但是有着统一的形式，因此只要能够依次满足条件地计算出树中适当个数的节点秘密值，就可以解密根节点的秘密值。即当属性集合$S$满足访问结构$\mathcal{T}$，那么就可以解密得到:</p>
+<script type="math/tex; mode=display">
+A = DecryptNode(CT,SK,r)=e(g,g)^{rq_R(0)} = e(g,g)^{rs}.</script><p>最后即可解密成功：</p>
+<script type="math/tex; mode=display">
+\widetilde{C}/(e(C,D)/A) = \widetilde{C}/(e(h^s,g^{((\alpha + r)/\beta )})/e(g,g)^{rs}) = M.</script><h5 id="Attribute-Revocation"><a href="#Attribute-Revocation" class="headerlink" title="Attribute Revocation"></a>Attribute Revocation</h5><p>假设属性群$G_i$中有成员变动（某用户撤销了属性$\lambda_i$，则需要更新密文和密钥，具体如下：</p>
+<ul>
+<li>CSP随机选择一个秘密值$s^\prime \in \mathbb{Z}_p$，然后再随机选取一个不一样的群密钥$K_{\lambda_i}^\prime \in \mathbb{Z}_p$，然后重加密密文得到新密文：</li>
+</ul>
+<script type="math/tex; mode=display">
+\begin{aligned}
+CT^\prime=\left( \mathcal{T}, \widetilde{C}=Me\left ( g,g \right )^{\alpha (s+s^\prime)},C=h^{s+s^\prime},C_i=g^{q_i \left(0 \right )+s^\prime},C_i^\prime=\left(H \left(\lambda_i \right) ^ {q_i \left( 0  \right )+s^\prime} \right)^{K_{\lambda_y}^\prime}, \\ \forall y \in Y\setminus \left\{i \right\}:C_y=g^{q_y \left(0 \right )+s^\prime},C_y^\prime=\left(H \left(\lambda_y \right) ^ {q_y \left( 0  \right )+s^\prime} \right)^{K_{\lambda_y}}\right).
+\end{aligned}</script><ul>
+<li>由于群$G_i$中有成员变动，那么此时的最小覆盖密钥发生了改变，重新计算$KEK(G_i)$，然后更新$Hdr$为$Hdr=\left( \left\{E_K(K_{\lambda_i}^\prime) \right\}_{K \in KEK(G_i)}，\forall y \in Y:\left\{E_K(K_{\lambda_y}) \right\}_{K \in KEK(G_y)}\right)$</li>
+</ul>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>Hur1-ABE首次提出属性群的概念，通过属性群借助KEK树的技巧完成属性的撤销。属性群的提出为属性的撤销机制开辟了道路，后续的ABE方案中有许多学者沿袭这一概念，从而衍生出不同的属性撤销方案，比如说接下来的Hur2-ABE方案等。然而方案并不能抵抗撤销用户与未撤销用户之间的共谋，这是因为属性群中对应的每个节点的节点密钥不变，而且CSP会根据用户所在的位置将其路径密钥发送给用户，如果用户将路径密钥给撤销用户，或者更直接一点，用户直接将解密的属性群密钥给撤销用户，这样一来，撤销用户还是可以自己更新到正确的密钥，从而解密最近的密文。</p>
+<p><span name="ref1" >J. Hur and D. K. Noh, “Attribute-based Access Control with Efficient Revocation in Data Outsourcing Systems,” IEEE Transactions on Parallel and Distributed Systems, vol. 22, no. 7, pp. 1214–1221, Jul. 2011.</span></p>
+<p><span name="ref2" >J. Hur, “Improving Security and Efficiency in Attribute-Based Data Sharing,” IEEE Transactions on Knowledge and Data Engineering, vol. 25, no. 10, pp. 2271-2282, Oct. 2013.</span></p>
+]]></content>
+      <categories>
+        <category>属性基加密</category>
+      </categories>
+      <tags>
+        <tag>属性基加密</tag>
+        <tag>属性撤销</tag>
+        <tag>共谋攻击</tag>
       </tags>
   </entry>
   <entry>
@@ -73,7 +188,7 @@ e(g,g)^{\alpha s}e(g,g)^{ast}/( \prod _{i \in I} e(g,g)^{ta\lambda _i \omega _i}
 <li>以上模型没有Init阶段（在模糊身份基加密的模型中有init阶段），称之为选择明文攻击下不可区分安全（IND-CPA）。如果在Init阶段攻击者声明想要挑战的访问结构，则称之为选择安全模型。很显然，选择安全模型描述的安全性弱一些。</li>
 <li>若是在Phase 1阶段还适应性地查询密文，则称之为适应性选择密文攻击安全模型1（CCA1），若是继续在Phase 2阶段还适应性地查询密文，则称之为适应性选择密文攻击安全模型2（CCA2)。很显然，就安全性而言，IND-CPA、CCA1、CCA2依次增强。</li>
 </ul>
-<h4 id="FIBE具体构造"><a href="#FIBE具体构造" class="headerlink" title="FIBE具体构造"></a>FIBE具体构造</h4><h5 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a><strong>Setup</strong></h5><p>系统选择双线性群$\mathbb{G}_0$，阶数为$p$，生成元为$g$。然后随机选择两个指数$\alpha ,\beta \in \mathbb{Z}_p$，系统公开参数为：</p>
+<h4 id="CP-ABE具体构造"><a href="#CP-ABE具体构造" class="headerlink" title="CP-ABE具体构造"></a>CP-ABE具体构造</h4><h5 id="Setup"><a href="#Setup" class="headerlink" title="Setup"></a><strong>Setup</strong></h5><p>系统选择双线性群$\mathbb{G}_0$，阶数为$p$，生成元为$g$。然后随机选择两个指数$\alpha ,\beta \in \mathbb{Z}_p$，系统公开参数为：</p>
 <script type="math/tex; mode=display">
 PK=\left ( \mathbb{G}_0,g,h=g^\beta ,f=g^{1/\beta },e\left ( g,g \right )^\alpha  \right ).</script><p>主密钥为：$MK=\left ( \beta ,g^\alpha  \right )$。</p>
 <h5 id="Encrypt-PK-M-mathcal-T"><a href="#Encrypt-PK-M-mathcal-T" class="headerlink" title="Encrypt($PK,M,\mathcal{T}$)"></a>Encrypt($PK,M,\mathcal{T}$)</h5><p>用访问控制树$\mathcal{T}$对消息$M$进行加密，具体过程如下：</p>
@@ -81,8 +196,8 @@ PK=\left ( \mathbb{G}_0,g,h=g^\beta ,f=g^{1/\beta },e\left ( g,g \right )^\alpha
 <p>多项式的选取遵循由根节点到叶子节点（从上到下）的方式。从根节点$R$开始，选择秘密值$s \in \mathbb{Z}_p$，并设置$q_R \left(0 \right)=s$，然后随机选择其他项的次数。对于其他节点$x$，递归的设置$q_x \left( 0 \right) = q_{p\left(x \right)} \left(index\left(x \right) \right)$，至于$q_x$的其他系数随机选择。</p>
 <p>记$Y$为树$\mathcal{T}$的叶子节点的集合，然后密文可以表示为：</p>
 <script type="math/tex; mode=display">
-CT=\left( \mathcal{T}, \widetilde{C}=Me\left ( g,g \right )^{\alpha s},C=h^s,\forall j \in S:C_y=g^{q_y \left(0 \right )},
-C_y^\prime=H \left(att \left(y \right) \right) ^ {q_y \left( 0  \right )} \right).</script><p>其中，$att \left(y \right)$表示的是叶子节点$y$对应的属性，$H \left( \right)$表示将属性映射到$\mathbb{G}_0$。</p>
+CT=\left( \mathcal{T}, \widetilde{C}=Me\left ( g,g \right )^{\alpha s},C=h^s,\forall y \in Y:C_y=g^{q_y \left(0 \right )},
+C_y^\prime=H \left(att \left(y \right) \right) ^ {q_y \left( 0  \right )} \right).</script><p>其中，$att \left(y \right)$表示的是叶子节点$y$对应的属性，$H \left( \cdot \right)$表示将属性映射到$\mathbb{G}_0$。</p>
 <h5 id="KeyGen-MK-S"><a href="#KeyGen-MK-S" class="headerlink" title="KeyGen($MK,S$)"></a>KeyGen($MK,S$)</h5><p>给定一个用户的属性集合$S$，输出对应的密钥$SK$，具体如下：</p>
 <p>随机选择$r \in \mathbb{Z}_p$，对于$\forall j \in S$， 随机选择$r_j \in \mathbb{Z}_p$，然后计算密钥如下：</p>
 <script type="math/tex; mode=display">
@@ -92,7 +207,7 @@ SK=\left( D=g^{\left(\alpha +r \right)/\beta}, \forall j \in S: D_j=g^r\cdot H(j
 \widetilde{SK}=(\widetilde{D}=Df^{\widetilde{r}},\forall k \in \widetilde{S}:
 \widetilde{D}_k=D_kg^{\widetilde{r}}H(k)^{\widetilde{r}_k},\widetilde{D}_k^\prime=D_k^\prime g^{\widetilde{r}_k}).</script><h5 id="Decrypt-CT-SK"><a href="#Decrypt-CT-SK" class="headerlink" title="Decrypt($CT,SK$)"></a>Decrypt($CT,SK$)</h5><p>密文的形式为：</p>
 <script type="math/tex; mode=display">
-CT=\left( \mathcal{T}, \widetilde{C}=Me\left ( g,g \right )^{\alpha s},C=h^s,\forall j \in S:C_y=g^{q_y \left(0 \right )},C_y^\prime=H \left(att \left(y \right) \right) ^ {q_y \left( 0  \right )} \right).</script><p>密钥的形式为：</p>
+CT=\left( \mathcal{T}, \widetilde{C}=Me\left ( g,g \right )^{\alpha s},C=h^s,\forall y \in Y:C_y=g^{q_y \left(0 \right )},C_y^\prime=H \left(att \left(y \right) \right) ^ {q_y \left( 0  \right )} \right).</script><p>密钥的形式为：</p>
 <script type="math/tex; mode=display">
 SK=\left( D=g^{\left(\alpha +r \right)/\beta}, \forall j \in S: D_j=g^r\cdot H(j)^{r_j}, D_j^\prime=g^{r_j} \right).</script><p>首先定义一个递归的函数$DecryptNode(CT,SK,x)$（由下到上）:</p>
 <ul>
@@ -111,13 +226,13 @@ DecryptNode(CT,SK,x) = \frac{e(D_i, C_x)}{e(D_i^\prime , C_x^ \prime)}= \frac{e(
 </li>
 <li><p>相反的话，则选取$S^ \prime$集合中任意$k_x$个元素组成集合$S_x$，按如下方式计算$DecryptNode(CT,SK,x)$：</p>
 <script type="math/tex; mode=display">
-\begin{align}
-F_z=\prod _{z \in S_x} F_z ^{\Delta _{i,S_x^ \prime} (0)} \nonumber \\
-=\prod _{z \in S_x} (e(g,g) ^ {rq_z(0)}) ^ {\Delta _{i,S_x^ \prime} (0)} \nonumber \\
-=\prod _{z \in S_x} (e(g,g) ^ {rq_{p(z)}(index(z))}) ^ {\Delta _{i,S_x^ \prime} (0)} \nonumber \\
-=\prod _{z \in S_x} (e(g,g)  ^ {r \cdot q_x(i) \cdot \Delta _{i,S_x^ \prime} (0)} \nonumber \\
-=e(g,g)^{rq_x(0)}.\nonumber
-\end{align}</script></li>
+\begin{aligned}
+&F_z=\prod _{z \in S_x} F_z ^{\Delta _{i,S_x^ \prime} (0)} \nonumber \\
+&=\prod _{z \in S_x} (e(g,g) ^ {rq_z(0)}) ^ {\Delta _{i,S_x^ \prime} (0)} \nonumber \\
+&=\prod _{z \in S_x} (e(g,g) ^ {rq_{p(z)}(index(z))}) ^ {\Delta _{i,S_x^ \prime} (0)} \nonumber \\
+&=\prod _{z \in S_x} (e(g,g)  ^ {r \cdot q_x(i) \cdot \Delta _{i,S_x^ \prime} (0)} \nonumber \\
+&=e(g,g)^{rq_x(0)}.\nonumber
+\end{aligned}</script></li>
 </ul>
 </li>
 </ul>
@@ -158,18 +273,18 @@ t_1,...t_{|U|},y.</script><h5 id="Key-Generation"><a href="#Key-Generation" clas
 <script type="math/tex; mode=display">
 E=\left ( {\omega}',{E}'=MY^s,\left \{ E_i =T_i^s\right \}_{i \in {\omega}'} \right ).</script><h5 id="Decryption"><a href="#Decryption" class="headerlink" title="Decryption"></a>Decryption</h5><p>假设用户的属性集合与蕴含在密文中的属性集合相交的属性个数多于$d$，即$|{\omega }’\cap \omega|\geq d$，那么他能按照如下方式成功解密。首先在属性交集${\omega }’\cap \omega$中任意选择$d$个属性集合$S$，然后根据拉格朗日插值算法，可以解密密文：</p>
 <script type="math/tex; mode=display">
-\begin {align}
-{E}'/\prod _{i \in S}\left ( e\left ( D_i,E_i \right ) \right )^{\Delta_{i,S}\left ( 0 \right )} \nonumber \\
-=Me\left ( g,g \right )^{sy}/ \prod _{i \in S}\left ( e\left ( g^{\frac{q\left ( i \right )}{t_i}},g^{st_i} \right ) \right )^{\Delta_{i,S}\left ( 0 \right )} \nonumber \\
-=Me\left ( g,g \right )^{sy}/ \prod _{i \in S}\left ( e\left ( g,g \right )^{sq\left ( i \right )} \right )^{\Delta_{i,S}\left ( 0 \right )} \nonumber \\
-=M \nonumber
-\end {align}</script><p>其中$\Delta_{i,S}\left ( 0 \right )$为拉格朗日系数的0值，$\Delta_{i,S}\left ( x \right ) = \prod _{j \in S,j\neq i}\frac{x-j}{i-j}$。</p>
+\begin {aligned}
+&{E}'/\prod _{i \in S}\left ( e\left ( D_i,E_i \right ) \right )^{\Delta_{i,S}\left ( 0 \right )} \nonumber \\
+&=Me\left ( g,g \right )^{sy}/ \prod _{i \in S}\left ( e\left ( g^{\frac{q\left ( i \right )}{t_i}},g^{st_i} \right ) \right )^{\Delta_{i,S}\left ( 0 \right )} \nonumber \\
+&=Me\left ( g,g \right )^{sy}/ \prod _{i \in S}\left ( e\left ( g,g \right )^{sq\left ( i \right )} \right )^{\Delta_{i,S}\left ( 0 \right )} \nonumber \\
+&=M \nonumber
+\end {aligned}</script><p>其中$\Delta_{i,S}\left ( 0 \right )$为拉格朗日系数的0值，$\Delta_{i,S}\left ( x \right ) = \prod _{j \in S,j\neq i}\frac{x-j}{i-j}$。</p>
 <h4 id="安全性证明"><a href="#安全性证明" class="headerlink" title="安全性证明"></a>安全性证明</h4><p>密码学中构建方案，通常将方案的安全性规约到某个数学困难问题，用反证法的思想，当难题是困难的，那么攻破方案就是困难的。FIBE方案是在选择身份模型下将方案规约到MBDH问题。以下描述模糊选择身份模型（Selective-ID模型，属性基加密中为Selective-Set模型）：</p>
 <p><strong>Init</strong> 攻击者声明想要挑战的身份$\alpha $（即一个属性集合）。</p>
 <p><strong>Setup</strong> 挑战者运行系统的Setup算法生成系统参数，将公共参数告诉攻击者。</p>
-<p><strong>Phase1</strong> 攻击者可以对许多身份$\gamma _j$进行密钥询问，前提是$\forall j$，$|\gamma _j \cap \alpha |&lt;d$。</p>
+<p><strong>Phase 1</strong> 攻击者可以对许多身份$\gamma _j$进行密钥询问，前提是$\forall j$，$|\gamma _j \cap \alpha |&lt;d$。</p>
 <p><strong>Challenge</strong>  攻击者提交两个等长的密文$M_0,M_1$，挑战者抛掷一枚硬币$b \in \left \{ 0,1 \right \}$，然后用$\alpha $加密$M_b$。挑战者将密文发送给攻击者。</p>
-<p><strong>Phase2</strong> Phase 1过程重复。</p>
+<p><strong>Phase 2</strong> Phase 1过程重复。</p>
 <p><strong>Guess</strong> 攻击者给出$b$的猜想${b}’$。</p>
 <p>以上游戏中攻击者的优势定义为$Pr\left [ {b}’=b \right ]-\frac{1}{2}$。</p>
 <p>以后会发现证明安全性的时候，以上攻击者和挑战者的游戏经常看到。在这里就不细讲证明的过程，后面会专门写一篇文章介绍方案的安全性证明。从FIBE的构造来看，主要运用的数学技巧是双线性映射和拉格朗日插值。这两个数学技巧是构建属性基加密方案的基础，FIBE只是用了一次插值，而前面介绍的访问控制树结构本质上是多次运用拉格朗日插值，然后构造成一个访问结构供方案使用，还有一些分层的FIBE（可以理解为分层的门限属性基加密），也是多次运用拉格朗日插值，比如文献<sup><a href="ref3">3</a></sup> 等。</p>
