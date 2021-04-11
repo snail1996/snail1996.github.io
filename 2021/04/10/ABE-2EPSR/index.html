@@ -312,7 +312,7 @@ SK=(K=g^\alpha g^{at},L=g^t,\forall x \in S:K_x = h_x^t).</script><h6 id="Decryp
 &e(C^\prime,K)/( \prod _{i \in I} (e(C_i,L)e(C^ \prime,K_{\rho(i)}))^{\omega _i})= \nonumber \\
 &e(g,g)^{\alpha s}e(g,g)^{ast}/( \prod _{i \in I} e(g,g)^{ta\lambda _i \omega _i})=e(g,g)^{\alpha s} \nonumber
 \end{aligned}</script><p>进而就能从$C$部件中恢复出明文$\mathcal{M}$。</p>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>从以上描述的两种构造方式来看，其访问结构均为线性秘密共享，初一看两个方案的整体差不多。就密文而言，第一种构造对于每个属性有两项，而第二种构造只有一项；就密钥而言，二者产生的是一样的。两种构造最大的差别就是基于的难题形式不同（本质上都是离散对数难题，Diffie-Hellman难题只是很多的变种）。由于第一种构造基于q-PBDHE假设，比较复杂，第二种构造基于q-BDHE，相对简单。这两种方案的构造为后面的ABE的构造带来启示，许多ABE方案都是在这两种方案上拓展的。此外，这两个方案还是仅仅针对基本的四个过程，后面的ABE方案会关注属性撤销、多个权威机构、防止共谋攻击等安全需求。ABE方案的设计能兼顾更多地安全需求自然是更好地，更符合现实场景，进而更实用。<br><span name="ref1" >B. Waters, “Ciphertext-policy attribute-based encryption: An expressive, efficient, and provably secure realization,” in <em>Proc. PKC’11</em>, 2011, pp. 53–70, Springer.</span></p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>从以上描述的两种构造方式来看，其访问结构均为线性秘密共享，初一看两个方案的整体差不多。就密文而言，第一种构造对于每个属性有两项，而第二种构造只有一项；就密钥而言，二者产生的是一样的。两种构造最大的差别就是基于的难题形式不同（本质上都是离散对数难题，Diffie-Hellman难题只是很多的变种）。由于第一种构造基于q-PBDHE假设，比较复杂，第二种构造基于q-BDHE，相对简单。这两种方案的构造为后面的ABE的构造带来启示，许多ABE方案都是在这两种方案上拓展的。此外，这两个方案还是仅仅针对基本的四个过程，后面的ABE方案会关注属性撤销、多个权威机构、防止共谋攻击等安全需求。ABE方案的设计能兼顾更多地安全需求自然是更好地，更符合现实场景，进而更实用。<br><span name="ref1">B. Waters, “Ciphertext-policy attribute-based encryption: An expressive, efficient, and provably secure realization,” in <em>Proc. PKC’11</em>, 2011, pp. 53–70, Springer.</span></p>
 
     </div>
 
@@ -625,7 +625,7 @@ SK=(K=g^\alpha g^{at},L=g^t,\forall x \in S:K_x = h_x^t).</script><h6 id="Decryp
   <!--彩带2.自动飘动-->
       <!-- <script src="https://g.joyinshare.com/hc/piao.js" type="text/javascript"></script> -->
       <script type="text/javascript" src="/js/ribbon_flow.js"></script>
-<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":140,"height":260},"moblie":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"live2d-widget-model-hijiki"},"display":{"position":"right","width":140,"height":260},"moblie":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
 </html>
 <!-- 引入jQuery -->
 <script type="text/javascript" src="//libs.baidu.com/jquery/1.8.3/jquery.min.js"></script>

@@ -43,7 +43,7 @@ SK=(K=g^\alpha g^{at},L=g^t,\forall x \in S:K_x = h_x^t).</script><h6 id="Decryp
 &e(C^\prime,K)/( \prod _{i \in I} (e(C_i,L)e(C^ \prime,K_{\rho(i)}))^{\omega _i})= \nonumber \\
 &e(g,g)^{\alpha s}e(g,g)^{ast}/( \prod _{i \in I} e(g,g)^{ta\lambda _i \omega _i})=e(g,g)^{\alpha s} \nonumber
 \end{aligned}</script><p>进而就能从$C$部件中恢复出明文$\mathcal{M}$。</p>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>从以上描述的两种构造方式来看，其访问结构均为线性秘密共享，初一看两个方案的整体差不多。就密文而言，第一种构造对于每个属性有两项，而第二种构造只有一项；就密钥而言，二者产生的是一样的。两种构造最大的差别就是基于的难题形式不同（本质上都是离散对数难题，Diffie-Hellman难题只是很多的变种）。由于第一种构造基于q-PBDHE假设，比较复杂，第二种构造基于q-BDHE，相对简单。这两种方案的构造为后面的ABE的构造带来启示，许多ABE方案都是在这两种方案上拓展的。此外，这两个方案还是仅仅针对基本的四个过程，后面的ABE方案会关注属性撤销、多个权威机构、防止共谋攻击等安全需求。ABE方案的设计能兼顾更多地安全需求自然是更好地，更符合现实场景，进而更实用。<br><span name="ref1" >B. Waters, “Ciphertext-policy attribute-based encryption: An expressive, efficient, and provably secure realization,” in <em>Proc. PKC’11</em>, 2011, pp. 53–70, Springer.</span></p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>从以上描述的两种构造方式来看，其访问结构均为线性秘密共享，初一看两个方案的整体差不多。就密文而言，第一种构造对于每个属性有两项，而第二种构造只有一项；就密钥而言，二者产生的是一样的。两种构造最大的差别就是基于的难题形式不同（本质上都是离散对数难题，Diffie-Hellman难题只是很多的变种）。由于第一种构造基于q-PBDHE假设，比较复杂，第二种构造基于q-BDHE，相对简单。这两种方案的构造为后面的ABE的构造带来启示，许多ABE方案都是在这两种方案上拓展的。此外，这两个方案还是仅仅针对基本的四个过程，后面的ABE方案会关注属性撤销、多个权威机构、防止共谋攻击等安全需求。ABE方案的设计能兼顾更多地安全需求自然是更好地，更符合现实场景，进而更实用。<br><span name="ref1">B. Waters, “Ciphertext-policy attribute-based encryption: An expressive, efficient, and provably secure realization,” in <em>Proc. PKC’11</em>, 2011, pp. 53–70, Springer.</span></p>
 ]]></content>
       <categories>
         <category>属性基加密</category>
@@ -72,7 +72,7 @@ SK=(K=g^\alpha g^{at},L=g^t,\forall x \in S:K_x = h_x^t).</script><h6 id="Decryp
 </ul>
 <p>本文主要介绍Hur和Noh的方案构造，之所以取名字为Hur1-ABE<sup><a href="ref1">1</a></sup>，是与Hur后来提出的Hur2-ABE<sup><a href="ref2">2</a></sup>相区别的，Hur2-ABE在后边会具体介绍。</p>
 <h4 id="KEK树描述"><a href="#KEK树描述" class="headerlink" title="KEK树描述"></a>KEK树描述</h4><p>Hur1-ABE实现属性撤销的方式，是借助KEK树这一特殊结构，并将用户根据不同的属性创建属性群，然后针对每一个属性群，构造一颗KEK树。这个KEK树的结构主要作用是共享群密钥，从而相应地嵌入到密文密钥中，以便日后的属性撤销。那么我们来看一看KEK树是怎样的一种结构吧。</p>
-<p><img src=".\KEK Tree.PNG" width="80%"></p>
+<p><img src="/.io//KEK Tree.jpg" width="80%"></p>
 <p>KEK树本质上是一颗二叉树，树的每一个叶子节点和一个用户相联系。树中的每一个节点$v_j$都有一个密钥更新密钥$KEK_j$，为了方案的理解，定义一些与之有关的概念。</p>
 <ul>
 <li>路径节点集合$path(y)$：描述的是叶子节点到根节点的路径节点的集合，比如$v_9$节点的路径节点$path(v_9)= \left\{v_4,v_2,v_1 \right \}$。</li>
@@ -159,8 +159,8 @@ A = DecryptNode(CT,SK,r)=e(g,g)^{rq_R(0)} = e(g,g)^{rs}.</script><p>最后即可
 <li>由于群$G_i$中有成员变动，那么此时的最小覆盖密钥发生了改变，重新计算$KEK(G_i)$，然后更新$Hdr$为$Hdr=\left( \left\{E_K(K_{\lambda_i}^\prime) \right\}_{K \in KEK(G_i)}，\forall y \in Y:\left\{E_K(K_{\lambda_y}) \right\}_{K \in KEK(G_y)}\right)$。</li>
 </ul>
 <h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>Hur1-ABE首次提出属性群的概念，通过属性群借助KEK树的技巧完成属性的撤销。属性群的提出为属性的撤销机制开辟了道路，后续的ABE方案中有许多学者沿袭这一概念，从而衍生出不同的属性撤销方案，比如说接下来的Hur2-ABE方案等。然而方案并不能抵抗撤销用户与未撤销用户之间的共谋，这是因为属性群中对应的每个节点的节点密钥不变，而且CSP会根据用户所在的位置将其路径密钥发送给用户，如果用户将路径密钥给撤销用户，或者更直接一点，用户直接将解密的属性群密钥给撤销用户，这样一来，撤销用户还是可以自己更新到正确的密钥，从而解密最近的密文。</p>
-<p><span name="ref1" >J. Hur and D. K. Noh, “Attribute-based Access Control with Efficient Revocation in Data Outsourcing Systems,” IEEE Transactions on Parallel and Distributed Systems, vol. 22, no. 7, pp. 1214–1221, Jul. 2011.</span></p>
-<p><span name="ref2" >J. Hur, “Improving Security and Efficiency in Attribute-Based Data Sharing,” IEEE Transactions on Knowledge and Data Engineering, vol. 25, no. 10, pp. 2271-2282, Oct. 2013.</span></p>
+<p><span name="ref1">J. Hur and D. K. Noh, “Attribute-based Access Control with Efficient Revocation in Data Outsourcing Systems,” IEEE Transactions on Parallel and Distributed Systems, vol. 22, no. 7, pp. 1214–1221, Jul. 2011.</span></p>
+<p><span name="ref2">J. Hur, “Improving Security and Efficiency in Attribute-Based Data Sharing,” IEEE Transactions on Knowledge and Data Engineering, vol. 25, no. 10, pp. 2271-2282, Oct. 2013.</span></p>
 ]]></content>
       <categories>
         <category>属性基加密</category>
@@ -244,8 +244,8 @@ DecryptNode(CT,SK,x) = \frac{e(D_i, C_x)}{e(D_i^\prime , C_x^ \prime)}= \frac{e(
 A = DecryptNode(CT,SK,r)=e(g,g)^{rq_R(0)} = e(g,g)^{rs}.</script><p>最后即可解密成功：</p>
 <script type="math/tex; mode=display">
 \widetilde{C}/(e(C,D)/A) = \widetilde{C}/(e(h^s,g^{((\alpha + r)/\beta )})/e(g,g)^{rs}) = M.</script><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>以上便是最初的CP-ABE方案的构造，访问结构由访问控制树的形式给出，方案中除了基本的系统初始化、密钥生成、加密和解密四个步骤外，还有一个密钥“委派”的步骤，这个可能是受分层身份基加密（HIBE)的影响。文中抵抗共谋攻击的方式是靠随机数$r$，对于每一个用户都会有一个不同的$r$，从递归函数$DecryptNode$可以看出每一步计算都有$r$项参与，如果没有足够多的项是无法解密根节点的秘密值，进而无法解密密文，而不同的$r$得到的结果不能进行拉格朗日插值，算出结果。以后的ABE方案侧重于用户撤销、属性撤销、多个属性权威等等安全需求，这些在之后的文章中有介绍。</p>
-<p><span name="ref1" >V. Goyal, O. Pandey, A. Sahai, and B. Waters, “Attribute-Based Encryption for Fine-grained Access Control of Encrypted Data,” in <em>Proceedings of the 13th ACM Conference on Computer and Communications Security</em>, Alexandria, Virginia, USA, 2006, pp. 89–98.</span></p>
-<p><span name="ref2" >J. Bethencourt, A. Sahai, and B. Waters, “Ciphertext-Policy Attribute-Based Encryption,” in <em>IEEE Symposium on Security &amp; Privacy</em>, Oakland, USA, May 2007, pp. 321–334.</span></p>
+<p><span name="ref1">V. Goyal, O. Pandey, A. Sahai, and B. Waters, “Attribute-Based Encryption for Fine-grained Access Control of Encrypted Data,” in <em>Proceedings of the 13th ACM Conference on Computer and Communications Security</em>, Alexandria, Virginia, USA, 2006, pp. 89–98.</span></p>
+<p><span name="ref2">J. Bethencourt, A. Sahai, and B. Waters, “Ciphertext-Policy Attribute-Based Encryption,” in <em>IEEE Symposium on Security &amp; Privacy</em>, Oakland, USA, May 2007, pp. 321–334.</span></p>
 ]]></content>
       <categories>
         <category>属性基加密</category>
@@ -291,8 +291,8 @@ E=\left ( {\omega}',{E}'=MY^s,\left \{ E_i =T_i^s\right \}_{i \in {\omega}'} \ri
 <p><strong>Guess</strong> 攻击者给出$b$的猜想${b}’$。</p>
 <p>以上游戏中攻击者的优势定义为$Pr\left [ {b}’=b \right ]-\frac{1}{2}$。</p>
 <p>以后会发现证明安全性的时候，以上攻击者和挑战者的游戏经常看到。在这里就不细讲证明的过程，后面会专门写一篇文章介绍方案的安全性证明。从FIBE的构造来看，主要运用的数学技巧是双线性映射和拉格朗日插值。这两个数学技巧是构建属性基加密方案的基础，FIBE只是用了一次插值，而前面介绍的访问控制树结构本质上是多次运用拉格朗日插值，然后构造成一个访问结构供方案使用，还有一些分层的FIBE（可以理解为分层的门限属性基加密），也是多次运用拉格朗日插值，比如文献<sup><a href="ref3">3</a></sup> 等。</p>
-<p><span name="ref1" >J. Bethencourt, A. Sahai, and B. Waters, “Ciphertext-Policy Attribute-Based Encryption,” in <em>IEEE Symposium on Security &amp; Privacy</em>, Oakland, USA, May 2007, pp. 321–334.</span></p>
-<p><span name="ref2" >A. Sahai and B. Waters, “Fuzzy Identity-Based Encryption,” in <em>Proceedings of the 24th annual international conference on Theory and Applications of Cryptographic Techniques</em>, Arahus, Denmark, 2005, pp. 457–473.</span></p>
+<p><span name="ref1">J. Bethencourt, A. Sahai, and B. Waters, “Ciphertext-Policy Attribute-Based Encryption,” in <em>IEEE Symposium on Security &amp; Privacy</em>, Oakland, USA, May 2007, pp. 321–334.</span></p>
+<p><span name="ref2">A. Sahai and B. Waters, “Fuzzy Identity-Based Encryption,” in <em>Proceedings of the 24th annual international conference on Theory and Applications of Cryptographic Techniques</em>, Arahus, Denmark, 2005, pp. 457–473.</span></p>
 <p><span name="ref3">M. Chase, “Multi-Authority Attribute Based Encryption,” in <em>Proceedings of 4th Theory of Cryptography Conference on Theory of Cryptography (TCC’07)</em>, 2007, pp. 515-534.</span></p>
 ]]></content>
       <categories>
@@ -336,13 +336,13 @@ l_j\left ( x \right )=\prod _{i=0,i\neq j}^k \frac{x-x_i}{x_j-x_i}= \frac{x-x_0}
 </ul>
 <p>线性秘密共享方案具有线性重构的特性。假设一个线性秘密共享方案$\prod $代表一个访问结构，令$A \in \mathbb{A} $表示一个授权的属性集合，索引集合$I \subset  \left \{ 1,…,l \right \}$定义为$I=\left \{ i:\rho \left ( i \right ) \in A \right \}$。根据线性重构的性质，则存在一系列常数的集合$\left \{ \omega_i \in \mathbb{Z}_p  \right \}_{i \in I}$，使得$s=\sum _{i \in I} \omega _i\delta _i$。而且这些常数能在多项式时间内找到。对于任何非授权的集合，找不到满足条件的一组常数。</p>
 <h4 id="三种访问结构对比"><a href="#三种访问结构对比" class="headerlink" title="三种访问结构对比"></a>三种访问结构对比</h4><p>从访问结构的表达力上说，与门访问结构是比较差的，因为其是属性的与的关系，所以匹配的条件比较严格，由最初的二值属性（有或者没有）在一定程度上拓展了其表达力。访问控制树和线性秘密共享方案是可以等价的，描述的都是单调的访问结构（单调访问结构直观上理解就是，a的属性集合满足访问结构，而a有的属性b都有，那么b的属性集合必然也满足访问结构），能支持与门、或门以及其他门限，因此表达力强一些。文献<sup><a href="ref7">7</a></sup> 描述了由访问控制树如何转化为线性秘密共享的生成矩阵（只含有0,1和-1）。</p>
-<p><span name="ref1" >A. Sahai and B. Waters, “Fuzzy Identity-Based Encryption,” in <em>Proceedings of the 24th annual international conference on Theory and Applications of Cryptographic Techniques</em>, Arahus, Denmark, 2005, pp. 457–473.</span></p>
-<p><span name="ref2" >J. Bethencourt, A. Sahai, and B. Waters, “Ciphertext-Policy Attribute-Based Encryption,” in <em>IEEE Symposium on Security &amp; Privacy</em>, Oakland, USA, May 2007, pp. 321–334.</span></p>
-<p><span name="ref3" >V. Goyal, O. Pandey, A. Sahai, and B. Waters, “Attribute-Based Encryption for Fine-grained Access Control of Encrypted Data,” in <em>Proceedings of the 13th ACM Conference on Computer and Communications Security</em>, Alexandria, Virginia, USA, 2006, pp. 89–98.</span></p>
-<p><span name="ref4" >H. H. Krawczyk, “A high-performance secure Diffie–Hellman protocol,” in <em>Advances in Cryptology</em>. Berlin, Germany: Springer, 2005, pp. 1–62.</span></p>
-<p><span name="ref5" >A. Beimel, “Secure Schemes for Secret Sharing and Key Distribution,”PhD thesis, Israel Institute of Technology, Technion, Haifa, Israel, 1996.</span></p>
-<p><span name="ref6" >L. Cheung and C. Newport, “Provably Secure Ciphertext Policy ABE,” in <em>Proceedings of ACM Conference on Computer and Commmunications Security</em>, pp. 456-465, 2007.</span></p>
-<p><span name="ref7" >S. Ruj, A. Nayak and I. Stojmenovic, “DACC: Distributed Access Control in Clouds,” in <em>2011IEEE 10th International Conference on Trust, Security and Privacy in Computing and Communications</em>, Changsha, 2011, pp. 91-98.</span></p>
+<p><span name="ref1">A. Sahai and B. Waters, “Fuzzy Identity-Based Encryption,” in <em>Proceedings of the 24th annual international conference on Theory and Applications of Cryptographic Techniques</em>, Arahus, Denmark, 2005, pp. 457–473.</span></p>
+<p><span name="ref2">J. Bethencourt, A. Sahai, and B. Waters, “Ciphertext-Policy Attribute-Based Encryption,” in <em>IEEE Symposium on Security &amp; Privacy</em>, Oakland, USA, May 2007, pp. 321–334.</span></p>
+<p><span name="ref3">V. Goyal, O. Pandey, A. Sahai, and B. Waters, “Attribute-Based Encryption for Fine-grained Access Control of Encrypted Data,” in <em>Proceedings of the 13th ACM Conference on Computer and Communications Security</em>, Alexandria, Virginia, USA, 2006, pp. 89–98.</span></p>
+<p><span name="ref4">H. H. Krawczyk, “A high-performance secure Diffie–Hellman protocol,” in <em>Advances in Cryptology</em>. Berlin, Germany: Springer, 2005, pp. 1–62.</span></p>
+<p><span name="ref5">A. Beimel, “Secure Schemes for Secret Sharing and Key Distribution,”PhD thesis, Israel Institute of Technology, Technion, Haifa, Israel, 1996.</span></p>
+<p><span name="ref6">L. Cheung and C. Newport, “Provably Secure Ciphertext Policy ABE,” in <em>Proceedings of ACM Conference on Computer and Commmunications Security</em>, pp. 456-465, 2007.</span></p>
+<p><span name="ref7">S. Ruj, A. Nayak and I. Stojmenovic, “DACC: Distributed Access Control in Clouds,” in <em>2011IEEE 10th International Conference on Trust, Security and Privacy in Computing and Communications</em>, Changsha, 2011, pp. 91-98.</span></p>
 ]]></content>
       <categories>
         <category>属性基加密</category>
