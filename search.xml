@@ -72,7 +72,7 @@ SK=(K=g^\alpha g^{at},L=g^t,\forall x \in S:K_x = h_x^t).</script><h6 id="Decryp
 </ul>
 <p>本文主要介绍Hur和Noh的方案构造，之所以取名字为Hur1-ABE<sup><a href="ref1">1</a></sup>，是与Hur后来提出的Hur2-ABE<sup><a href="ref2">2</a></sup>相区别的，Hur2-ABE在后边会具体介绍。</p>
 <h4 id="KEK树描述"><a href="#KEK树描述" class="headerlink" title="KEK树描述"></a>KEK树描述</h4><p>Hur1-ABE实现属性撤销的方式，是借助KEK树这一特殊结构，并将用户根据不同的属性创建属性群，然后针对每一个属性群，构造一颗KEK树。这个KEK树的结构主要作用是共享群密钥，从而相应地嵌入到密文密钥中，以便日后的属性撤销。那么我们来看一看KEK树是怎样的一种结构吧。</p>
-
+<img src="/.io//04/11/Hur1-ABE/KEK_Tree.jpg" class title="KEK_Tree">
 <p>KEK树本质上是一颗二叉树，树的每一个叶子节点和一个用户相联系。树中的每一个节点$v_j$都有一个密钥更新密钥$KEK_j$，为了方案的理解，定义一些与之有关的概念。</p>
 <ul>
 <li>路径节点集合$path(y)$：描述的是叶子节点到根节点的路径节点的集合，比如$v_9$节点的路径节点$path(v_9)= \left\{v_4,v_2,v_1 \right \}$。</li>
