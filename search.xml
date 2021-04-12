@@ -73,6 +73,7 @@ SK=(K=g^\alpha g^{at},L=g^t,\forall x \in S:K_x = h_x^t).</script><h6 id="Decryp
 <p>本文主要介绍Hur和Noh的方案构造，之所以取名字为Hur1-ABE<sup><a href="ref1">1</a></sup>，是与Hur后来提出的Hur2-ABE<sup><a href="ref2">2</a></sup>相区别的，Hur2-ABE在后边会具体介绍。</p>
 <h4 id="KEK树描述"><a href="#KEK树描述" class="headerlink" title="KEK树描述"></a>KEK树描述</h4><p>Hur1-ABE实现属性撤销的方式，是借助KEK树这一特殊结构，并将用户根据不同的属性创建属性群，然后针对每一个属性群，构造一颗KEK树。这个KEK树的结构主要作用是共享群密钥，从而相应地嵌入到密文密钥中，以便日后的属性撤销。那么我们来看一看KEK树是怎样的一种结构吧。</p>
 <img src="/.io//04/11/Hur1-ABE/KEK_Tree.jpg" class title="KEK_Tree">
+<p><img src="/.io//KEK_Tree.jpg" alt></p>
 <p>KEK树本质上是一颗二叉树，树的每一个叶子节点和一个用户相联系。树中的每一个节点$v_j$都有一个密钥更新密钥$KEK_j$，为了方案的理解，定义一些与之有关的概念。</p>
 <ul>
 <li>路径节点集合$path(y)$：描述的是叶子节点到根节点的路径节点的集合，比如$v_9$节点的路径节点$path(v_9)= \left\{v_4,v_2,v_1 \right \}$。</li>
@@ -185,7 +186,7 @@ A = DecryptNode(CT,SK,r)=e(g,g)^{rq_R(0)} = e(g,g)^{rs}.</script><p>最后即可
 <p><strong>Challenge</strong>攻击者提交两个等长的明文$M_0$和$M_1$，此外，攻击者提交一个他希望挑战的访问结构$\mathbb{A}^+$，其中要求Phase 1阶段问询的属性集合$S_1,S_2,…,S_{q_1}$都不满足访问结构$\mathbb{A}^+$。挑战者抛掷一枚硬币$b \in \left \{ 0,1 \right \}$，然后用$\mathbb{A}^+$加密$M_b$。最后，挑战者将密文$CT^+$交给攻击者。</p>
 <p><strong>Phase 2 </strong> Phase 1阶段重复，但是问询的属性集合$S_{q_1+1},…,S_q$还是不能满足访问结构$\mathbb{A}^+$。</p>
 <p><strong>Guess</strong> 攻击者给出$b$的猜想$b^\prime$。</p>
-<p>定义上述交互游戏中攻击者的优势为$Pr\left [ {b}’-b \right ]=\frac{1}{2}$。</p>
+<p>定义上述交互游戏中攻击者的优势为$Pr\left [ {b}’-b \right ]-\frac{1}{2}$。</p>
 <p>上述的攻击者和挑战者的游戏在模糊身份基加密中有所介绍，但是不同的是：模糊身份基加密中是选择身份模型（selective-ID），而属性基加密中是选择集合模型（selective-set）。而且上述模型有两个地方需要注意：</p>
 <ul>
 <li>以上模型没有Init阶段（在模糊身份基加密的模型中有init阶段），称之为选择明文攻击下不可区分安全（IND-CPA）。如果在Init阶段攻击者声明想要挑战的访问结构，则称之为选择安全模型。很显然，选择安全模型描述的安全性弱一些。</li>
