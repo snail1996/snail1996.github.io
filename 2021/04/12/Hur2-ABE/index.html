@@ -22,24 +22,24 @@
     var CONFIG = {"hostname":"snail1996.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":false,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="引言前面多次提到了属性撤销和防止共谋攻击的概念，这两个安全需求在属性基加密方案的设计方面至关重要，必须得考虑到。为什么这么说呢？根据前面构造的CP-ABE方案的细节，我们知道一个用户的密钥和系统中的密文中都包含许多个部件，大致可分为两类，一类是与属性有关的，一类是与属性无关的。">
+  <meta name="description" content="引言前面介绍了Hur1-ABE1，主要是在最原始的CP-ABE上边增加了属性撤销这一安全需求，而为实现属性撤销，借助了密钥更新树（KEK  Tree）这一技巧。今天介绍的Hur2-ABE2方案，仍然是侧重属性撤销，但是并没有借助密钥更新树这类结构，而是借助多项式完成属性密钥的更新。除此之外，Hur2-ABE方案还在一定程度上解决了密钥托管的问题。在正式介绍方案具体构造之前，我们先来认识一下密钥托管">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hur1-ABE">
-<meta property="og:url" content="https://snail1996.github.io/2021/04/11/Hur1-ABE/index.html">
+<meta property="og:title" content="Hur2-ABE">
+<meta property="og:url" content="https://snail1996.github.io/2021/04/12/Hur2-ABE/index.html">
 <meta property="og:site_name" content="Blog of Firstfrozen">
-<meta property="og:description" content="引言前面多次提到了属性撤销和防止共谋攻击的概念，这两个安全需求在属性基加密方案的设计方面至关重要，必须得考虑到。为什么这么说呢？根据前面构造的CP-ABE方案的细节，我们知道一个用户的密钥和系统中的密文中都包含许多个部件，大致可分为两类，一类是与属性有关的，一类是与属性无关的。">
+<meta property="og:description" content="引言前面介绍了Hur1-ABE1，主要是在最原始的CP-ABE上边增加了属性撤销这一安全需求，而为实现属性撤销，借助了密钥更新树（KEK  Tree）这一技巧。今天介绍的Hur2-ABE2方案，仍然是侧重属性撤销，但是并没有借助密钥更新树这类结构，而是借助多项式完成属性密钥的更新。除此之外，Hur2-ABE方案还在一定程度上解决了密钥托管的问题。在正式介绍方案具体构造之前，我们先来认识一下密钥托管">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://snail1996.github.io/2021/04/11/Hur1-ABE/KEK_Tree.jpg">
-<meta property="article:published_time" content="2021-04-11T14:22:21.000Z">
-<meta property="article:modified_time" content="2021-04-12T01:44:32.170Z">
+<meta property="og:image" content="https://snail1996.github.io/2021/04/12/Hur2-ABE/two_PC.PNG">
+<meta property="article:published_time" content="2021-04-12T13:59:29.000Z">
+<meta property="article:modified_time" content="2021-04-12T14:03:11.336Z">
 <meta property="article:author" content="Xianbin Zhou">
 <meta property="article:tag" content="属性基加密">
 <meta property="article:tag" content="属性撤销">
 <meta property="article:tag" content="共谋攻击">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://snail1996.github.io/2021/04/11/Hur1-ABE/KEK_Tree.jpg">
+<meta name="twitter:image" content="https://snail1996.github.io/2021/04/12/Hur2-ABE/two_PC.PNG">
 
-<link rel="canonical" href="https://snail1996.github.io/2021/04/11/Hur1-ABE/">
+<link rel="canonical" href="https://snail1996.github.io/2021/04/12/Hur2-ABE/">
 
 
 <script id="page-configurations">
@@ -52,7 +52,7 @@
   };
 </script>
 
-  <title>Hur1-ABE | Blog of Firstfrozen</title>
+  <title>Hur2-ABE | Blog of Firstfrozen</title>
   
 
 
@@ -201,7 +201,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://snail1996.github.io/2021/04/11/Hur1-ABE/">
+    <link itemprop="mainEntityOfPage" href="https://snail1996.github.io/2021/04/12/Hur2-ABE/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -214,7 +214,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Hur1-ABE
+          Hur2-ABE
         </h1>
 
         <div class="post-meta">
@@ -223,16 +223,10 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2021-04-11 22:22:21" itemprop="dateCreated datePublished" datetime="2021-04-11T22:22:21+08:00">2021-04-11</time>
+              <time title="创建时间：2021-04-12 21:59:29 / 修改时间：22:03:11" itemprop="dateCreated datePublished" datetime="2021-04-12T21:59:29+08:00">2021-04-12</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-04-12 09:44:32" itemprop="dateModified" datetime="2021-04-12T09:44:32+08:00">2021-04-12</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -256,14 +250,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>7.1k</span>
+              <span>7.7k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>6 分钟</span>
+              <span>7 分钟</span>
             </span>
 
         </div>
@@ -275,64 +269,64 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>前面多次提到了属性撤销和防止共谋攻击的概念，这两个安全需求在属性基加密方案的设计方面至关重要，必须得考虑到。为什么这么说呢？根据前面构造的CP-ABE方案的细节，我们知道一个用户的密钥和系统中的密文中都包含许多个部件，大致可分为两类，一类是与属性有关的，一类是与属性无关的。</p>
+        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>前面介绍了Hur1-ABE<sup><a href="ref1">1</a></sup>，主要是在最原始的CP-ABE上边增加了属性撤销这一安全需求，而为实现属性撤销，借助了密钥更新树（KEK  Tree）这一技巧。今天介绍的Hur2-ABE<sup><a href="ref2">2</a></sup>方案，仍然是侧重属性撤销，但是并没有借助密钥更新树这类结构，而是借助多项式完成属性密钥的更新。除此之外，Hur2-ABE方案还在一定程度上解决了密钥托管的问题。在正式介绍方案具体构造之前，我们先来认识一下密钥托管问题以及文中提到的单向匿名密钥协商协议。</p>
 <span id="more"></span>
-<p>用户的私钥是根据他所拥有的属性来生成并分发的，不是说属性基加密的解密条件是当且仅当用户的属性集合满足密文的访问策略吗？光凭借自己的属性无法达到条件，自然的想法是几个用户拿出自己的属性密钥拼凑试图解密密文，因为几个人的属性拼凑起来就有可能满足访问结构了。还有，用户所拥有的属性并不是一层不变的，可能某个时刻因某种原因，用户的某个属性不在拥有了，那么他还能拥有解密的能力吗？显然以上两种情况都是不允许解密的。下面给属性撤销和防止共谋攻击下定义。</p>
-<ul>
-<li>属性撤销：一个用户的某个属性撤销了，而该属性是密文中访问结构的关键属性，即该用户的属性集合不再满足访问结构，那么他原则上不能解密最新上传的密文。<ul>
-<li>如果撤销的属性并不影响，即该用户的当前属性集合仍然满足访问结构的话，他仍可以解密。</li>
-<li>该用户原来的密钥还是可以解密原来的密文，因为在撤销之前，他的属性集合是满足条件的。</li>
-</ul>
-</li>
-<li>共谋攻击：多个实体本身不能单独解密密文，试图将各自的密钥结合起来以达到解密密文的目的。<ul>
-<li>这里是用实体，因为在实际场景中除了用户之外，还有存储密文的云服务器、网络攻击者等其他实体。</li>
-</ul>
-</li>
-</ul>
-<p>本文主要介绍Hur和Noh的方案构造，之所以取名字为Hur1-ABE<sup><a href="ref1">1</a></sup>，是与Hur后来提出的Hur2-ABE<sup><a href="ref2">2</a></sup>相区别的，Hur2-ABE在后边会具体介绍。</p>
-<h4 id="KEK树描述"><a href="#KEK树描述" class="headerlink" title="KEK树描述"></a>KEK树描述</h4><p>Hur1-ABE实现属性撤销的方式，是借助KEK树这一特殊结构，并将用户根据不同的属性创建属性群，然后针对每一个属性群，构造一颗KEK树。这个KEK树的结构主要作用是共享群密钥，从而相应地嵌入到密文密钥中，以便日后的属性撤销。那么我们来看一看KEK树是怎样的一种结构吧。</p>
-<img src="/2021/04/11/Hur1-ABE/KEK_Tree.jpg" class title="KEK Tree">
-<p>KEK树本质上是一颗二叉树，树的每一个叶子节点和一个用户相联系。树中的每一个节点$v_j$都有一个密钥更新密钥$KEK_j$，为了方案的理解，定义一些与之有关的概念。</p>
-<ul>
-<li>路径节点集合$path(y)$：描述的是叶子节点到根节点的路径节点的集合，比如$v_9$节点的路径节点$path(v_9)= \left\{v_4,v_2,v_1 \right \}$。</li>
-<li>路径节点密钥$PK_i$：描述的是用户$u_i$对应的叶子节点$y$的路径节点KEK的集合，比如用户$u_2$的路径节点密钥$PK_2=\left \{ KEK4, KEK_2, KEK_1 \right \}$。</li>
-</ul>
-<p>若与树有关的属性群为$G_i$，则与该群有关的概念如下。</p>
-<ul>
-<li>最小覆盖集合$cover(G_i)$：描述的是树中最少的涵盖所有未撤销属性的用户的节点集合，假设上图中撤销用户为$\left \{u_6,u_8 \right\}$，则$cover(G_i)=\left\{ v_2,v_{12},v_{14}\right\}$。</li>
-<li>最小覆盖密钥$KEK(G_i)$：描述的是最小覆盖集合$cover(G_i)$对应的密钥更新密钥，假设如上，则$KEK(G_i)=\left\{ KEK_2,KEK_{12},KEK_{14}\right \}$。</li>
-</ul>
-<h4 id="方案具体构造"><a href="#方案具体构造" class="headerlink" title="方案具体构造"></a>方案具体构造</h4><h5 id="System-Setup"><a href="#System-Setup" class="headerlink" title="System Setup"></a><strong>System Setup</strong></h5><p>在系统初始化阶段，可信机构（TA)选择双线性群$\mathbb{G}_0$，阶数为$p$，生成元为$g$。然后随机选择两个指数$\alpha ,\beta \in \mathbb{Z}_p$，系统公开参数为：</p>
+<h4 id="密钥托管"><a href="#密钥托管" class="headerlink" title="密钥托管"></a>密钥托管</h4><p>密钥托管问题描述的是，密钥产生中心（有的地方叫做属性权威机构、可信中心等等）作为计算产生用户私钥的权威机构，一般在方案的系统模型中都是假定“诚实”的，这也就意味着系统中任何一个用户的私钥它都是知道到了，原则上来说它具有解密任何密文的能力。而在实际中对密钥产生中心的依赖当然是越弱越好。因此有的ABE通过研究削弱对用户密钥的的这种完全托管，使得密钥产生中心在“沦陷”之后，用户密钥还能不公开。</p>
+<p>一般来说有两种常见的解决思路，一种是将一个密钥产生中心按照属性域的区别，划分为多个属性权威机构，而另一种是密钥产生中心与其他实体交互产生用户密钥。Hur2-ABE就是通过第二种机制，来消除密钥托管，文中将该方法叫做2PC，即两部分计算。</p>
+<h4 id="单向匿名密钥协商"><a href="#单向匿名密钥协商" class="headerlink" title="单向匿名密钥协商"></a>单向匿名密钥协商</h4><p>密钥协商在两个乃至多个实体之间秘密通信显得尤为重要，而现实中又有些场景既需要秘密通信，又希望向对方隐藏自己的身份。文中描述了单向匿名密钥协商协议，具体过程如下：</p>
+<img src="/2021/04/12/Hur2-ABE/two_PC.PNG" class title="2PC Process">
+<ol>
+<li>假设Alice和Bob是某个权威机构的用户，Alice的身份为$ID_A$，权威机构给她的私钥为$d_A=Q_A^s=H(ID_A)^s$。现在Alice希望与身份为$ID_B$的Bob通信并保持匿名；</li>
+<li>Alice计算$Q_B=H(ID_B)$，然后她选择随机数$r_A \in \mathbb{Z}_p$，产生一个过渡值$P_A=Q_A^{r_A}$，计算会话秘钥为$K_{A,B}=e(d_A, Q_B)^{r_A}=e(Q_A,Q_B)^{sr_A}$，最后Alice将过渡值$P_A$发送为Bob；</li>
+<li>Bob收到$P_A$后计算出会话密钥$K_{A,B}=e(P_A, d_B)=e(Q_A,Q_B)^{sr_A}$。</li>
+</ol>
+<p>经过如上步骤的交互Alice和Bob即可以用协商的会话密钥通信；另一方面，Alice知道Bob的身份，但是Alice发给Bob的$P_A$中虽然含有其身份哈希值项，但是因为计算Diffie-Hellman难题假设（CDH），所以过程中BOb是不知道Alice的身份，从而保证了Alice对于Bob来说的匿名。</p>
+<h4 id="方案具体构造"><a href="#方案具体构造" class="headerlink" title="方案具体构造"></a>方案具体构造</h4><h5 id="System-Setup"><a href="#System-Setup" class="headerlink" title="System Setup"></a><strong>System Setup</strong></h5><p>在系统初始化阶段，可信的初始化方初始化系统（这个地方不再是密钥产生中心初始化系统，因为要运用2PC消除密钥托管，因而密钥产生中心KGC和云服务器提供商DSC都是假定为“诚实且好奇”的）。选择双线性群$\mathbb{G}_0$，阶数为$p$，生成元为$g$。选择哈希函数$H:\left \{ 0,1 \right \}^+ \rightarrow \mathbb{G}_0$，选择单向函数$\mathbb{G}_1 \rightarrow \mathbb{Z}_p$。系统的公开参数$param=(\mathbb{G}_0, g,H_1, H_2)$。</p>
+<h6 id="KGC初始化"><a href="#KGC初始化" class="headerlink" title="KGC初始化"></a>KGC初始化</h6><p>KGC随机选择指数$\beta \in \mathbb{Z}_p$，令$h=g^\beta$。KGC的主密钥和公钥分别为$PK_K=h$，$MK_K=\beta$。</p>
+<h6 id="DSC初始化"><a href="#DSC初始化" class="headerlink" title="DSC初始化"></a>DSC初始化</h6><p>DSC随机选择指数$\alpha \in \mathbb{Z}_p$。DSC的主密钥和公钥分别为$PK_D=e(g,g)^\alpha$，$MK_D=g^\alpha$。DSC随机选择指数$\gamma \in \mathbb{Z}_p$，将$\gamma$保密，将$PK_D^{agree}=g^\gamma$公开以作为分享群密钥用。</p>
+<h5 id="Key-Generation"><a href="#Key-Generation" class="headerlink" title="Key Generation"></a>Key Generation</h5><h6 id="属性无关密钥生成"><a href="#属性无关密钥生成" class="headerlink" title="属性无关密钥生成"></a>属性无关密钥生成</h6><p>KGC和DSC通过以下2PC协议产生用户私钥（与属性无关部分），具体如下：</p>
+<ol>
+<li>KGC认证一个用户$u_t$的身份时，为该用户生成一个全局一致的指数$r_t \in \mathbb{Z}_p$，这个数对于每个用户是唯一且与其他用户不同。KGC一侧需要输入的是（$r_t, \beta$），DSC一侧输入的是$\alpha$。首先KGC与DSC通过2PC计算$x=(\alpha+r_t)\beta$，然后KGC将$x$发送给DSC；</li>
+<li>DSC随机选择$\tau \in \mathbb{Z}_p$，计算$A=g^{x/\tau}=g^{(\alpha+r_t)\beta/ \tau}$，将$A$发送给KGC；</li>
+<li>KGC计算$B=A^{1/\beta^2}=g^{(\alpha+r_t)/(\tau \beta)}$，将$B$发送给DSC；</li>
+<li>DSC最终输出用户$u_t$与属性无关的私钥部件$D=B^\tau =g^{(\alpha+r_t)/\beta}$。</li>
+</ol>
+<h6 id="属性有关密钥生成"><a href="#属性有关密钥生成" class="headerlink" title="属性有关密钥生成"></a>属性有关密钥生成</h6><p>给定一个用户的属性集合$S $，KGC产生属性有关的用户密钥（即属性密钥），具体如下：</p>
+<p>KGC对于每一个属性$\forall j \in S $， 随机选择$r_j \in \mathbb{Z}_p$，然后计算密钥如下：</p>
 <script type="math/tex; mode=display">
-PK=\left ( \mathbb{G}_0,g,h=g^\beta ,e\left ( g,g \right )^\alpha  \right ).</script><p>主密钥为：$MK=\left ( \beta ,g^\alpha  \right )$。</p>
-<h5 id="Key-Generation"><a href="#Key-Generation" class="headerlink" title="Key Generation"></a>Key Generation</h5><h6 id="属性密钥生成"><a href="#属性密钥生成" class="headerlink" title="属性密钥生成"></a>属性密钥生成</h6><p>给定一个用户的属性集合$\Lambda $，输出对应的密钥$SK$，具体如下：</p>
-<p>TA针对每一个用户$u_t \in U$($U$为系统用户的集合)，随机选择$r \in \mathbb{Z}_p$，对于每一个属性$\forall \lambda _j \in \Lambda $， 随机选择$r_j \in \mathbb{Z}_p$，然后计算密钥如下：</p>
+SK_{K,u_t}=\left( \forall j \in S : D_j=g^r\cdot H(j)^{r_j}, D_j^\prime=g^{r_j} \right).</script><p>最终用户$u_t$的密钥由这两部分构成，即</p>
 <script type="math/tex; mode=display">
-SK_t=\left( D=g^{\left(\alpha +r \right)/\beta}, \forall j \in \Lambda : D_j=g^r\cdot H(j)^{r_j}, D_j^\prime=g^{r_j} \right).</script><p>此阶段和CP-ABE里边的密钥生成过程是一致的。然后TA将相关的属性群信息$\left\{G_j:\lambda_j \in \Lambda \right\}$给云服务器CSP（存储密文的地方），比如说用户$u_1,u_2,u_3$的属性集合分别为$\left\{\lambda_1,\lambda_2,\lambda_3\right\}$，$\left\{\lambda_2,\lambda_3\right\}$和$\left\{\lambda_1,\lambda_3\right\}$，那么TA将$G_1=\left\{ u_1,u_3 \right\}$，$G_2=\left\{ u_1,u_2 \right\}$和$G_1=\left\{ u_1,u_2,u_3 \right\}$发送给CSP。</p>
-<h6 id="CSP更新密钥"><a href="#CSP更新密钥" class="headerlink" title="CSP更新密钥"></a>CSP更新密钥</h6><p>然后CSP针对TA发送的每一个属性群构建KEK树，每一个用户被分配到一个叶子节点位置，树中的每一个节点$v_j$都有一个KEK密钥$KEK_j$。每一个用户$u_t \in  U$接收他的路径节点密钥，比如用户$u_2$的路径节点密钥为$PK_2=\left\{ KEK_9,KEK_4,KEK_2,KEK_1 \right\}$。</p>
-<h5 id="Data-Outsourcing"><a href="#Data-Outsourcing" class="headerlink" title="Data Outsourcing"></a>Data Outsourcing</h5><p>数据拥有者定义一个访问结构$\mathcal{T}$（访问控制树形式），然后按如下方式进行加密：</p>
+SK_{u_t}=\left( D=g^{\left(\alpha +r_t \right)/\beta}, \forall j \in S : D_j=g^r\cdot H(j)^{r_j}, D_j^\prime=g^{r_j} \right).</script><p>DSC输出另一个KEK密钥$SK_{u_t}^{agree}=H(ID_t)^\gamma=Q_t^\gamma$，该密钥是为了属性群密钥的密钥分发。</p>
+<h5 id="Data-Encryption"><a href="#Data-Encryption" class="headerlink" title="Data Encryption"></a>Data Encryption</h5><p>数据拥有者定义一个访问结构$\mathcal{T}$（访问控制树形式），然后按如下方式进行加密：</p>
 <p>针对树$\mathcal{T}$中的每一个节点$x$（包括联系属性的叶子节点），选择一个与之对应的多项式$q_x$。多项式$q_x$的的最高次数为$d_x=k_x-1$。</p>
 <p>多项式的选取遵循由根节点到叶子节点（从上到下）的方式。从根节点$R$开始，选择秘密值$s \in \mathbb{Z}_p$，并设置$q_R \left(0 \right)=s$，然后随机选择其他项的次数。对于其他节点$x$，递归的设置$q_x \left( 0 \right) = q_{p\left(x \right)} \left(index\left(x \right) \right)$，至于$q_x$的其他系数随机选择。</p>
-<p>记$Y$为树$\mathcal{T}$的叶子节点的集合，然后密文可以表示为：</p>
+<p>记$Y$为树$\mathcal{T}$的叶子节点的集合，然后加密消息$M \in \mathbb{G}_1$，密文可以表示为：</p>
 <script type="math/tex; mode=display">
 CT=\left( \mathcal{T}, \widetilde{C}=Me\left ( g,g \right )^{\alpha s},C=h^s,\forall y \in Y:C_y=g^{q_y \left(0 \right )},
 C_y^\prime=H \left(\lambda_y \right) ^ {q_y \left( 0  \right )} \right).</script><p>其中，$\lambda_y$表示的是叶子节点$y$对应的属性，$H \left(\cdot \right)$表示将属性映射到$\mathbb{G}_0$。</p>
 <p>此阶段和CP-ABE方案中的加密阶段一致。</p>
-<h5 id="Data-Re-Encryption"><a href="#Data-Re-Encryption" class="headerlink" title="Data Re-Encryption"></a>Data Re-Encryption</h5><p>此阶段CSP将重加密密文$CT$，具体如下：</p>
+<h5 id="Data-Re-Encryption"><a href="#Data-Re-Encryption" class="headerlink" title="Data Re-Encryption"></a>Data Re-Encryption</h5><p>此阶段DSP将重加密密文$CT$，具体如下：</p>
 <ul>
-<li>对于访问结构中涉及到的属性群$\left\{ G_y:y \in Y \right\}$，CSP随机选择属性群密钥$K_{\lambda_y} \in \mathbb{Z}_p$，然后重加密$CT$进而产生$CT^\prime$。</li>
+<li>对于访问结构中涉及到的属性群$\left\{ G_y:y \in Y \right\}$，DSP随机选择属性群密钥$K_{\lambda_y} \in \mathbb{Z}_p$，然后重加密$CT$进而产生$CT^\prime$。</li>
 </ul>
 <script type="math/tex; mode=display">
 CT^\prime=\left( \mathcal{T}, \widetilde{C}=Me\left ( g,g \right )^{\alpha s},C=h^s,\forall y \in Y:C_y=g^{q_y \left(0 \right )},C_y^\prime=\left(H \left(\lambda_y \right) ^ {q_y \left( 0  \right )} \right)^{K_{\lambda_y}}\right).</script><ul>
-<li>对于每一个群$G_i$，计算得到其最小覆盖密钥$KEK(G_i)$。比如$G_i=\left\{ u_1,u_2,u_3,u_4,u_5,u_7 \right\}$，那么$KEK(G_i)=\left\{ KEK_2,KEK_{12},KEK_{14}\right \}$。</li>
-<li>用所有的最小覆盖密钥加密该群的属性群密钥，即$\left\{E_K(K_{\lambda_y}) \right\}_{K \in KEK(G_y)}$（$E$为对称加密），然后所有的属性都是如此，公开此参数，即$Hdr=\left( \forall y \in Y:\left\{E_K(K_{\lambda_y}) \right\}_{K \in KEK(G_y)}\right)$。</li>
+<li>选择随机数$\rho,R \in \mathbb{Z}_p$，对于$\forall u_t \in G$（此处的$G$表示所有用户组成的群），计算$x_t=H_1(e(Q_t^\rho, PK_D^{agree}))$，此处的$x_t$可以在系统初始化的时候提前计算，而且只计算一次，$x_t$相当于是在$\mathbb{Z}_p$中用户$x_t$的身份；</li>
+<li>对于所有的$\forall G_y$，构造多项式函数$f^y(x)=\prod_{i=1}^m(x-x_i)=\sum_{i=0}^m a_ix^i (mod \ p)$，其中$G_y=\left\{ u_1,u_2,…,u_m \right\}$表示属性群$G_y$中有$m$个用户，记指数集合$\left\{ P_0,P_1,…,P_m\right\} = \left\{ g^{a_0},g^{a_1},…,g^{a_m}\right\}$；</li>
+<li>构造$Hdr_y=\left\{ K_{\lambda_y } \cdot P_0^R, P_1^R,…, P_m^R\right\}$，公开$Hdr=(g^\rho, \forall y \in Y:Hdr_y)$。</li>
 </ul>
 <h5 id="Data-Decryption"><a href="#Data-Decryption" class="headerlink" title="Data Decryption"></a>Data Decryption</h5><p>密文的形式为：</p>
 <script type="math/tex; mode=display">
 CT^\prime=\left( \mathcal{T}, \widetilde{C}=Me\left ( g,g \right )^{\alpha s},C=h^s,\forall y \in Y:C_y=g^{q_y \left(0 \right )},C_y^\prime=\left(H \left(\lambda_y \right) ^ {q_y \left( 0  \right )} \right)^{K_{\lambda_y}}\right).</script><p>密钥的形式为：</p>
 <script type="math/tex; mode=display">
-SK_t=\left( D=g^{\left(\alpha +r \right)/\beta}, \forall \lambda_j \in \Lambda : D_j=g^r\cdot H(j)^{r_j}, D_j^\prime=g^{r_j} \right).</script><h6 id="属性群密钥解密"><a href="#属性群密钥解密" class="headerlink" title="属性群密钥解密"></a>属性群密钥解密</h6><p>当用户收到$Hdr$后，首先解密属性群密钥。如果用户$u_t$持有属性$\lambda_j$，那么他能解密$K_{\lambda_j}$，因为有且仅有一个$KEK \in KEK(G_j)\cap PK_t$，也就是说$Hdr$中含有诸多$K_{\lambda_j}$的密文（用不同的对称密钥加密），而$u_t$恰好有一把对称密钥可以解密。得到群密钥$K_{\lambda_j}$之后，用户$u_t$更新自己的私钥为：</p>
+SK_t=\left( D=g^{\left(\alpha +r \right)/\beta}, \forall \lambda_j \in \Lambda : D_j=g^r\cdot H(j)^{r_j}, D_j^\prime=g^{r_j} \right).</script><h6 id="属性群密钥解密"><a href="#属性群密钥解密" class="headerlink" title="属性群密钥解密"></a>属性群密钥解密</h6><p>当用户收到$Hdr$后，首先解密属性群密钥。如果用户$u_t$持有属性$\lambda_j$，那么他能解密$K_{\lambda_j}$，他可以按照如下方式解密群密钥$K_{\lambda_j}$：</p>
+<ul>
+<li>用户$u_t$首先计算$x_t=H_1(e(g\rho, SK_{u_t}^{agree}))$；</li>
+<li>计算$K_{\lambda_y} \cdot P_0^R \cdot \prod _{i=1}^m (P_i^R)^{x_t^i}=K_{\lambda_y} \cdot g^{Rf^j(x_i)}=K_{\lambda_y}$，其中$m=|G_j|$。</li>
+</ul>
+<p>得到群密钥$K_{\lambda_j}$之后，用户$u_t$更新自己的私钥为：</p>
 <script type="math/tex; mode=display">
+SK_{u_t}=\left( D=g^{\left(\alpha +r_t \right)/\beta}, \forall \lambda_j \in \Lambda : D_j=g^r\cdot H(j)^{r_j}, D_j^\prime=g^{r_j} \right).</script><script type="math/tex; mode=display">
 SK_t=\left( D=g^{\left(\alpha +r \right)/\beta}, \forall \lambda_j \in \Lambda : D_j=g^r\cdot H(j)^{r_j}, D_j^\prime=(g^{r_j})^{1/K_{\lambda_j}} \right).</script><h6 id="密文解密"><a href="#密文解密" class="headerlink" title="密文解密"></a>密文解密</h6><p>首先定义一个递归的函数$DecryptNode(CT^\prime,SK,x)$（由下到上）:</p>
 <ul>
 <li><p>如果$x$为叶子节点，记$i=\lambda_x$。</p>
@@ -366,18 +360,18 @@ SK_t=\left( D=g^{\left(\alpha +r \right)/\beta}, \forall \lambda_j \in \Lambda :
 <script type="math/tex; mode=display">
 A = DecryptNode(CT,SK,r)=e(g,g)^{rq_R(0)} = e(g,g)^{rs}.</script><p>最后即可解密成功：</p>
 <script type="math/tex; mode=display">
-\widetilde{C}/(e(C,D)/A) = \widetilde{C}/(e(h^s,g^{((\alpha + r)/\beta )})/e(g,g)^{rs}) = M.</script><h5 id="Attribute-Revocation"><a href="#Attribute-Revocation" class="headerlink" title="Attribute Revocation"></a>Attribute Revocation</h5><p>假设属性群$G_i$中有成员变动（某用户撤销了属性$\lambda_i$，则需要更新密文和密钥，具体如下：</p>
+\widetilde{C}/(e(C,D)/A) = \widetilde{C}/(e(h^s,g^{((\alpha + r)/\beta )})/e(g,g)^{rs}) = M.</script><h5 id="Attribute-Revocation"><a href="#Attribute-Revocation" class="headerlink" title="Attribute Revocation"></a>Attribute Revocation</h5><p>假设属性群$G_i$中有成员变动（某用户撤销了属性$\lambda_i$），则需要更新密文和密钥，具体如下：</p>
 <ul>
-<li>CSP随机选择一个秘密值$s^\prime \in \mathbb{Z}_p$，然后再随机选取一个不一样的群密钥$K_{\lambda_i}^\prime \in \mathbb{Z}_p$，然后重加密密文得到新密文：</li>
+<li>DSC随机选择一个秘密值$s^\prime \in \mathbb{Z}_p$，然后再随机选取一个不一样的群密钥$K_{\lambda_i}^\prime \in \mathbb{Z}_p$，然后重加密密文得到新密文：</li>
 </ul>
 <script type="math/tex; mode=display">
 \begin{aligned}
 & CT^\prime=\left( \mathcal{T}, \widetilde{C}=Me\left ( g,g \right )^{\alpha (s+s^\prime)},C=h^{s+s^\prime},C_i=g^{q_i \left(0 \right )+s^\prime},C_i^\prime=\left(H \left(\lambda_i \right) ^ {q_i \left( 0  \right )+s^\prime} \right)^{K_{\lambda_y}^\prime}, \nonumber \\
  \forall y \in Y\setminus \left\{i \right\}:C_y=g^{q_y \left(0 \right )+s^\prime},C_y^\prime=\left(H \left(\lambda_y \right) ^ {q_y \left( 0  \right )+s^\prime} \right)^{K_{\lambda_y}}\right). \nonumber
 \end{aligned}</script><ul>
-<li>由于群$G_i$中有成员变动，那么此时的最小覆盖密钥发生了改变，重新计算$KEK(G_i)$，然后更新$Hdr$为$Hdr=\left( \left\{E_K(K_{\lambda_i}^\prime) \right\}_{K \in KEK(G_i)}，\forall y \in Y:\left\{E_K(K_{\lambda_y}) \right\}_{K \in KEK(G_y)}\right)$。</li>
+<li>DSC针对属性$\lambda_i$，重新构造多项式$f^i(x)$，只不过这个时候的属性群是更新后的属性群，去除了撤销属性$\lambda_i$的成员，增加了新持有属性$\lambda_i$的成员。然后根据新的属性群密钥，重新计算生成$Hdr_i$，并公开最新的$Hdr$为：$Hdr = (g^\rho, Hdr_i, \forall y \in Y \setminus \left\{i \right\}:Hdr_y)$。</li>
 </ul>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>Hur1-ABE首次提出属性群的概念，通过属性群借助KEK树的技巧完成属性的撤销。属性群的提出为属性的撤销机制开辟了道路，后续的ABE方案中有许多学者沿袭这一概念，从而衍生出不同的属性撤销方案，比如说接下来的Hur2-ABE方案等。然而方案并不能抵抗撤销用户与未撤销用户之间的共谋，这是因为属性群中对应的每个节点的节点密钥不变，而且CSP会根据用户所在的位置将其路径密钥发送给用户，如果用户将路径密钥给撤销用户，或者更直接一点，用户直接将解密的属性群密钥给撤销用户，这样一来，撤销用户还是可以自己更新到正确的密钥，从而解密最近的密文。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>Hur2-ABE和Hur1-ABE的构造思路很相近，都是构建在最初的CP-ABE方案之上，都是为了解决属性撤销的难题，只不过属性撤销实现的方式不同，具体表现为Hur1-ABE是借助KEK树的技巧实现的，而Hur2-ABE是通过多项式技巧实现的，都是基于属性群的实现。不同的是，Hur2-ABE还利用2PC让KGC和DSC交互来产生用户私钥中与属性无关的部件，从而消除密钥托管。然而，不管是Hur1-ABE还是Hur2-ABE，都不能抵抗一种共谋攻击，即属性撤销用户与未撤销用户之间的共谋，这是因为如果未撤销的用户直接将属性群密钥泄露给撤销用户，那么属性撤销用户就可以绕过计算群密钥的限制而得到群密钥，进而更新自己的私钥到最新版解密密文，因此原文中加入了不存在这种攻击的假设。这两种经典的撤销手段给了ABE的属性撤销机制良好的启发作用，值得回味。</p>
 <p><span name="ref1">J. Hur and D. K. Noh, “Attribute-based Access Control with Efficient Revocation in Data Outsourcing Systems,” IEEE Transactions on Parallel and Distributed Systems, vol. 22, no. 7, pp. 1214–1221, Jul. 2011.</span></p>
 <p><span name="ref2">J. Hur, “Improving Security and Efficiency in Attribute-Based Data Sharing,” IEEE Transactions on Knowledge and Data Engineering, vol. 25, no. 10, pp. 2271-2282, Oct. 2013.</span></p>
 
@@ -410,13 +404,10 @@ A = DecryptNode(CT,SK,r)=e(g,g)^{rq_R(0)} = e(g,g)^{rs}.</script><p>最后即可
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/04/10/ABE-2EPSR/" rel="prev" title="ABE-2EPSR">
-      <i class="fa fa-chevron-left"></i> ABE-2EPSR
+    <a href="/2021/04/11/Hur1-ABE/" rel="prev" title="Hur1-ABE">
+      <i class="fa fa-chevron-left"></i> Hur1-ABE
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2021/04/12/Hur2-ABE/" rel="next" title="Hur2-ABE">
-      Hur2-ABE <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -475,7 +466,7 @@ A = DecryptNode(CT,SK,r)=e(g,g)^{rq_R(0)} = e(g,g)^{rs}.</script><p>最后即可
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%95%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#KEK%E6%A0%91%E6%8F%8F%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">KEK树描述</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E6%A1%88%E5%85%B7%E4%BD%93%E6%9E%84%E9%80%A0"><span class="nav-number">3.</span> <span class="nav-text">方案具体构造</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#System-Setup"><span class="nav-number">3.1.</span> <span class="nav-text">System Setup</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Key-Generation"><span class="nav-number">3.2.</span> <span class="nav-text">Key Generation</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%B1%9E%E6%80%A7%E5%AF%86%E9%92%A5%E7%94%9F%E6%88%90"><span class="nav-number">3.2.1.</span> <span class="nav-text">属性密钥生成</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#CSP%E6%9B%B4%E6%96%B0%E5%AF%86%E9%92%A5"><span class="nav-number">3.2.2.</span> <span class="nav-text">CSP更新密钥</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Data-Outsourcing"><span class="nav-number">3.3.</span> <span class="nav-text">Data Outsourcing</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Data-Re-Encryption"><span class="nav-number">3.4.</span> <span class="nav-text">Data Re-Encryption</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Data-Decryption"><span class="nav-number">3.5.</span> <span class="nav-text">Data Decryption</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%B1%9E%E6%80%A7%E7%BE%A4%E5%AF%86%E9%92%A5%E8%A7%A3%E5%AF%86"><span class="nav-number">3.5.1.</span> <span class="nav-text">属性群密钥解密</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%AF%86%E6%96%87%E8%A7%A3%E5%AF%86"><span class="nav-number">3.5.2.</span> <span class="nav-text">密文解密</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Attribute-Revocation"><span class="nav-number">3.6.</span> <span class="nav-text">Attribute Revocation</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%95%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%86%E9%92%A5%E6%89%98%E7%AE%A1"><span class="nav-number">2.</span> <span class="nav-text">密钥托管</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95%E5%90%91%E5%8C%BF%E5%90%8D%E5%AF%86%E9%92%A5%E5%8D%8F%E5%95%86"><span class="nav-number">3.</span> <span class="nav-text">单向匿名密钥协商</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E6%A1%88%E5%85%B7%E4%BD%93%E6%9E%84%E9%80%A0"><span class="nav-number">4.</span> <span class="nav-text">方案具体构造</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#System-Setup"><span class="nav-number">4.1.</span> <span class="nav-text">System Setup</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#KGC%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">4.1.1.</span> <span class="nav-text">KGC初始化</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#DSC%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">4.1.2.</span> <span class="nav-text">DSC初始化</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Key-Generation"><span class="nav-number">4.2.</span> <span class="nav-text">Key Generation</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%B1%9E%E6%80%A7%E6%97%A0%E5%85%B3%E5%AF%86%E9%92%A5%E7%94%9F%E6%88%90"><span class="nav-number">4.2.1.</span> <span class="nav-text">属性无关密钥生成</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%B1%9E%E6%80%A7%E6%9C%89%E5%85%B3%E5%AF%86%E9%92%A5%E7%94%9F%E6%88%90"><span class="nav-number">4.2.2.</span> <span class="nav-text">属性有关密钥生成</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Data-Encryption"><span class="nav-number">4.3.</span> <span class="nav-text">Data Encryption</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Data-Re-Encryption"><span class="nav-number">4.4.</span> <span class="nav-text">Data Re-Encryption</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Data-Decryption"><span class="nav-number">4.5.</span> <span class="nav-text">Data Decryption</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%B1%9E%E6%80%A7%E7%BE%A4%E5%AF%86%E9%92%A5%E8%A7%A3%E5%AF%86"><span class="nav-number">4.5.1.</span> <span class="nav-text">属性群密钥解密</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E5%AF%86%E6%96%87%E8%A7%A3%E5%AF%86"><span class="nav-number">4.5.2.</span> <span class="nav-text">密文解密</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Attribute-Revocation"><span class="nav-number">4.6.</span> <span class="nav-text">Attribute Revocation</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
