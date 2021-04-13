@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.lug.ustc.edu.cn/css?family=Lato:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Roboto Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-loading-bar.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"snail1996.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":false,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="引言在前面提到的Hur1-ABE和Hur2-ABE方案中都提到了密钥托管和共谋攻击的问题。密钥托管说的是密钥产生中心（KGC）为用户计算生成私钥，从而有解密任何密文的能力；而共谋攻击指的是几个实体试图“勾结起来”将自己的属性拼拼凑凑以满足访问结构达到解密密文的目的。其实在原始CP-ABE方案提出的同一年（2007年），就有学者关注这两个问题，并给出了自己的解决方案，这就是Chase的MA-ABE1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MA-ABE">
+<meta property="og:url" content="https://snail1996.github.io/2021/04/13/MA-ABE/index.html">
+<meta property="og:site_name" content="Blog of Firstfrozen">
+<meta property="og:description" content="引言在前面提到的Hur1-ABE和Hur2-ABE方案中都提到了密钥托管和共谋攻击的问题。密钥托管说的是密钥产生中心（KGC）为用户计算生成私钥，从而有解密任何密文的能力；而共谋攻击指的是几个实体试图“勾结起来”将自己的属性拼拼凑凑以满足访问结构达到解密密文的目的。其实在原始CP-ABE方案提出的同一年（2007年），就有学者关注这两个问题，并给出了自己的解决方案，这就是Chase的MA-ABE1">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-04-13T14:43:39.000Z">
+<meta property="article:modified_time" content="2021-04-13T14:46:24.567Z">
+<meta property="article:author" content="Xianbin Zhou">
+<meta property="article:tag" content="属性基加密">
+<meta property="article:tag" content="共谋攻击">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://snail1996.github.io/2021/04/13/MA-ABE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>MA-ABE | Blog of Firstfrozen</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Blog of Firstfrozen</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description"> </p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://snail1996.github.io/2021/04/13/MA-ABE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xianbin Zhou">
+      <meta itemprop="description" content="My universe will never be the same!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog of Firstfrozen">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MA-ABE
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-04-13 22:43:39 / 修改时间：22:46:24" itemprop="dateCreated datePublished" datetime="2021-04-13T22:43:39+08:00">2021-04-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/" itemprop="url" rel="index"><span itemprop="name">属性基加密</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>6.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>6 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>在前面提到的Hur1-ABE和Hur2-ABE方案中都提到了密钥托管和共谋攻击的问题。密钥托管说的是密钥产生中心（KGC）为用户计算生成私钥，从而有解密任何密文的能力；而共谋攻击指的是几个实体试图“勾结起来”将自己的属性拼拼凑凑以满足访问结构达到解密密文的目的。其实在原始CP-ABE方案提出的同一年（2007年），就有学者关注这两个问题，并给出了自己的解决方案，这就是Chase的MA-ABE<sup><a href="ref1">1</a></sup>方案。</p>
+<span id="more"></span>
+<p>针对密钥托管的问题，MA-ABE方案将一个密钥产生中心（KGC）“分裂为”多个属性机构，每个属性机构只是负责管理与该属性有关的用户，属性机构之间没有任何关联，管理的属性集合之间也没有交集；针对共谋攻击的问题，MA-ABE方案首次提出GID的概念，即针对每个用户以及每个属性机构分配一个全局唯一的身份标识符，用户私钥的的产生与这些唯一的标志相关联。那么我们来看一看MA-ABE方案是怎么构造的吧！</p>
+<h4 id="方案构造"><a href="#方案构造" class="headerlink" title="方案构造"></a>方案构造</h4><p>再具体描述方案的构造之前，首先说明一下系统所用的符号解释以及系统假设：</p>
+<ul>
+<li>系统属性域可划分为$K$个互不相交的属性集合，每一个集合的属性由对应的属性机构所管理。系统中有一个可信的中心机构CA，只不过该机构不负责管理任何属性。</li>
+<li>记$\mathcal{A}_u$为用户$u$的属性集合，$\mathcal{A}_C$为密文中的属性集合；$\mathcal{A}_u^k$为$\mathcal{A}_u$中由属性机构$k$管理的属性集合，$\mathcal{A}_C^k$为$\mathcal{A}_C$中由属性机构$k$管理的属性集合。</li>
+</ul>
+<p>因为MA-ABE方案是将Sahai和Waters的FIBE（或者说门限ABE）方案拓展到多个权威机构，因此MA-ABE这篇文献非常“耐心”地一步步引导读者如何构建MA-ABE方案，这无疑说是一览ABE构思细节的“福利”。下面按照文献的思路一步步介绍。</p>
+<h5 id="STEP-ONE"><a href="#STEP-ONE" class="headerlink" title="STEP ONE"></a>STEP ONE</h5><h6 id="方案构造前思忖"><a href="#方案构造前思忖" class="headerlink" title="方案构造前思忖"></a>方案构造前思忖</h6><p>根据之前说的拉格朗日插值算法可知，给定一个$d-1$次多项式的$d$个点$p(1),p(2),…,p(d)$，那么我们可以恢复出多项式$p(x)$进而计算任何指定的值$p(i)$。同样的，如果我们给定$d$个数，分别为$g^{p(1)},g^{p(2)},…,g^{p(d)}$，我们仍然可以同样的计算得到$g^{p(x)}$，进而计算任何给定$i$所对应的$g^{p(i)}$。</p>
+<p>这给我们构建ABE方案一些启示：如果某个用户拥有属性$i$，那么他的私钥就含有$g^{p(i)}$，其中多项式$p$的次数为$d-1$。我们可以通过计算$g^{p(0)}m$来给消息$m$进行加密，只要任何用户有至少$d$个属性即可通过插值的方式解密$m$。然而这样不能防止共谋攻击，因为只要几个用户通过“拼凑”自己的属性使得总属性个数多于$d$，仍然可以解密。那么自然想到的是，针对一个用户$u$，选择某个特定的多项式$p_u$，然后再分发密钥，只不过所有的多项式必须在0点处相交，即$y=p_1(0)=…=p_i(0)$。下面基于这种思路构建STEP ONE方案。</p>
+<h6 id="Init"><a href="#Init" class="headerlink" title="Init"></a>Init</h6><p>从$\mathbb{Z}_p$中随机选择主密钥$y$。</p>
+<h6 id="SK-Gen"><a href="#SK-Gen" class="headerlink" title="SK Gen"></a>SK Gen</h6><p>对于用户$u$，随机选择多项式$p$使得$p(0)=y$，然后生成用户$u$的密钥为$SK=\left\{ D_i = g^{p(i）} \right\}_{\forall i \in \mathcal{A}_u}$。</p>
+<h6 id="Encryption"><a href="#Encryption" class="headerlink" title="Encryption"></a>Encryption</h6><p>计算$E=g^ym$。</p>
+<h6 id="Decryption"><a href="#Decryption" class="headerlink" title="Decryption"></a>Decryption</h6><p>如果用户$u$有至少$d$个密钥部件，那么他可以用其中的$d$个通过插值计算$Y=g^{p(0)}=g^y$，然后$m=E/Y$。</p>
+<h5 id="STEP-TWO"><a href="#STEP-TWO" class="headerlink" title="STEP TWO"></a>STEP TWO</h5><h6 id="方案构造前思忖-1"><a href="#方案构造前思忖-1" class="headerlink" title="方案构造前思忖"></a>方案构造前思忖</h6><p>如果采用Step One中的方案，那么意味着任何用户只要有$d$个属性，就可以解密密文，而我们希望的是在给定的属性集合范围内满足至少$d$个属性才能够解密。为了达到这个需求，我们得借助双线性映射$e$（对于$g\in \mathbb{G}_1$，$a,b \in \mathbb{Z}_q$，则$e(g^a, g^b)=e(g,g)^{ab}$）。</p>
+<p>现在假定我们不再是针对每个属性$i$分发属性密钥$g^{p(i)}$，而是选择一个随机值$t_i$，然后分发属性密钥$g^{p(i)/t_i}$。如果用户知道至少$d$个$g^{t_i}$，那么他可以计算至少$d$个$e(g,g)^{p(i)}$，然后通过插值得到$e(g,g)^{p(0)}$。假如消息$m$加密为$e(g,g)^{p(0)}m$，那么他就可以解密。这样，加密者就可以指定是哪些属性可以提供$g^{t_i}$。下面基于这种思路构建Step Two方案。</p>
+<h6 id="Init-1"><a href="#Init-1" class="headerlink" title="Init"></a>Init</h6><p>首先从$\mathbb{Z}_p$中随机选择$y,t_1,…,t_n$，令$Y=e(g,g)^y$。</p>
+<h6 id="SK-Gen-1"><a href="#SK-Gen-1" class="headerlink" title="SK Gen"></a>SK Gen</h6><p>随机选择一个多项式$p$使得$p(0)=y$，然后生成密钥为$SK=\left\{ D_i = g^{p(i)/t_i} \right\}_{\forall i \in \mathcal{A}_u}$。</p>
+<h6 id="Encryption-1"><a href="#Encryption-1" class="headerlink" title="Encryption"></a>Encryption</h6><p>计算$E=Ym$以及$\left\{E_i=g^{t_i} \right\}_{\forall i \in \mathcal{A}_C}$。</p>
+<h6 id="Decryption-1"><a href="#Decryption-1" class="headerlink" title="Decryption"></a>Decryption</h6><p>如果用户$u$有至少$d$个$i \in \mathcal{A}_C \cap \mathcal{A}_u$，那么他可以用其中的$d$个计算$e(E_i,D_i)=e(g,g)^{p(i)}$，通过插值计算$Y=e(g,g)^{p(0)}=e(g,g)^y$，然后$m=E/Y$。</p>
+<h5 id="STEP-THREE"><a href="#STEP-THREE" class="headerlink" title="STEP THREE"></a>STEP THREE</h5><h6 id="方案构造前思忖-2"><a href="#方案构造前思忖-2" class="headerlink" title="方案构造前思忖"></a>方案构造前思忖</h6><p>STEP TWO方案中存在许多问题。首先，我们需要多次加密消息，但不希望每次加密都重新运行一遍系统。然而STEP TWO中一旦用户恢复出$Y=e(g,g)^{p(0)}$，他便可以解密该系统后边加密的任何消息了，而不管他的属性是否满足要求。</p>
+<p>如果加密消息的时候我们不是给定$e(g,g)^{p(0)}m$，而是给定$e(g,g)^{p(0)s}m$，这里的$s$是每次加密消息时不同的值呢？这样的话，我们的密文部件相应地由$\left\{E_i=g^{t_i} \right\}_{ \forall i \in \mathcal{A}_C}$变为$\left\{E_i=g^{t_is} \right\}_{ \forall i \in \mathcal{A}_C}$，这样的话，上述流程仍能保证只要用户有足够的属性，他仍能计算得到$e(g,g)^{p(0)s}$，从而解密密文。下面基于这种思路构建STEPTHREE方案，也即重构FIBE方案。</p>
+<h6 id="Init-2"><a href="#Init-2" class="headerlink" title="Init"></a>Init</h6><p>首先从$\mathbb{Z}_p$中随机选择$y,t_1,…,t_n$。</p>
+<h6 id="PK-Gen"><a href="#PK-Gen" class="headerlink" title="PK Gen"></a>PK Gen</h6><p>$T_1=g^{t_1}, …,T_n=g^{t_n}$，$Y=e(g,g)^y$，$PK=\left\{ T_i\right\}_{1\leq i\leq n},Y$。</p>
+<h6 id="SK-Gen-2"><a href="#SK-Gen-2" class="headerlink" title="SK Gen"></a>SK Gen</h6><p>随机选择一个多项式$p$使得$p(0)=y$，然后生成密钥为$SK=\left\{ D_i = g^{p(i)/t_i} \right\}_{\forall i \in \mathcal{A}_u}$。</p>
+<h6 id="Encryption-2"><a href="#Encryption-2" class="headerlink" title="Encryption"></a>Encryption</h6><p>计算$E=Y^sm=e(g,g)^{ys}m$以及$\left\{E_i=g^{t_is} \right\}_{\forall i \in \mathcal{A}_C}$。</p>
+<h6 id="Decryption-2"><a href="#Decryption-2" class="headerlink" title="Decryption"></a>Decryption</h6><p>如果用户$u$有至少$d$个$i \in \mathcal{A}_C \cap \mathcal{A}_u$，那么他可以用其中的$d$个计算$e(E_i,D_i)=e(g,g)^{p(i)s}$，通过插值计算$Y^s=e(g,g)^{p(0)s}=e(g,g)^{ys}$，然后$m=E/Y^s$。</p>
+<h5 id="STEP-FOUR"><a href="#STEP-FOUR" class="headerlink" title="STEP FOUR"></a>STEP FOUR</h5><h6 id="方案构造前思忖-3"><a href="#方案构造前思忖-3" class="headerlink" title="方案构造前思忖"></a>方案构造前思忖</h6><p>我们现在考虑多个属性机构的情况。既然我们把属性域划分为$K$个互不相交的属性集合，每个属性集合有一个属性机构管理，那么按照STEP THREE的思路，我们针对每一个属性机构$k$，都构建一个多项式，我们将$y_k$作为属性机构$k$所需要的分享的秘密值，这样的话如果用户$u$拥有足够多的属性机构$k$管理的属性，那么他就可以计算出$e(g,g)^{y_ks}$，而对于每个属性机构来说，设置系统要分享的秘密值$y_0$，使得$\sum y_k = y_0$，我们最终可以得到$e(g,g)^{y_0s}$，将消息$m$加密为$e(g,g)^{y_0s}m$，那么我们满足条件就可以解密密文，符合预期结果。下面基于这种思路构建STEP FOUR方案。</p>
+<h6 id="System"><a href="#System" class="headerlink" title="System"></a>System</h6><ol>
+<li><strong>Init</strong>. 首先选定$y_1,…,y_k$，$\left\{t_{k,i} \in \mathbb{Z}_q \right\}_{i=1…n,k=1…K}$，令$y_0=\sum _{k=1}^Ky_k$。</li>
+<li><strong>System PK</strong>. $Y_0=e(g,g)^{y_0}$。</li>
+</ol>
+<h6 id="Attribute-Authority-k"><a href="#Attribute-Authority-k" class="headerlink" title="Attribute Authority $k$"></a>Attribute Authority $k$</h6><ol>
+<li><strong>Authority Secret Key</strong>. FIBE方案的私钥一样：$y_k, t_{k,1},…,t_{k,n}$。</li>
+<li><strong>Authority Public Key</strong>. FIBE方案的公钥一样：$T_{k,1}, …,T_{k,n}$，其中$T_{k,i}=g^{t_{k,i}}$。</li>
+<li><strong>Secret Key for User $u$ from authority $k$</strong>. 选择$d-1$阶多项式$p$，其中$p(0)=y_k$。用户私钥为：$\left\{ D_{k,i} = g^{p(i)/t_{k,i}} \right\}_{\forall i \in \mathcal{A}_u}$ 。</li>
+</ol>
+<h6 id="Encryption-for-attribute-set-mathcal-A-C"><a href="#Encryption-for-attribute-set-mathcal-A-C" class="headerlink" title="Encryption for attribute set $\mathcal{A}_C$"></a>Encryption for attribute set $\mathcal{A}_C$</h6><p>选择随机数$s \in \mathbb{Z}_p$，计算$E=Y_0^sm$以及$\left\{E_{k,i}=T_{k,i}^s \right\}_{\forall i \in \mathcal{A}_C^k,\forall k}$。</p>
+<h6 id="Decryption-3"><a href="#Decryption-3" class="headerlink" title="Decryption"></a>Decryption</h6><p>对于每个属性机构$k$，针对$d$个属性$i$，其中$i$满足$i \in \mathcal{A}_C^k \cap \mathcal{A}_u$，计算$e(E_{k,i}, D_{k,i})=e(g,g)^{p(i)s}$。通过插值得到$Y_k^s=e(g,g)^{p(0)s}=e(g,g)^{y_ks}$，进而得到$\prod _{k=1}^K Y_k^s = Y_0^s$，然后$m=E/Y_0^s$。</p>
+<h5 id="Final-MA-ABE"><a href="#Final-MA-ABE" class="headerlink" title="Final MA-ABE"></a>Final MA-ABE</h5><h6 id="方案构造前思忖-4"><a href="#方案构造前思忖-4" class="headerlink" title="方案构造前思忖"></a>方案构造前思忖</h6><p>STEP FOUR方案依然存在一个问题。假如我们有$K$个用户，每个用户都能满足一个对应的属性机构的访问要求，然而却没有任何其他属性机构管理的属性，那么这$K$个用户共谋起来仍然能够解密密文，也就是说，$K$个上述用户的组合和一个能够解密密文的合法用户看起来是不可分辨的。为解决这个问题，就提出了GID的概念，将每一个用户与唯一的标识符相关联。</p>
+<p>既然我们可以用GID区分不同的用户了，我们需要一些方式来确保不同用户并不能组合来自不同权威机构的密钥，进而解密密文。假设每个权威机构$k$为每个用户选择一个不同的随机数$y_{k,u}$，令$y_{u,0}$为用户$u$的主密钥，那么用户$u$得到$e(g,g)^{y_{k,u}s}$并与用户$u\prime$分享，用户$u\prime$得不到任何关于他主密钥$e(g,g)^{y_{0.u\prime}s}=\prod _{i=1}^Ke(g,g)^{y_{0.u\prime}s}$，因为$y_{k,u}$与$y_{k,u\prime}$是相互独立的。</p>
+<p>然而如果所有的属性机构选择$y_{k,u}$独立，那么我们如何保证$\sum_{k=1}^Ky_{k,u}=y_0$对于所用用户都成立呢？似乎需要这些机构之间通信来解决协调一致，但是这又与设计的初衷相违背，原来设想这些机构是不需要沟通的。因此，方案中提到了CA的概念，即一个可信的中心机构，它并不管理属性，它的作用是“协调”各属性机构密钥状态，使得不同的合法用户最终都能计算得到“公共的中间值”，进而解密密文。下面基于这种思路构建最终的MA-ABE。</p>
+<h6 id="System-1"><a href="#System-1" class="headerlink" title="System"></a>System</h6><ol>
+<li><strong>Init</strong>. 选定素数阶乘法循环群$\mathbb{G},\mathbb{G}_1$，双线性映射$e:\mathbb{G} \rightarrow \mathbb{G}_1$，$g \in \mathbb{G}$为生成元。为每一个属性机构选择种子$s_1,…,s_K$，从$\mathbb{Z}_q$中选择$y_0,\left\{t_{k,i} \in \mathbb{Z}_q \right\}_{i=1…n,k=1…K}$。</li>
+<li><strong>System PK</strong>. $Y_0=e(g,g)^{y_0}$。</li>
+</ol>
+<h6 id="Attribute-Authority-k-1"><a href="#Attribute-Authority-k-1" class="headerlink" title="Attribute Authority $k$"></a>Attribute Authority $k$</h6><ol>
+<li><strong>Authority Secret Key</strong>. $s_k, t_{k,1},…,t_{k,n}$。</li>
+<li><strong>Authority Public Key</strong>. $T_{k,1}, …,T_{k,n}$，其中$T_{k,i}=g^{t_{k,i}}$。</li>
+<li><strong>Secret Key for User $u$ from authority $k$</strong>. 令$y_{k,u}=F_{s_k}(u)$，其中$F$为伪随机函数。选择$d-1$阶多项式$p$，其中$p(0)=y_{k,u}$。用户私钥为：$\left\{ D_{k,i} = g^{p(i)/t_{k,i}} \right\}_{\forall i \in \mathcal{A}_u}$ 。</li>
+</ol>
+<h6 id="Central-Authority"><a href="#Central-Authority" class="headerlink" title="Central Authority"></a>Central Authority</h6><ol>
+<li><strong>Central  Authority Secret Key</strong> 所有属性机构$k$的种子$s_k$，$y_0$。</li>
+<li><strong>Secret Key for User $u$</strong> 对于所有的属性机构$k$，令$y_{k,u}=F_{s_k}(u)$。私钥：$D_{CA}=g^{y_0-\sum _{k=0}^Ky_{k,u}}$。</li>
+</ol>
+<h6 id="Encryption-for-attribute-set-mathcal-A-C-1"><a href="#Encryption-for-attribute-set-mathcal-A-C-1" class="headerlink" title="Encryption for attribute set $\mathcal{A}_C$"></a>Encryption for attribute set $\mathcal{A}_C$</h6><p>选择随机数$s \in \mathbb{Z}_p$，计算$E=Y_0^sm$，$E_{CA}=g^s$以及$\left\{E_{k,i}=T_{k,i}^s \right\}_{\forall i \in \mathcal{A}_C^k,\forall k}$。</p>
+<h6 id="Decryption-4"><a href="#Decryption-4" class="headerlink" title="Decryption"></a>Decryption</h6><p>对于每个属性机构$k$，针对$d$个属性$i$，其中$i$满足$i \in \mathcal{A}_C^k \cap \mathcal{A}_u$，计算$e(E_{k,i}, D_{k,i})=e(g,g)^{p(i)s}$，通过插值得到$Y_{k,u}^s=e(g,g)^{p(0)s}=e(g,g)^{y_{k,u}s}$。对于每个属性机构$k$，计算$Y_{CA}^s=e(E_{CA},D_{CA})$。进而得到$Y_{CA}^s \cdot \prod _{k=1}^K Y_k^s = Y_0^s$，然后$m=E/Y_0^s$。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>以上根据Chase的论文，一步步引导，最终得到MA-ABE的完整构造。从这一路引导可以看出，为了解决密钥托管的问题，MA-ABE的核心思想是将一个KGC分裂成多个不需要“沟通”的多个权威机构，而构造中又遇到了共谋攻击问题，为了解决这个问题，引入了全局GID的概念，而将此概念运用到方案中又出现方案“协调性”问题，是引入全局可信中心机构CA来解决的。从整体上讲，我们可以发现，MA-ABE是FIBE的多层次拓展，FIBE只是运用一次拉格朗日插值，而MA-ABE可以看作是两层插值。MA-ABE为多个权威机构的ABE方案开辟了先河，而GID的概念也是广泛运用到后续的研究中。然而MA-ABE还是有一个全局可信的CA存在，实质上还是没有解决密钥托管的问题，Chase<sup><a href="ref2">2</a></sup>在后续的文章中有继续关注这个问题。</p>
+<p><span name="ref1">M. Chase, “Multi-authority attribute based encryption,” in Proc. TCC’07, 2007, pp. 515–534, Springer.</span></p>
+<p><span name="ref2">M. Chase and S.S. M.Chow,“Improvingprivacy andsecurity in multi-authority attribute-based encryption,” in Proc. CCS’09, 2009, pp. 121–130, ACM.</span></p>
+
+    </div>
+
+    
+    
+    
+
+      <div>
+        
+          <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+        
+      </div>
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/" rel="tag"># 属性基加密</a>
+              <a href="/tags/%E5%85%B1%E8%B0%8B%E6%94%BB%E5%87%BB/" rel="tag"># 共谋攻击</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/04/12/Hur2-ABE/" rel="prev" title="Hur2-ABE">
+      <i class="fa fa-chevron-left"></i> Hur2-ABE
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%95%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E6%A1%88%E6%9E%84%E9%80%A0"><span class="nav-number">2.</span> <span class="nav-text">方案构造</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#STEP-ONE"><span class="nav-number">2.1.</span> <span class="nav-text">STEP ONE</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%96%B9%E6%A1%88%E6%9E%84%E9%80%A0%E5%89%8D%E6%80%9D%E5%BF%96"><span class="nav-number">2.1.1.</span> <span class="nav-text">方案构造前思忖</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Init"><span class="nav-number">2.1.2.</span> <span class="nav-text">Init</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#SK-Gen"><span class="nav-number">2.1.3.</span> <span class="nav-text">SK Gen</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Encryption"><span class="nav-number">2.1.4.</span> <span class="nav-text">Encryption</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Decryption"><span class="nav-number">2.1.5.</span> <span class="nav-text">Decryption</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#STEP-TWO"><span class="nav-number">2.2.</span> <span class="nav-text">STEP TWO</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%96%B9%E6%A1%88%E6%9E%84%E9%80%A0%E5%89%8D%E6%80%9D%E5%BF%96-1"><span class="nav-number">2.2.1.</span> <span class="nav-text">方案构造前思忖</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Init-1"><span class="nav-number">2.2.2.</span> <span class="nav-text">Init</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#SK-Gen-1"><span class="nav-number">2.2.3.</span> <span class="nav-text">SK Gen</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Encryption-1"><span class="nav-number">2.2.4.</span> <span class="nav-text">Encryption</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Decryption-1"><span class="nav-number">2.2.5.</span> <span class="nav-text">Decryption</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#STEP-THREE"><span class="nav-number">2.3.</span> <span class="nav-text">STEP THREE</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%96%B9%E6%A1%88%E6%9E%84%E9%80%A0%E5%89%8D%E6%80%9D%E5%BF%96-2"><span class="nav-number">2.3.1.</span> <span class="nav-text">方案构造前思忖</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Init-2"><span class="nav-number">2.3.2.</span> <span class="nav-text">Init</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#PK-Gen"><span class="nav-number">2.3.3.</span> <span class="nav-text">PK Gen</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#SK-Gen-2"><span class="nav-number">2.3.4.</span> <span class="nav-text">SK Gen</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Encryption-2"><span class="nav-number">2.3.5.</span> <span class="nav-text">Encryption</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Decryption-2"><span class="nav-number">2.3.6.</span> <span class="nav-text">Decryption</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#STEP-FOUR"><span class="nav-number">2.4.</span> <span class="nav-text">STEP FOUR</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%96%B9%E6%A1%88%E6%9E%84%E9%80%A0%E5%89%8D%E6%80%9D%E5%BF%96-3"><span class="nav-number">2.4.1.</span> <span class="nav-text">方案构造前思忖</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#System"><span class="nav-number">2.4.2.</span> <span class="nav-text">System</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Attribute-Authority-k"><span class="nav-number">2.4.3.</span> <span class="nav-text">Attribute Authority $k$</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Encryption-for-attribute-set-mathcal-A-C"><span class="nav-number">2.4.4.</span> <span class="nav-text">Encryption for attribute set $\mathcal{A}_C$</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Decryption-3"><span class="nav-number">2.4.5.</span> <span class="nav-text">Decryption</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Final-MA-ABE"><span class="nav-number">2.5.</span> <span class="nav-text">Final MA-ABE</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%96%B9%E6%A1%88%E6%9E%84%E9%80%A0%E5%89%8D%E6%80%9D%E5%BF%96-4"><span class="nav-number">2.5.1.</span> <span class="nav-text">方案构造前思忖</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#System-1"><span class="nav-number">2.5.2.</span> <span class="nav-text">System</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Attribute-Authority-k-1"><span class="nav-number">2.5.3.</span> <span class="nav-text">Attribute Authority $k$</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Central-Authority"><span class="nav-number">2.5.4.</span> <span class="nav-text">Central Authority</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Encryption-for-attribute-set-mathcal-A-C-1"><span class="nav-number">2.5.5.</span> <span class="nav-text">Encryption for attribute set $\mathcal{A}_C$</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#Decryption-4"><span class="nav-number">2.5.6.</span> <span class="nav-text">Decryption</span></a></li></ol></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xianbin Zhou"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xianbin Zhou</p>
+  <div class="site-description" itemprop="description">My universe will never be the same!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/snail1996" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;snail1996" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zxb340825@163.com" title="E-Mail → mailto:zxb340825@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Firstfrozen</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">38k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">34 分钟</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script color='' opacity='' zIndex='' count='' src="/lib/canvas-nest/canvas-nest-nomobile.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+          load: ['[tex]/mhchem'],
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+          packages: {'[+]': ['mhchem']},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+  
+  <!--彩带2.自动飘动-->
+      <!-- <script src="https://g.joyinshare.com/hc/piao.js" type="text/javascript"></script> -->
+      <script type="text/javascript" src="/js/ribbon_flow.js"></script>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"live2d-widget-model-hijiki"},"display":{"position":"right","width":140,"height":260},"moblie":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>
+<!-- 引入jQuery -->
+<script type="text/javascript" src="//libs.baidu.com/jquery/1.8.3/jquery.min.js"></script>
+<!-- 雪花特效 -->
+<script type="text/javascript" src="\js\snow.js"></script>
+<!-- 样式二（飘动的彩带） -->
+<script src="\js\ribbon_flow.js" type="text/javascript"></script>
