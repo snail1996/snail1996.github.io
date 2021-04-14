@@ -362,6 +362,45 @@ A = DecryptNode(CT,SK,r)=e(g,g)^{rq_R(0)} = e(g,g)^{rs}.</script><p>最后即可
       </tags>
   </entry>
   <entry>
+    <title>O-ABE</title>
+    <url>/2021/04/14/O-ABE/</url>
+    <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>前面的几篇文章都关注在密钥托管、属性撤销以及共谋攻击这几个方面。诚然这些方面是设计ABE算法时需要考虑的地方。我们现在回想一下前面介绍的这些ABE方案，其中不管是基于什么难题，异或是访问结构是访问控制树还是线性秘密共享方案，所构造的ABE方案都有一个共同的特点，那就是解密所需要的操作数量与密文中属性个数成正比。这也就意味着，密文中的属性越多，解密的操作数就越多。而对于一些存储计算资源受限的设备，就无法胜任解密的工作。</p>
+<span id="more"></span>
+<p>Green和Waters<sup><a href="ref1">1</a></sup>（对，还是那个大佬）为了减轻用户端解密的开销，首次提出了外包ABE的原型（这也是本文取名O-ABE的原因）。方案的设想是，用户在解密的时候，不将全部的操作由自己来弄，而是将绝大部分的工作量委托给第三方代理，让第三方算出大部分的结果之后再返回结果，而用户实际的计算将会很少。设想是美好的，但是这其中有一个问题，那就是第三方如何能帮你计算出有效的部分结果，而这个结果对于他而言，完全不能得到密文有关的任何信息。</p>
+<p>那么O-ABE是如何做到既能外包大部分操作，又能保证密文的安全性呢？答案是方案中用到了所谓的“盲化”技术，即在由KGC生成用户私钥之后，用户是可以拿着私钥解密密文的，但是碍于操作量大，用户可能无法完成，因此他将自己的私钥运用“盲化“技术衍生为一个转换密钥，而第三方机构正是由这个密钥算得解密的一部分。而这个转换密钥在对于第三方机构来说一点帮助都没有，解密之后也看不到明文是什么样的。下面看看O-ABE具体是怎样构造的吧！</p>
+<h4 id="具体构造"><a href="#具体构造" class="headerlink" title="具体构造"></a>具体构造</h4><h5 id="Setup-lambda-U"><a href="#Setup-lambda-U" class="headerlink" title="Setup($\lambda,U$)"></a><strong>Setup($\lambda,U$)</strong></h5><p>Setup算法将系统的安全参数$\lambda$和系统属性域$U$作为输入。选择一个$p$阶乘法循环群$\mathbb{G}$，生成元为$g$，选择一个哈希函数$F$将$\left\{0,1\right\}^+$映射到$\mathbb{G}$。选择指数$\alpha, a \in \mathbb{Z}_p$。系统的主密钥为$MSK=(g^\alpha,a)$，系统的公共参数为$PK=(g,e(g,g)^\alpha, g^a,F)$。</p>
+<h5 id="Encrypt-PK-mathcal-M-M-rho"><a href="#Encrypt-PK-mathcal-M-M-rho" class="headerlink" title="Encrypt($PK,\mathcal{M},(M,\rho)$)"></a><strong>Encrypt($PK,\mathcal{M},(M,\rho)$)</strong></h5><p>Encrypt算法将$PK$和消息$\mathcal{M}$作为输入。选择一个线性秘密共享方案的访问结构$(M,\rho)$，函数$\rho$将矩阵$M \in \mathbb{Z}_p^{l\times n}$的每一行映射到一个属性。选择随机向量$\overrightarrow{v}=(s,v_2,…,v_n) \in \mathbb{Z}_p^n$，$\forall i \in [l]$，计算$\lambda _i = \overrightarrow{v}M_i$，其中$M_i$为矩阵$M$的第$i$行。随机选择$r_1,…,r_l \in \mathbb{Z}_p$，然后加密$\mathcal{M}$得到密文为</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+C=((M, \rho), \mathcal{M} \cdot e(g,g)^{\alpha s}, C^ \prime =g^s, \nonumber \\
+\forall i \in [l]； C_i=g^{a\lambda_i} \cdot F(\rho(i))^{-r_i},D_i=g^{r_i}). \nonumber
+\end{aligned}</script><h5 id="KeyGen-MSK-S"><a href="#KeyGen-MSK-S" class="headerlink" title="KeyGen($MSK,S$)"></a><strong>KeyGen($MSK,S$)</strong></h5><p>KeyGen算法将$MSK$和用户的属性集合$S$作为输入。首先选择随机数$t^\prime$，然后得到密钥</p>
+<script type="math/tex; mode=display">
+SK^\prime = (K^\prime = g^\alpha g^{at^\prime},L^\prime = g^{t^\prime},
+\left\{ K_x^\prime = F(x)^{t^\prime} \right\}_{x \in S}).</script><p>然后选择随机数$z \in \mathbb{Z}_p$，设置转换密钥为</p>
+<script type="math/tex; mode=display">
+TK = (K={K^\prime}^{1/z} = g^{(\alpha /z)} g^{a(t^\prime/z)}=g^{(\alpha /z)}g^{at},L={L^\prime}^{1/z} = g^{t^\prime /z} = g^t,
+\left\{ K_x \right\}_{x \in S}=\left\{ {K_x^\prime}^{1/z} \right\}_{x \in S}).</script><p>用户私钥为$SK=(z,TK)$。</p>
+<h5 id="Transform-TK-CT"><a href="#Transform-TK-CT" class="headerlink" title="Transform($TK,CT$)"></a><strong>Transform($TK,CT$)</strong></h5><p>Transfrom算法输入转换密钥$TK=(K,L,\left\{  K_x\right\}_{x \in S})$和密文$CT=(C,C^\prime, \left\{ C_i, D_i\right\}_{i \in [l]})$。如果$S$不满足访问结构，那么直接输出$\perp $。如果$S$满足访问结构，定义索引集合$I \sqsubset \left\{1,2…,l \right\}$为$I=\left\{ i:\rho(i) \in S \right\}$。然后存在一系列的常数$\left\{\omega_i \in \mathbb{Z}_p \right\}_{i \in I}$使得$\sum_{i \in I}\omega_i \lambda_i=s$。然后计算</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+&e(C^\prime,K)/( (e(\prod _{i \in I} C_i^{\omega _i},L) \prod _{i \in I} e(D_i^{\omega _i},K_{\rho(i)})))= \nonumber\\
+&e(g,g)^{\alpha s /z}e(g,g)^{ast}/( \prod _{i \in I} e(g,g)^{ta\lambda _i \omega _i})=e(g,g)^{\alpha s /z} \nonumber
+\end{aligned}</script><p>然后输出半解密的密文$CT^\prime=(C,e(g,g)^{\alpha s /z})$。</p>
+<h5 id="Decrypt-SK-CT"><a href="#Decrypt-SK-CT" class="headerlink" title="Decrypt($SK,CT$)"></a><strong>Decrypt($SK,CT$)</strong></h5><p>Decrypt算法输入用户私钥$SK=(z,TK)$和密文$CT$。如果密文没有半解密，那么将调用Transfrom算法，如果Transfrom算法输出$\perp$，则Decrypt算法输出$\perp$。否则，用户会拿到半解密密文$(T_0.T_1)$，解密只需计算$T_0/T_!^z=\mathcal{M}$。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>其实我们通过O-ABE算法的构造会发现，其中大部分步骤和Waters的2SPSR方案中的第一个是差不多的，只不过多了密文转换Transfrom这个步骤。该外包ABE的实现运用的盲化的技巧，首先KGC会为用户生成正确的密钥，然后用户随机选择一个秘密值来“随机化自己的私钥”，称之为转换密钥，将此密钥发送给第三方委托半解密密文，用户最终得到的密文已经“很短”了，只需要常数级别的操作即可恢复出密文，这便是外包ABE的大体思路。O-ABE为减小密文解密开销提供了一种技巧，这种技巧广泛地被运用到ABE方案的构建上，后边要介绍的DAC-MACS<sup><a href="ref2">2</a></sup>便运用了这一技巧。</p>
+<p><span name="ref1">M. Green, S. Hohenberger, and B. Waters, “Outsourcing the Decryption of ABE Ciphertexts,” in <em>Proceedings of the 20th USENIX conference on Security</em>, San Francisco, CA, USA, 2011.</span></p>
+<p><span name="ref1">K. Yang, X. H. Jia, K. Ren, B. Zhang, and R. T. Xie, “DAC-MACS: Effective Data Access Control for Multi-authority Cloud Storage Systems,” <em>IEEE Transactions on Information Forensics and Security</em>, vol. 8, no.11, pp. 1790-1801, Nov. 2013.</span>&gt;</p>
+]]></content>
+      <categories>
+        <category>属性基加密</category>
+      </categories>
+      <tags>
+        <tag>属性基加密</tag>
+        <tag>外包解密</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>密文策略属性基加密</title>
     <url>/2021/04/09/%E5%AF%86%E6%96%87%E7%AD%96%E7%95%A5%E5%B1%9E%E6%80%A7%E5%9F%BA%E5%8A%A0%E5%AF%86/</url>
     <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>千呼万唤，在前面的一些知识的铺垫中，终于引来了我们的主角：属性基加密（ABE）。都知道属性基加密的思想是让密文和密钥与属性集合和访问结构产生关联，当且仅当属性集合满足访问结构的时候，方能解密成功。那么根据这其中两两的对应关系，又可以将属性基加密分为两类，即密钥策略属性基加密<sup><a href="ref1">1</a></sup>（KP-ABE）和密文策略属性基加密<sup><a href="ref2">2</a></sup>（CP-ABE）。<br><span id="more"></span></p>
@@ -446,6 +485,54 @@ A = DecryptNode(CT,SK,r)=e(g,g)^{rq_R(0)} = e(g,g)^{rs}.</script><p>最后即可
       </tags>
   </entry>
   <entry>
+    <title>访问结构</title>
+    <url>/2021/04/07/%E8%AE%BF%E9%97%AE%E7%BB%93%E6%9E%84/</url>
+    <content><![CDATA[<p>属性基加密算法（Attribute Based Encryption）是一种特殊的身份及加密算法，身份及加密算法将任何能唯一代表用户身份的信息作为公钥，这样一来大大降低了公钥管理的难度，而属性基加密将用户的身份表示为一系列的属性的集合，当且仅当属性集合满足访问结构时，才能解密成功。<br><span id="more"></span></p>
+<p>2005年，A. Sahai和 B. Waters两位大佬提出模糊身份基加密<sup><a href="ref1">1</a></sup> （FIBE）的概念，并在论文的后面引入属性基加密；2006年，J. Bethencourt、 A. Sahai  和 B. Waters这三位大佬首次构建属性基加密方案<sup><a href="ref2">2</a></sup>（确切的来说是密钥策略属性基加密方案，KP-ABE），并在论文后面引入密文策略属性基加密方案；2007年，V. Goyal、 O. Pandey、 A. Sahai 和 B. Waters这四位大佬首次构建密文策略属性基加密方案<sup><a href="ref3">3</a></sup>，从此属性加秘密的研究拉开序幕。</p>
+<p>属性集合好理解，也就是将用户用一系列的属性标签表示，那么访问结构到底是什么呢？在描述访问结构之前，首先介绍一下离散对数难题（Discrete Logarithm Problem）、拉格朗日插值算法和单调访问结构（Monotone Access Structure），然后引出属性基加密方案中常用的三种访问结构：与门访问结构（And-Gate），访问控制树（Access Tree）和线性秘密共享（LSSS）。</p>
+<h4 id="离散对数难题4"><a href="#离散对数难题4" class="headerlink" title="离散对数难题4"></a>离散对数难题<sup><a href="ref4">4</a></sup></h4><p>令$\alpha \in \mathbb{Z}_{p}$，$G$为一个乘法循环群，群的阶数为$p$，群的一个生成元为$g$，离散对数难题说的是：给定$g,g^a \in G$，对于任何多项式时间的攻击者，其计算出指数$a$的概率是可忽略的，即由$g,g^a \in G$计算出$a$是困难的。</p>
+<h4 id="拉格朗日插值算法"><a href="#拉格朗日插值算法" class="headerlink" title="拉格朗日插值算法"></a>拉格朗日插值算法</h4><p>任意给定$k$阶多项式函数，已知给定$k+1$个取值点（互不重复）：$\left ( x_0,y_0 \right ),\left ( x_1,y_1 \right ),…,\left ( x_k,y_k \right )$，其中$i \neq  j$时$x_i \neq  x_j$。可以通过以下插值方式恢复多项式：</p>
+<script type="math/tex; mode=display">
+L\left ( x \right )=\sum _{j=0}^{k}y_jl_j\left ( x \right )</script><p>其中$l_j\left ( x \right )$为拉格朗日系数：</p>
+<script type="math/tex; mode=display">
+l_j\left ( x \right )=\prod _{i=0,i\neq j}^k \frac{x-x_i}{x_j-x_i}= \frac{x-x_0}{x_j-x_0}...\frac{x-x_{j-1}}{x_j-x_{j-1}}\cdot \frac{x-x_{j+1}}{x_j-x_{j+1}}...\frac{x-x_k}{x_j-x_k}</script><p>任意多于$k+1$个取值点都能复原多项式。</p>
+<h4 id="单调访问结构5"><a href="#单调访问结构5" class="headerlink" title="单调访问结构5"></a>单调访问结构<sup><a href="ref5">5</a></sup></h4><p>令$\left \{ P_1,P_2,…,P_n \right \}$为一系列参与者的集合（属性基加密里边指的是属性），一个集合$ \mathbb{A} \subseteq 2^ { \left  \{ P_1,P_2,…,P_n \right \}} $是单调的，当其满足：$\forall B,C$，如果$B\in \mathbb{A}$且$B\subseteq C$，则$C\in \mathbb{A}$。一个访问结构（单调访问结构）是$\left \{ P_1,P_2,…,P_n \right \}$的幂集的非空子集，即$ \mathbb{A} \subseteq 2^ { \left  \{ P_1,P_2,…,P_n \right \} \setminus \left  \{\varnothing \right \}} $，在$\mathbb{A}$中的集合为授权集合，不在$\mathbb{A}$的集合为非授权集合。</p>
+<h4 id="与门访问结构6"><a href="#与门访问结构6" class="headerlink" title="与门访问结构6"></a>与门访问结构<sup><a href="ref6">6</a></sup></h4><p>给定一个属性域$U=\left \{ 1,2,…,n \right \}$，对于该属性域中的每一个属性$\underline{i}\in U$，有三个值可供选择：</p>
+<p>$\underline{i}=+i$表示该属性有，$\underline{i}=-i$表示该属性没有，而$\underline{i}=dont care$表示该属性可有可无。访问结构可以表示为与门访问结构$W=\wedge _{i\in I}\underline{i}$，其中$I\subseteq U$表示设置的与访问结构有关的属性集合，因此对于$\underline{i}\in U \setminus I$，其属性都为$\underline{i}=dont care$。</p>
+<h4 id="访问控制树2"><a href="#访问控制树2" class="headerlink" title="访问控制树2"></a>访问控制树<sup><a href="ref2">2</a></sup></h4><h5 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h5><p>让$\mathcal{T}$表示一个访问控制树。树的非叶子节点$x$表示一个门限，记$k_x$为节点$x$的门限值，$num_x$为节点$x$的孩子节点总数，那么自然有$0&lt;k_x&lt;num_x$。当$k_x=1$时，即表示或门，当$k_x=num_x$时，即表示与门。树的叶子节点$x$与一个属性相联系，自然地，此时$k_x=1$。</p>
+<p>为了表示的方便，定义一些描述节点的函数。记$p\left ( x \right )$表示节点$x$的父亲节点，$index\left ( x \right )$表示在父亲节点看来该节点的索引值（像完全二叉树一样自左向右编号）。如果$x$是一个叶子节点，$attr\left ( x \right )$表示该节点关联的属性值。</p>
+<h5 id="满足一个访问控制树"><a href="#满足一个访问控制树" class="headerlink" title="满足一个访问控制树"></a>满足一个访问控制树</h5><p>让$\mathcal{T}$表示一个访问控制树，根节点为$r$。记$\mathcal{T}_x$为根节点为$x$的$\mathcal{T}$（$\mathcal{T}$就可以表示为$\mathcal{T}_r$）的子树。如果属性集合$\gamma$满足访问控制树$\mathcal{T}_x$，则$\mathcal{T}_x\left ( \gamma \right )=1$。$\mathcal{T}_x\left ( \gamma \right )$按如下的方式递归计算：如果$x$为非叶子节点，则计算$x$节点的所有孩子节点${x}’$的$\mathcal{T}_{x}’\left ( \gamma \right )$的值，$\mathcal{T}_x\left ( \gamma \right )=1$当且仅当至少$k_x$个$\mathcal{T}_{x}’\left ( \gamma \right )$返回1。如果$x$为叶子节点，则$\mathcal{T}_x\left ( \gamma \right )=1$当且仅当$attr\left ( x \right ) \in \gamma$。</p>
+<h5 id="访问控制树的定义"><a href="#访问控制树的定义" class="headerlink" title="访问控制树的定义"></a>访问控制树的定义</h5><p>对于每一个树中的节点$x$，选择与之对应的多项式$q_x$，多项式的选择遵循自上而下的方式（从根节点到叶子节点），具体如下：</p>
+<ul>
+<li>对于树中的节点$x$，将多项式$q_x$的最高次数设置为$d_x=k_x-1$，也即该节点门限值减一；</li>
+<li>对于根节点$r$，设置$q_r\left ( 0 \right )=y$ ，至于$q_r$的其他系数随机选择；</li>
+<li>对于树中的节点$x$，设置$q_x\left ( 0 \right )=q_{p\left(x\right)}\left ( index\left(x\right) \right )$ ，至于$q_x$的其他系数随机选择；</li>
+<li>构造属性基加密算法的时候，将叶子节点$z$的值$q_z\left ( 0 \right )$作为属性密钥的有关部件，这样通过拉格朗日插值算法就可以恢复出秘密值（与$y$有关的值）。</li>
+</ul>
+<h4 id="线性秘密共享5"><a href="#线性秘密共享5" class="headerlink" title="线性秘密共享5"></a>线性秘密共享<sup><a href="ref5">5</a></sup></h4><p>令$\mathbb{P}=\left \{ P_1,P_2,…,P_n \right \}$为一系列参与者的集合，$\mathbb{P}$上的一个秘密共享方案$\prod $是线性的，当且仅当满足如下两个条件：</p>
+<ul>
+<li>每个参与者关于秘密值$s$的份额构成$\mathbb{Z}_{p}$上的一给向量；</li>
+<li>存在一个秘密共享方案$\prod $的分享生成矩阵$M \in \mathbb{Z}_{p} ^ {l \times \theta}$，函数$\rho \left ( i \right )$将矩阵的第$i$行映射到一个$U$上的属性，即$\rho \left ( i \right ) \in U, \forall i \in \left [ l \right ]$。给定一个列向量$\overrightarrow{v}=\left ( s,r_2,…,r_{\theta} \right )$，其中$s \in \mathbb{Z}_{p}$是需要共享的秘密值，$r_2,…,r_{\theta}$在$\mathbb{Z}_{p}$上随机选取。$M\overrightarrow{v}$向量是根据秘密共享方案$\prod $的$l$份份额，第$i$份份额$\delta _i = \left ( Mv \right )_i$是属于属性$\rho \left ( i \right )$，即为$M$和$\overrightarrow{v}$的内积。</li>
+</ul>
+<p>线性秘密共享方案具有线性重构的特性。假设一个线性秘密共享方案$\prod $代表一个访问结构，令$A \in \mathbb{A} $表示一个授权的属性集合，索引集合$I \subset  \left \{ 1,…,l \right \}$定义为$I=\left \{ i:\rho \left ( i \right ) \in A \right \}$。根据线性重构的性质，则存在一系列常数的集合$\left \{ \omega_i \in \mathbb{Z}_p  \right \}_{i \in I}$，使得$s=\sum _{i \in I} \omega _i\delta _i$。而且这些常数能在多项式时间内找到。对于任何非授权的集合，找不到满足条件的一组常数。</p>
+<h4 id="三种访问结构对比"><a href="#三种访问结构对比" class="headerlink" title="三种访问结构对比"></a>三种访问结构对比</h4><p>从访问结构的表达力上说，与门访问结构是比较差的，因为其是属性的与的关系，所以匹配的条件比较严格，由最初的二值属性（有或者没有）在一定程度上拓展了其表达力。访问控制树和线性秘密共享方案是可以等价的，描述的都是单调的访问结构（单调访问结构直观上理解就是，a的属性集合满足访问结构，而a有的属性b都有，那么b的属性集合必然也满足访问结构），能支持与门、或门以及其他门限，因此表达力强一些。文献<sup><a href="ref7">7</a></sup> 描述了由访问控制树如何转化为线性秘密共享的生成矩阵（只含有0,1和-1）。</p>
+<p><span name="ref1">A. Sahai and B. Waters, “Fuzzy Identity-Based Encryption,” in <em>Proceedings of the 24th annual international conference on Theory and Applications of Cryptographic Techniques</em>, Arahus, Denmark, 2005, pp. 457–473.</span></p>
+<p><span name="ref2">J. Bethencourt, A. Sahai, and B. Waters, “Ciphertext-Policy Attribute-Based Encryption,” in <em>IEEE Symposium on Security &amp; Privacy</em>, Oakland, USA, May 2007, pp. 321–334.</span></p>
+<p><span name="ref3">V. Goyal, O. Pandey, A. Sahai, and B. Waters, “Attribute-Based Encryption for Fine-grained Access Control of Encrypted Data,” in <em>Proceedings of the 13th ACM Conference on Computer and Communications Security</em>, Alexandria, Virginia, USA, 2006, pp. 89–98.</span></p>
+<p><span name="ref4">H. H. Krawczyk, “A high-performance secure Diffie–Hellman protocol,” in <em>Advances in Cryptology</em>. Berlin, Germany: Springer, 2005, pp. 1–62.</span></p>
+<p><span name="ref5">A. Beimel, “Secure Schemes for Secret Sharing and Key Distribution,”PhD thesis, Israel Institute of Technology, Technion, Haifa, Israel, 1996.</span></p>
+<p><span name="ref6">L. Cheung and C. Newport, “Provably Secure Ciphertext Policy ABE,” in <em>Proceedings of ACM Conference on Computer and Commmunications Security</em>, pp. 456-465, 2007.</span></p>
+<p><span name="ref7">S. Ruj, A. Nayak and I. Stojmenovic, “DACC: Distributed Access Control in Clouds,” in <em>2011IEEE 10th International Conference on Trust, Security and Privacy in Computing and Communications</em>, Changsha, 2011, pp. 91-98.</span></p>
+]]></content>
+      <categories>
+        <category>属性基加密</category>
+      </categories>
+      <tags>
+        <tag>属性基加密</tag>
+        <tag>访问结构</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>模糊身份基加密</title>
     <url>/2021/04/08/%E6%A8%A1%E7%B3%8A%E8%BA%AB%E4%BB%BD%E5%9F%BA%E5%8A%A0%E5%AF%86/</url>
     <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>属性基加密<sup><a href="ref1">1</a></sup> （ABE）的思想来源于模糊身份基加密<sup><a href="ref2">2</a></sup> （FIBE），那么在深入了解属性基加密之前，我们先来认识一下模糊身份基加密。模糊身份基加密的主要思想是：用户用一系列的属性$\omega $表示，密文用一系列的属性${\omega }’$表示，系统设定一个容忍值$d$，当二者属性的相交个数大于$d$，即$|{\omega }’\cap \omega|\geq d$时，方能解密成功。</p>
@@ -488,54 +575,6 @@ E=\left ( {\omega}',{E}'=MY^s,\left \{ E_i =T_i^s\right \}_{i \in {\omega}'} \ri
       <categories>
         <category>属性基加密</category>
         <category>身份基加密</category>
-      </categories>
-      <tags>
-        <tag>属性基加密</tag>
-        <tag>访问结构</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>访问结构</title>
-    <url>/2021/04/07/%E8%AE%BF%E9%97%AE%E7%BB%93%E6%9E%84/</url>
-    <content><![CDATA[<p>属性基加密算法（Attribute Based Encryption）是一种特殊的身份及加密算法，身份及加密算法将任何能唯一代表用户身份的信息作为公钥，这样一来大大降低了公钥管理的难度，而属性基加密将用户的身份表示为一系列的属性的集合，当且仅当属性集合满足访问结构时，才能解密成功。<br><span id="more"></span></p>
-<p>2005年，A. Sahai和 B. Waters两位大佬提出模糊身份基加密<sup><a href="ref1">1</a></sup> （FIBE）的概念，并在论文的后面引入属性基加密；2006年，J. Bethencourt、 A. Sahai  和 B. Waters这三位大佬首次构建属性基加密方案<sup><a href="ref2">2</a></sup>（确切的来说是密钥策略属性基加密方案，KP-ABE），并在论文后面引入密文策略属性基加密方案；2007年，V. Goyal、 O. Pandey、 A. Sahai 和 B. Waters这四位大佬首次构建密文策略属性基加密方案<sup><a href="ref3">3</a></sup>，从此属性加秘密的研究拉开序幕。</p>
-<p>属性集合好理解，也就是将用户用一系列的属性标签表示，那么访问结构到底是什么呢？在描述访问结构之前，首先介绍一下离散对数难题（Discrete Logarithm Problem）、拉格朗日插值算法和单调访问结构（Monotone Access Structure），然后引出属性基加密方案中常用的三种访问结构：与门访问结构（And-Gate），访问控制树（Access Tree）和线性秘密共享（LSSS）。</p>
-<h4 id="离散对数难题4"><a href="#离散对数难题4" class="headerlink" title="离散对数难题4"></a>离散对数难题<sup><a href="ref4">4</a></sup></h4><p>令$\alpha \in \mathbb{Z}_{p}$，$G$为一个乘法循环群，群的阶数为$p$，群的一个生成元为$g$，离散对数难题说的是：给定$g,g^a \in G$，对于任何多项式时间的攻击者，其计算出指数$a$的概率是可忽略的，即由$g,g^a \in G$计算出$a$是困难的。</p>
-<h4 id="拉格朗日插值算法"><a href="#拉格朗日插值算法" class="headerlink" title="拉格朗日插值算法"></a>拉格朗日插值算法</h4><p>任意给定$k$阶多项式函数，已知给定$k+1$个取值点（互不重复）：$\left ( x_0,y_0 \right ),\left ( x_1,y_1 \right ),…,\left ( x_k,y_k \right )$，其中$i \neq  j$时$x_i \neq  x_j$。可以通过以下插值方式恢复多项式：</p>
-<script type="math/tex; mode=display">
-L\left ( x \right )=\sum _{j=0}^{k}y_jl_j\left ( x \right )</script><p>其中$l_j\left ( x \right )$为拉格朗日系数：</p>
-<script type="math/tex; mode=display">
-l_j\left ( x \right )=\prod _{i=0,i\neq j}^k \frac{x-x_i}{x_j-x_i}= \frac{x-x_0}{x_j-x_0}...\frac{x-x_{j-1}}{x_j-x_{j-1}}\cdot \frac{x-x_{j+1}}{x_j-x_{j+1}}...\frac{x-x_k}{x_j-x_k}</script><p>任意多于$k+1$个取值点都能复原多项式。</p>
-<h4 id="单调访问结构5"><a href="#单调访问结构5" class="headerlink" title="单调访问结构5"></a>单调访问结构<sup><a href="ref5">5</a></sup></h4><p>令$\left \{ P_1,P_2,…,P_n \right \}$为一系列参与者的集合（属性基加密里边指的是属性），一个集合$ \mathbb{A} \subseteq 2^ { \left  \{ P_1,P_2,…,P_n \right \}} $是单调的，当其满足：$\forall B,C$，如果$B\in \mathbb{A}$且$B\subseteq C$，则$C\in \mathbb{A}$。一个访问结构（单调访问结构）是$\left \{ P_1,P_2,…,P_n \right \}$的幂集的非空子集，即$ \mathbb{A} \subseteq 2^ { \left  \{ P_1,P_2,…,P_n \right \} \setminus \left  \{\varnothing \right \}} $，在$\mathbb{A}$中的集合为授权集合，不在$\mathbb{A}$的集合为非授权集合。</p>
-<h4 id="与门访问结构6"><a href="#与门访问结构6" class="headerlink" title="与门访问结构6"></a>与门访问结构<sup><a href="ref6">6</a></sup></h4><p>给定一个属性域$U=\left \{ 1,2,…,n \right \}$，对于该属性域中的每一个属性$\underline{i}\in U$，有三个值可供选择：</p>
-<p>$\underline{i}=+i$表示该属性有，$\underline{i}=-i$表示该属性没有，而$\underline{i}=dont care$表示该属性可有可无。访问结构可以表示为与门访问结构$W=\wedge _{i\in I}\underline{i}$，其中$I\subseteq U$表示设置的与访问结构有关的属性集合，因此对于$\underline{i}\in U \setminus I$，其属性都为$\underline{i}=dont care$。</p>
-<h4 id="访问控制树2"><a href="#访问控制树2" class="headerlink" title="访问控制树2"></a>访问控制树<sup><a href="ref2">2</a></sup></h4><h5 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h5><p>让$\mathcal{T}$表示一个访问控制树。树的非叶子节点$x$表示一个门限，记$k_x$为节点$x$的门限值，$num_x$为节点$x$的孩子节点总数，那么自然有$0&lt;k_x&lt;num_x$。当$k_x=1$时，即表示或门，当$k_x=num_x$时，即表示与门。树的叶子节点$x$与一个属性相联系，自然地，此时$k_x=1$。</p>
-<p>为了表示的方便，定义一些描述节点的函数。记$p\left ( x \right )$表示节点$x$的父亲节点，$index\left ( x \right )$表示在父亲节点看来该节点的索引值（像完全二叉树一样自左向右编号）。如果$x$是一个叶子节点，$attr\left ( x \right )$表示该节点关联的属性值。</p>
-<h5 id="满足一个访问控制树"><a href="#满足一个访问控制树" class="headerlink" title="满足一个访问控制树"></a>满足一个访问控制树</h5><p>让$\mathcal{T}$表示一个访问控制树，根节点为$r$。记$\mathcal{T}_x$为根节点为$x$的$\mathcal{T}$（$\mathcal{T}$就可以表示为$\mathcal{T}_r$）的子树。如果属性集合$\gamma$满足访问控制树$\mathcal{T}_x$，则$\mathcal{T}_x\left ( \gamma \right )=1$。$\mathcal{T}_x\left ( \gamma \right )$按如下的方式递归计算：如果$x$为非叶子节点，则计算$x$节点的所有孩子节点${x}’$的$\mathcal{T}_{x}’\left ( \gamma \right )$的值，$\mathcal{T}_x\left ( \gamma \right )=1$当且仅当至少$k_x$个$\mathcal{T}_{x}’\left ( \gamma \right )$返回1。如果$x$为叶子节点，则$\mathcal{T}_x\left ( \gamma \right )=1$当且仅当$attr\left ( x \right ) \in \gamma$。</p>
-<h5 id="访问控制树的定义"><a href="#访问控制树的定义" class="headerlink" title="访问控制树的定义"></a>访问控制树的定义</h5><p>对于每一个树中的节点$x$，选择与之对应的多项式$q_x$，多项式的选择遵循自上而下的方式（从根节点到叶子节点），具体如下：</p>
-<ul>
-<li>对于树中的节点$x$，将多项式$q_x$的最高次数设置为$d_x=k_x-1$，也即该节点门限值减一；</li>
-<li>对于根节点$r$，设置$q_r\left ( 0 \right )=y$ ，至于$q_r$的其他系数随机选择；</li>
-<li>对于树中的节点$x$，设置$q_x\left ( 0 \right )=q_{p\left(x\right)}\left ( index\left(x\right) \right )$ ，至于$q_x$的其他系数随机选择；</li>
-<li>构造属性基加密算法的时候，将叶子节点$z$的值$q_z\left ( 0 \right )$作为属性密钥的有关部件，这样通过拉格朗日插值算法就可以恢复出秘密值（与$y$有关的值）。</li>
-</ul>
-<h4 id="线性秘密共享5"><a href="#线性秘密共享5" class="headerlink" title="线性秘密共享5"></a>线性秘密共享<sup><a href="ref5">5</a></sup></h4><p>令$\mathbb{P}=\left \{ P_1,P_2,…,P_n \right \}$为一系列参与者的集合，$\mathbb{P}$上的一个秘密共享方案$\prod $是线性的，当且仅当满足如下两个条件：</p>
-<ul>
-<li>每个参与者关于秘密值$s$的份额构成$\mathbb{Z}_{p}$上的一给向量；</li>
-<li>存在一个秘密共享方案$\prod $的分享生成矩阵$M \in \mathbb{Z}_{p} ^ {l \times \theta}$，函数$\rho \left ( i \right )$将矩阵的第$i$行映射到一个$U$上的属性，即$\rho \left ( i \right ) \in U, \forall i \in \left [ l \right ]$。给定一个列向量$\overrightarrow{v}=\left ( s,r_2,…,r_{\theta} \right )$，其中$s \in \mathbb{Z}_{p}$是需要共享的秘密值，$r_2,…,r_{\theta}$在$\mathbb{Z}_{p}$上随机选取。$M\overrightarrow{v}$向量是根据秘密共享方案$\prod $的$l$份份额，第$i$份份额$\delta _i = \left ( Mv \right )_i$是属于属性$\rho \left ( i \right )$，即为$M$和$\overrightarrow{v}$的内积。</li>
-</ul>
-<p>线性秘密共享方案具有线性重构的特性。假设一个线性秘密共享方案$\prod $代表一个访问结构，令$A \in \mathbb{A} $表示一个授权的属性集合，索引集合$I \subset  \left \{ 1,…,l \right \}$定义为$I=\left \{ i:\rho \left ( i \right ) \in A \right \}$。根据线性重构的性质，则存在一系列常数的集合$\left \{ \omega_i \in \mathbb{Z}_p  \right \}_{i \in I}$，使得$s=\sum _{i \in I} \omega _i\delta _i$。而且这些常数能在多项式时间内找到。对于任何非授权的集合，找不到满足条件的一组常数。</p>
-<h4 id="三种访问结构对比"><a href="#三种访问结构对比" class="headerlink" title="三种访问结构对比"></a>三种访问结构对比</h4><p>从访问结构的表达力上说，与门访问结构是比较差的，因为其是属性的与的关系，所以匹配的条件比较严格，由最初的二值属性（有或者没有）在一定程度上拓展了其表达力。访问控制树和线性秘密共享方案是可以等价的，描述的都是单调的访问结构（单调访问结构直观上理解就是，a的属性集合满足访问结构，而a有的属性b都有，那么b的属性集合必然也满足访问结构），能支持与门、或门以及其他门限，因此表达力强一些。文献<sup><a href="ref7">7</a></sup> 描述了由访问控制树如何转化为线性秘密共享的生成矩阵（只含有0,1和-1）。</p>
-<p><span name="ref1">A. Sahai and B. Waters, “Fuzzy Identity-Based Encryption,” in <em>Proceedings of the 24th annual international conference on Theory and Applications of Cryptographic Techniques</em>, Arahus, Denmark, 2005, pp. 457–473.</span></p>
-<p><span name="ref2">J. Bethencourt, A. Sahai, and B. Waters, “Ciphertext-Policy Attribute-Based Encryption,” in <em>IEEE Symposium on Security &amp; Privacy</em>, Oakland, USA, May 2007, pp. 321–334.</span></p>
-<p><span name="ref3">V. Goyal, O. Pandey, A. Sahai, and B. Waters, “Attribute-Based Encryption for Fine-grained Access Control of Encrypted Data,” in <em>Proceedings of the 13th ACM Conference on Computer and Communications Security</em>, Alexandria, Virginia, USA, 2006, pp. 89–98.</span></p>
-<p><span name="ref4">H. H. Krawczyk, “A high-performance secure Diffie–Hellman protocol,” in <em>Advances in Cryptology</em>. Berlin, Germany: Springer, 2005, pp. 1–62.</span></p>
-<p><span name="ref5">A. Beimel, “Secure Schemes for Secret Sharing and Key Distribution,”PhD thesis, Israel Institute of Technology, Technion, Haifa, Israel, 1996.</span></p>
-<p><span name="ref6">L. Cheung and C. Newport, “Provably Secure Ciphertext Policy ABE,” in <em>Proceedings of ACM Conference on Computer and Commmunications Security</em>, pp. 456-465, 2007.</span></p>
-<p><span name="ref7">S. Ruj, A. Nayak and I. Stojmenovic, “DACC: Distributed Access Control in Clouds,” in <em>2011IEEE 10th International Conference on Trust, Security and Privacy in Computing and Communications</em>, Changsha, 2011, pp. 91-98.</span></p>
-]]></content>
-      <categories>
-        <category>属性基加密</category>
       </categories>
       <tags>
         <tag>属性基加密</tag>
