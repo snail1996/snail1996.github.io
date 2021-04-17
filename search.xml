@@ -54,6 +54,100 @@ SK=(K=g^\alpha g^{at},L=g^t,\forall x \in S:K_x = h_x^t).</script><h6 id="Decryp
       </tags>
   </entry>
   <entry>
+    <title>DAC-MACS</title>
+    <url>/2021/04/15/DAC-MACS/</url>
+    <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>前面介绍了ABE有关的大部分知识，包括访问结构、密钥托管、属性撤销、共谋攻击、外包解密等诸多方面，今天要介绍的这篇论文是经典的ABE构造，方案简称为DAC-MACS<sup><a href="ref1">1</a></sup>，由Yang等人构造。方案中融合了几乎所有前面讲到的这些方面的内容，属于Chase<sup><a href="ref2">2</a></sup>系列的多属性权威机构ABE，能实现属性撤销，能防止用户的共谋，能外包解密。DAC-MACS方案是基于Waters的ABE-2SPR<sup><a href="ref3">3</a></sup>的第一种构造，因此是构建在Decisional q-PBDHE难题之上，运用了Green<sup><a href="ref4">4</a></sup>的外包解密技巧，可以说是经典的多属性权威ABE方案。下面我们来一睹DAC-MACS的内部构造吧！</p>
+<span id="more"></span>
+<h4 id="系统模型"><a href="#系统模型" class="headerlink" title="系统模型"></a>系统模型</h4><p>DAC-MACS方案中涉及五类实体，分别为全局证书机构（CA）、属性权威机构（AAs)、云服务器（CSP）、数据拥有者（DO）和数据消费者（DU）。</p>
+<ul>
+<li><p>CA：系统中全局可信的证书机构，针对每一个合法用户，CA分配一个全局唯一的用户身份，并为其生成全局公私钥对。CA不参与任何属性的管理，这意味着它并不为DU生成属性密钥。</p>
+</li>
+<li><p>AA：每一个AA都是一个独立的属性权威机构，负责产生、撤销以及更新用户的属性（只要用户的该属性由它所管理）。每个AA会为其管理的每一个属性生成系统的属性公钥，并为用户生成属性密钥。</p>
+</li>
+<li>CSP：存储DO的加密的密文的地方，也为用户生成解密令牌，如果存在属性撤销，则辅助更新密文到系统的最新版本。</li>
+<li>DO：需要存储数据到CSP的用户。</li>
+<li>DU：需要从CSP获取数据的用户。</li>
+</ul>
+<h4 id="威胁模型"><a href="#威胁模型" class="headerlink" title="威胁模型"></a>威胁模型</h4><ul>
+<li><p>CA：完全可信的，但是不允许解密任何密文。</p>
+</li>
+<li><p>AA：可信的，但是可以被攻击者攻击“腐败”。</p>
+</li>
+<li>CSP：半可信的（诚实且好奇），即CSP会诚实地执行系统中它所负责的工作，但是会对存储的密文产生好奇。</li>
+<li>DU：非诚实的，存在共谋行为。</li>
+<li>所有非撤销者：不将收到的密钥更新密钥与撤销用户共享。</li>
+</ul>
+<h4 id="具体构造"><a href="#具体构造" class="headerlink" title="具体构造"></a>具体构造</h4><h5 id="系统初始化"><a href="#系统初始化" class="headerlink" title="系统初始化"></a>系统初始化</h5><p>记$S_A$和$S_U$分别表示属性权威机构的集合和系统属性的集合，记$\mathbb{G}$和$\mathbb{G}_T$为两个阶数为$p$的乘法循环群，$e:\mathbb{G} \times \mathbb{G} \rightarrow \mathbb{G}_T$为双线性映射，$g$为$\mathbb{G}$的生成元。记$H:\left\{0,1 \right\}^+ \rightarrow \mathbb{G}$为哈希函数。</p>
+<h6 id="CA-Setup"><a href="#CA-Setup" class="headerlink" title="CA Setup"></a>CA Setup</h6><p>CA首先产生一对签名和验证密钥$(sk_{CA}, vk_{CA})$，然后选择随机数$a \in \mathbb{Z}_p$作为系统的主密钥，计算系统参数为$SP=(g,g^a,\mathbb{G},\mathbb{G}_T,H)$。</p>
+<ol>
+<li>User Registration：每个用户需要向CA注册自己的信息，如果用户是系统的合法用户，则为该用户分配一个全局唯一的ID$uid$，生成全局公钥$GPK_{uid}=g^{u_{uid}}$和全局私钥$GSK_{uid}=z_{uid}$，其中$u_{uid},z_{uid} \in \mathbb{Z}_p$随机选取。CA随后产生该用户的证书$Cert(uid)$，其中包含$Sign_{sk_{CA}}(uid, u_{uid},g^{1/z_{uid}})$。最后CA将全局公私钥对$(GPK_{uid},GSK_{uid})$和证书$Cert(uid)$发送给用户$uid$。</li>
+<li>AA Registration：每一个AA需要向CA注册自己的信息，如果AA是系统的合法机构，则为该AA分配一个全局唯一ID$aid$，然后将CA的验证密钥$vk_{CA}$和系统参数$SP$发送给AA。</li>
+</ol>
+<h6 id="AA-Setup"><a href="#AA-Setup" class="headerlink" title="AA Setup"></a>AA Setup</h6><p>每一个$AA_k(k \in S_A)$运行AA Setup步骤。记$S_{A_k}$表示$AA_k$所管理的属性的集合，$AA_k$选择三个随机数$\alpha_k, \beta_k, \gamma_k \in \mathbb{Z}_p$作为该机构的私钥，即$SK_k=(\alpha_k, \beta_k, \gamma_k)$。对于每一个属性$x_k \in S_{A_k}$，$AA_k$计算产生属性公钥$PK_{x_k}=(g^{v_{x_k}}H(x_k))^{\gamma_k}$，其中$VK_{x_k}=v_{x_k}$为该属性的版本密钥，$AA_k$还计算该机构自身的公钥$PK_k=(e(g,g)^{\alpha_k},g^{1/\beta_k},g^{\gamma_k/\beta_k})$。所有的属性公钥和$AA_k$的机构公钥都可以在该机构的“公告栏”获取。</p>
+<h5 id="用户私钥生成"><a href="#用户私钥生成" class="headerlink" title="用户私钥生成"></a>用户私钥生成</h5><p>对于每一个用户$U_j(j \in S_U)$，每一个$AA_k$首先用CA的验证密钥$vk_{CA}$验证该用户的证书$Cert(uid)$来判断其是否合法，如果合法，才为其分发密钥。$AA_k$会根据该用户在自己这拥有的属性，计算一系列的用户私钥$SK_{j,k}$。针对每一个$AA_k$，选择一个随机数$t_{j,k} \in \mathbb{Z}_p$，然后计算$SK_{j,k}$如下：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+& SK_{j,k}=( K_{j,k}=g^{\alpha_k/z_j} \cdot g^{au_j} \cdot g^{at_{j,k}/\beta_k}, 
+L_{j,k}=g^{\beta_kt_{j,k}/z_j},R_{j,k}=g^{at_{j,k}},  \nonumber\\
+& \forall x_k \in S_{j,k}:K_{j,x_k} =g^{\beta_k \gamma_k t_{j,k}/z_j} \cdot (g^{v_{x_k}} \cdot H(x_k))^{\gamma_k \beta_k u_j}). \nonumber
+\end{aligned}</script><p>其中，$j \in S_U, k \in S_A$。</p>
+<h5 id="数据加密"><a href="#数据加密" class="headerlink" title="数据加密"></a>数据加密</h5><p>在DO将数据$m$外包到CSP上之前，DO为其进行加密。DO定义自己的访问结构，以线性秘密共享方案的形式，即访问结构为$(M, \rho)$，其中$M$为$l \times n$的矩阵，$l$为所有属性的个数，函数$\rho$将矩阵的每一行映射到一个属性。</p>
+<p>首先将消息$m$切分为若干数据块，即$m=\left\{m_1,…,m_n \right\}$，然后针对每一个数据块选择一个对称密钥$\left\{\kappa_1,…, \kappa_n \right\}$，用对称密钥$\kappa_i$加密数据块$m_i$。不失一般性，以下只针对某一个数据块$m$的加密过程进行描述。</p>
+<p>DO随机选择秘密值$s \in \mathbb{Z}_p$，选择随机向量$\overrightarrow{v} =(s,y_2,…,y_n) \in \mathbb{Z}_p^n$，其中$y_2,…,y_n$随机选取，其作用是分享秘密值$s$。对于$i \in [l]$，计算$\lambda_i = \overrightarrow {v}M_i$，其中$M_i$为矩阵$M$的第$i$行，然后随机选择$r_1,…,r_l \in \mathbb{Z}_p$，计算密文如下：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+&  CT=(En_\kappa(m), C=\kappa \cdot(\prod_{k \in I_A}e(g,g)^{\alpha_k})^s, C^\prime=g^s,{C}''=g^{s/\beta_k}, \nonumber\\
+&  \forall i \in [l]:C_i=g^{a\lambda_i} \cdot ((g^{v_{\rho(i)}}H(\rho(i)))^{\gamma_k})^{-r_i}, D_{1,i}=g^{r_i/\beta_k},D_{2,i}=g^{-\gamma_kr_i/\beta_k}, \rho(i) \in S_{A_k} ). \nonumber
+\end{aligned}</script><h5 id="数据解密"><a href="#数据解密" class="headerlink" title="数据解密"></a>数据解密</h5><p>系统中的合法用户可以可以从CSP查询获取任何密文，但是只有属性集合满足访问结构的用户才能够解密出对称密钥，进而恢复出消息$m$。</p>
+<h6 id="CSP计算Token"><a href="#CSP计算Token" class="headerlink" title="CSP计算Token"></a>CSP计算Token</h6><p>用户$U_j(j \in S_U)$将他的私钥$\left\{SK_{j,k} \right\}_{k \in S_A}$发送给CSP，让CSP为其计算生成解密令牌$TK$。当且仅当用户的属性集合满足密文的访问结构的时候，CSP才能正确计算出$TK$。</p>
+<p>记$I=\left\{I_{A_k} \right\}_{k \in S_A}$为与密文有关的所有索引的集合，其中$I_{A_k} \sqsubset \left\{1,2,…,l \right\}$定义为$I_{A_k}=\left\{i:\rho(i) \in S_{A_k} \right\}$。举个例子，例如矩阵$M$有6行，$\rho(1)$为属性$a_1$，……，$\rho(6)$为属性$a_6$，一共有三个属性机构$A_1,A_2,A_3$，$A_1=\left\{a_1,a_6 \right\}$，$A_2=\left\{a_2,a_4,a_5 \right\}$，$A_3=\left\{a_3 \right\}$，假设用户Alice有属性$\left\{a_1,a_2,a_3,a_4 \right\}$，则$I_{A_1}=\left\{1 \right\}$，$I_{A_2}=\left\{2,4 \right\}$，$I_{A_3}=\left\{3 \right\}$，所以$I=\left\{I_{A_1},I_{A_2},I_{A_3} \right\}=\left\{1,2,3,4\right\}$。</p>
+<p>记$N_A=|I_A|$为与密文中属性有关的机构个数（上述例子中$N_A=3$），CSP选择一系列的常数$\left\{\omega_i \in \mathbb{Z}_p \right\}_{i \in I}$，然后重构秘密值$s=\sum_{i \in I} \omega_i \lambda_i$，然后计算$TK$如下。</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+& TK=\prod_{k \in I_A} \frac{e(C^\prime,K_{j,k}) \cdot e(R_{j,k},{C}'')^{-1}}
+{\prod _{i \in I_{A_k}} (e(C_i,GPK_j) \cdot e(D_{1,i},K_{j,\rho(j)}) \cdot e(D_{2,i},L_{j,k}))^{\omega_iN_A}} \nonumber\\
+& =\frac{e(g,g)^{au_jsN_A} \cdot \prod_{k \in I_A} e(g,g)^{\alpha_ks/z_j}}
+{e(g,g)^{u_jaN_A \sum_{i \in I} \lambda_i \omega_i}} \nonumber \\
+& =\prod_{k \in I_A} e(g,g)^{\alpha_ks/z_j}. \nonumber
+\end{aligned}</script><p>然后CSP将$TK$返回给用户$U_j$。</p>
+<h6 id="用户解密"><a href="#用户解密" class="headerlink" title="用户解密"></a>用户解密</h6><p>用户$U_j$收到$TK$后，用自己的全局私钥$GSK_j=z_j$解密对称密钥$\kappa = \frac{C}{TK^{z_j}}$。然后用对称密钥$\kappa$解密密文$m=Dec_{\kappa}(Enc_{\kappa}(m))$。</p>
+<h5 id="属性撤销"><a href="#属性撤销" class="headerlink" title="属性撤销"></a>属性撤销</h5><p>假设属性用户$U_\mu$ 的属性$\widetilde{x}_k$从$AA_k$那撤销了，那么属性撤销阶段分以下三步进行。</p>
+<h6 id="AA-s-生成更新密钥"><a href="#AA-s-生成更新密钥" class="headerlink" title="$AA_s$生成更新密钥"></a>$AA_s$生成更新密钥</h6><p>相应的$AA_k$选择一个新的属性$\widetilde{x}_k$的版本密钥$VK_{\widetilde{x}_k}^\prime = v_{\widetilde{x}_k}^\prime$，然后计算属性更新密钥$AUK_{\widetilde{x}_k}=\gamma_k(v_{\widetilde{x}_k}^\prime - v_{\widetilde{x}_k})$，进而生成密钥更新密钥$KUK_{j,\widetilde{x}_k}=g^{u_j \beta_k \cdot AUK_{\widetilde{x}_k}}$和密文更新密钥$CUK_{\widetilde{x}_k} = \beta_k \cdot AUK_{\widetilde{x}_k}/\gamma_k$。然后$AA_k$将属性$\widetilde{x}_k$的属性公钥更新为$PK_{\widetilde{x}_k}^\prime=PK_{\widetilde{x}_k} \cdot g^{AUK_{\widetilde{x}_k}}$，并全系统广播属性$\widetilde{x}_k$有关的密文密钥更新过了。</p>
+<h6 id="非撤销用户更新属性部件"><a href="#非撤销用户更新属性部件" class="headerlink" title="非撤销用户更新属性部件"></a>非撤销用户更新属性部件</h6><p>对于那些没有撤销$\widetilde{x}_k$的用户$U_j(j \in S_U,j \neq \mu)$，$AA_k$发给他们密钥更新密钥$KUK_{j,\widetilde{x}_k}$。用户拿到更新密钥后，更新自己的私钥为：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+& SK_{j,k}^\prime=( K_{j,k}^\prime=K_{j,k}, L_{j,k}^\prime=L_{j,k},R_{j,k}^\prime=R_{j,k}, \nonumber\\
+& K_{j,\widetilde{x}_k}^\prime=K_{j,\widetilde{x}_k} \cdot KUK_{j,\widetilde{x}_k}, \forall x_k \in S_u, x_k \neq \widetilde{x}_k:K_{j,x_k}^\prime=K_{j,x_k} ). \nonumber
+\end{aligned}</script><h6 id="CSP更新密文部件"><a href="#CSP更新密文部件" class="headerlink" title="CSP更新密文部件"></a>CSP更新密文部件</h6><p>$AA_k$发给CSP密文更新密钥$CUK_{\widetilde{x}_k}$，然后密文更新为：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+& CT^\prime=(En_\kappa(m), C=\kappa \cdot(\prod_{k \in I_A}e(g,g)^{\alpha_k})^s, C^\prime=g^s,{C}''=g^{s/\beta_k}, \nonumber\\
+& \forall i \in [l]: \nonumber\\
+& if \rho(i) \neq \widetilde{x}_k: C_i=g^{a\lambda_i} \cdot ((g^{v_{\rho(i)}}H(\rho(i)))^{\gamma_k})^{-r_i}, \nonumber\\ & D_{1,i}=g^{r_i/\beta_k},D_{2,i}=g^{-\gamma_kr_i/\beta_k}, \nonumber\\ 
+& if \rho(i) = \widetilde{x}_k: C_i^\prime = C_i \cdot D_{2,i}^{CUK_{\widetilde{x}_k}}, \nonumber\\
+& D_{1,i}=g^{r_i/\beta_k},D_{2,i}=g^{-\gamma_kr_i/\beta_k}). \nonumber
+\end{aligned}</script><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>从具体的构造来看，DAC-MACS设计的还是相当的复杂，这是因为ABE算法本身就需要考虑诸多属性，而与之有关的有密文和密钥两大部分，再加上要设计成多个权威机构，那么系统中与属性相关联的又多了一层实体。这可以和Chase的方案对比，很明显其复杂度不言而喻，因为Chase的ABE方案算是门限ABE，而且没有属性撤销这一安全需求。</p>
+<p>从DAC-MACS的设计中可以看到，每一个AA的主密钥有三个之多，这正是为了实现后边的属性撤销而预设的。回头看一下，DAC-MAC是将一个所谓的属性的版本密钥嵌入到属性有关部件里边，然后有属性撤销发生，则将对应的版本密钥更新，这样做的好处是，只有与撤销有关的密文密钥部件才会更新值，而不相关属性的部件不会变化，大大减少了撤销时的计算量，因此这种撤销的手段是很典型的高效撤销机制。</p>
+<p>而DAC-MACS又是如何实现解密操作外包的呢？这是由于CSP为用户计算生成解密令牌，而大大减少了用户的解密开销，之所以用户将私钥给CSP也不会产生安全隐患，这是因为密钥中嵌入了用户的全局私钥信息，这一随机数其实就是O-ABE中盲化技术里的盲化因子。</p>
+<p>DAC-MACS中提到了假定非撤销用户不会将密钥更新密钥透露给非撤销用户，这是因为如果透露了，那么撤销用户仍然能够更新自己的私钥，从而解密最近的密文。正因为如此，作者才推出EDAC-MACS来消除这一假设前提，以增强方案的安全性，但是Wu<sup><a href="ref1">5</a></sup>等人针对EDAC-MACS方案，还是分析出其中的漏洞。不过不管怎样，DAC-MACS还是一种经典的多属性权威ABE方案的构造，其中的细节值得回味，其中的技巧值得借鉴。</p>
+<p><span name="ref1">K. Yang, X. H. Jia, K. Ren, B. Zhang, and R. T. Xie, “DAC-MACS: Effective Data Access Control for Multi-authority Cloud Storage Systems,” <em>IEEE Transactions on Information Forensics and Security</em>, vol. 8, no.11, pp. 1790-1801, Nov. 2013.</span></p>
+<p><span name="ref2">M. Chase, “Multi-authority attribute based encryption,” in <em>Proc. TCC’07</em>, 2007, pp. 515–534, Springer.</span></p>
+<p><span name="ref3">B. Waters, “Ciphertext-policy attribute-based encryption: An expressive, efficient, and provably secure realization,” in <em>Proc. PKC’11</em>, 2011, pp. 53–70, Springer.</span></p>
+<p><span name="ref4">M. Green, S. Hohenberger, and B. Waters, “Outsourcing the Decryption of ABE Ciphertexts,” in <em>Proceedings of the 20th USENIX conference on Security</em>, San Francisco, CA, USA, 2011.</span></p>
+<p><span name="ref5">X. Wu, R. Jiang and B. Bhargava, “On the Security of Data Access Control for Multiauthority Cloud Storage Systems,” <em>IEEE Transactions on Services Computing</em>, vol. 10, no. 2, pp. 258-272, 1 March-April 2017.<span></span></span></p>
+]]></content>
+      <categories>
+        <category>属性基加密</category>
+      </categories>
+      <tags>
+        <tag>属性基加密</tag>
+        <tag>属性撤销</tag>
+        <tag>多个属性机构</tag>
+        <tag>外包解密</tag>
+        <tag>共谋攻击</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Hur1-ABE</title>
     <url>/2021/04/11/Hur1-ABE/</url>
     <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>前面多次提到了属性撤销和防止共谋攻击的概念，这两个安全需求在属性基加密方案的设计方面至关重要，必须得考虑到。为什么这么说呢？根据前面构造的CP-ABE方案的细节，我们知道一个用户的密钥和系统中的密文中都包含许多个部件，大致可分为两类，一类是与属性有关的，一类是与属性无关的。</p>
@@ -169,100 +263,6 @@ A = DecryptNode(CT,SK,r)=e(g,g)^{rq_R(0)} = e(g,g)^{rs}.</script><p>最后即可
         <tag>属性基加密</tag>
         <tag>属性撤销</tag>
         <tag>共谋攻击</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>DAC-MACS</title>
-    <url>/2021/04/15/DAC-MACS/</url>
-    <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>前面介绍了ABE有关的大部分知识，包括访问结构、密钥托管、属性撤销、共谋攻击、外包解密等诸多方面，今天要介绍的这篇论文是经典的ABE构造，方案简称为DAC-MACS<sup><a href="ref1">1</a></sup>，由Yang等人构造。方案中融合了几乎所有前面讲到的这些方面的内容，属于Chase<sup><a href="ref2">2</a></sup>系列的多属性权威机构ABE，能实现属性撤销，能防止用户的共谋，能外包解密。DAC-MACS方案是基于Waters的ABE-2SPR<sup><a href="ref3">3</a></sup>的第一种构造，因此是构建在Decisional q-PBDHE难题之上，运用了Green<sup><a href="ref4">4</a></sup>的外包解密技巧，可以说是经典的多属性权威ABE方案。下面我们来一睹DAC-MACS的内部构造吧！</p>
-<span id="more"></span>
-<h4 id="系统模型"><a href="#系统模型" class="headerlink" title="系统模型"></a>系统模型</h4><p>DAC-MACS方案中涉及五类实体，分别为全局证书机构（CA）、属性权威机构（AAs)、云服务器（CSP）、数据拥有者（DO）和数据消费者（DU）。</p>
-<ul>
-<li><p>CA：系统中全局可信的证书机构，针对每一个合法用户，CA分配一个全局唯一的用户身份，并为其生成全局公私钥对。CA不参与任何属性的管理，这意味着它并不为DU生成属性密钥。</p>
-</li>
-<li><p>AA：每一个AA都是一个独立的属性权威机构，负责产生、撤销以及更新用户的属性（只要用户的该属性由它所管理）。每个AA会为其管理的每一个属性生成系统的属性公钥，并为用户生成属性密钥。</p>
-</li>
-<li>CSP：存储DO的加密的密文的地方，也为用户生成解密令牌，如果存在属性撤销，则辅助更新密文到系统的最新版本。</li>
-<li>DO：需要存储数据到CSP的用户。</li>
-<li>DU：需要从CSP获取数据的用户。</li>
-</ul>
-<h4 id="威胁模型"><a href="#威胁模型" class="headerlink" title="威胁模型"></a>威胁模型</h4><ul>
-<li><p>CA：完全可信的，但是不允许解密任何密文。</p>
-</li>
-<li><p>AA：可信的，但是可以被攻击者攻击“腐败”。</p>
-</li>
-<li>CSP：半可信的（诚实且好奇），即CSP会诚实地执行系统中它所负责的工作，但是会对存储的密文产生好奇。</li>
-<li>DU：非诚实的，存在共谋行为。</li>
-<li>所有非撤销者：不将收到的密钥更新密钥与撤销用户共享。</li>
-</ul>
-<h4 id="具体构造"><a href="#具体构造" class="headerlink" title="具体构造"></a>具体构造</h4><h5 id="系统初始化"><a href="#系统初始化" class="headerlink" title="系统初始化"></a>系统初始化</h5><p>记$S_A$和$S_U$分别表示属性权威机构的集合和系统属性的集合，记$\mathbb{G}$和$\mathbb{G}_T$为两个阶数为$p$的乘法循环群，$e:\mathbb{G} \times \mathbb{G} \rightarrow \mathbb{G}_T$为双线性映射，$g$为$\mathbb{G}$的生成元。记$H:\left\{0,1 \right\}^+ \rightarrow \mathbb{G}$为哈希函数。</p>
-<h6 id="CA-Setup"><a href="#CA-Setup" class="headerlink" title="CA Setup"></a>CA Setup</h6><p>CA首先产生一对签名和验证密钥$(sk_{CA}, vk_{CA})$，然后选择随机数$a \in \mathbb{Z}_p$作为系统的主密钥，计算系统参数为$SP=(g,g^a,\mathbb{G},\mathbb{G}_T,H)$。</p>
-<ol>
-<li>User Registration：每个用户需要向CA注册自己的信息，如果用户是系统的合法用户，则为该用户分配一个全局唯一的ID$uid$，生成全局公钥$GPK_{uid}=g^{u_{uid}}$和全局私钥$GSK_{uid}=z_{uid}$，其中$u_{uid},z_{uid} \in \mathbb{Z}_p$随机选取。CA随后产生该用户的证书$Cert(uid)$，其中包含$Sign_{sk_{CA}}(uid, u_{uid},g^{1/z_{uid}})$。最后CA将全局公私钥对$(GPK_{uid},GSK_{uid})$和证书$Cert(uid)$发送给用户$uid$。</li>
-<li>AA Registration：每一个AA需要向CA注册自己的信息，如果AA是系统的合法机构，则为该AA分配一个全局唯一ID$aid$，然后将CA的验证密钥$vk_{CA}$和系统参数$SP$发送给AA。</li>
-</ol>
-<h6 id="AA-Setup"><a href="#AA-Setup" class="headerlink" title="AA Setup"></a>AA Setup</h6><p>每一个$AA_k(k \in S_A)$运行AA Setup步骤。记$S_{A_k}$表示$AA_k$所管理的属性的集合，$AA_k$选择三个随机数$\alpha_k, \beta_k, \gamma_k \in \mathbb{Z}_p$作为该机构的私钥，即$SK_k=(\alpha_k, \beta_k, \gamma_k)$。对于每一个属性$x_k \in S_{A_k}$，$AA_k$计算产生属性公钥$PK_{x_k}=(g^{v_{x_k}}H(x_k))^{\gamma_k}$，其中$VK_{x_k}=v_{x_k}$为该属性的版本密钥，$AA_k$还计算该机构自身的公钥$PK_k=(e(g,g)^{\alpha_k},g^{1/\beta_k},g^{\gamma_k/\beta_k})$。所有的属性公钥和$AA_k$的机构公钥都可以在该机构的“公告栏”获取。</p>
-<h5 id="用户私钥生成"><a href="#用户私钥生成" class="headerlink" title="用户私钥生成"></a>用户私钥生成</h5><p>对于每一个用户$U_j(j \in S_U)$，每一个$AA_k$首先用CA的验证密钥$vk_{CA}$验证该用户的证书$Cert(uid)$来判断其是否合法，如果合法，才为其分发密钥。$AA_k$会根据该用户在自己这拥有的属性，计算一系列的用户私钥$SK_{j,k}$。针对每一个$AA_k$，选择一个随机数$t_{j,k} \in \mathbb{Z}_p$，然后计算$SK_{j,k}$如下：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-& SK_{j,k}=( K_{j,k}=g^{\alpha_k/z_j} \cdot g^{au_j} \cdot g^{at_{j,k}/\beta_k}, 
-L_{j,k}=g^{\beta_kt_{j,k}/z_j},R_{j,k}=g^{at_{j,k}},  \nonumber\\
-& \forall x_k \in S_{j,k}:K_{j,x_k} =g^{\beta_k \gamma_k t_{j,k}/z_j} \cdot (g^{v_{x_k}} \cdot H(x_k))^{\gamma_k \beta_k u_j}). \nonumber
-\end{aligned}</script><p>其中，$j \in S_U, k \in S_A$。</p>
-<h5 id="数据加密"><a href="#数据加密" class="headerlink" title="数据加密"></a>数据加密</h5><p>在DO将数据$m$外包到CSP上之前，DO为其进行加密。DO定义自己的访问结构，以线性秘密共享方案的形式，即访问结构为$(M, \rho)$，其中$M$为$l \times n$的矩阵，$l$为所有属性的个数，函数$\rho$将矩阵的每一行映射到一个属性。</p>
-<p>首先将消息$m$切分为若干数据块，即$m=\left\{m_1,…,m_n \right\}$，然后针对每一个数据块选择一个对称密钥$\left\{\kappa_1,…, \kappa_n \right\}$，用对称密钥$\kappa_i$加密数据块$m_i$。不失一般性，以下只针对某一个数据块$m$的加密过程进行描述。</p>
-<p>DO随机选择秘密值$s \in \mathbb{Z}_p$，选择随机向量$\overrightarrow{v} =(s,y_2,…,y_n) \in \mathbb{Z}_p^n$，其中$y_2,…,y_n$随机选取，其作用是分享秘密值$s$。对于$i \in [l]$，计算$\lambda_i = \overrightarrow {v}M_i$，其中$M_i$为矩阵$M$的第$i$行，然后随机选择$r_1,…,r_l \in \mathbb{Z}_p$，计算密文如下：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-&  CT=(En_\kappa(m), C=\kappa \cdot(\prod_{k \in I_A}e(g,g)^{\alpha_k})^s, C^\prime=g^s,{C}''=g^{s/\beta_k}, \nonumber\\
-&  \forall i \in [l]:C_i=g^{a\lambda_i} \cdot ((g^{v_{\rho(i)}}H(\rho(i)))^{\gamma_k})^{-r_i}, D_{1,i}=g^{r_i/\beta_k},D_{2,i}=g^{-\gamma_kr_i/\beta_k}, \rho(i) \in S_{A_k} ). \nonumber
-\end{aligned}</script><h5 id="数据解密"><a href="#数据解密" class="headerlink" title="数据解密"></a>数据解密</h5><p>系统中的合法用户可以可以从CSP查询获取任何密文，但是只有属性集合满足访问结构的用户才能够解密出对称密钥，进而恢复出消息$m$。</p>
-<h6 id="CSP计算Token"><a href="#CSP计算Token" class="headerlink" title="CSP计算Token"></a>CSP计算Token</h6><p>用户$U_j(j \in S_U)$将他的私钥$\left\{SK_{j,k} \right\}_{k \in S_A}$发送给CSP，让CSP为其计算生成解密令牌$TK$。当且仅当用户的属性集合满足密文的访问结构的时候，CSP才能正确计算出$TK$。</p>
-<p>记$I=\left\{I_{A_k} \right\}_{k \in S_A}$为与密文有关的所有索引的集合，其中$I_{A_k} \sqsubset \left\{1,2,…,l \right\}$定义为$I_{A_k}=\left\{i:\rho(i) \in S_{A_k} \right\}$。举个例子，例如矩阵$M$有6行，$\rho(1)$为属性$a_1$，……，$\rho(6)$为属性$a_6$，一共有三个属性机构$A_1,A_2,A_3$，$A_1=\left\{a_1,a_6 \right\}$，$A_2=\left\{a_2,a_4,a_5 \right\}$，$A_3=\left\{a_3 \right\}$，假设用户Alice有属性$\left\{a_1,a_2,a_3,a_4 \right\}$，则$I_{A_1}=\left\{1 \right\}$，$I_{A_2}=\left\{2,4 \right\}$，$I_{A_3}=\left\{3 \right\}$，所以$I=\left\{I_{A_1},I_{A_2},I_{A_3} \right\}=\left\{1,2,3,4\right\}$。</p>
-<p>记$N_A=|I_A|$为与密文中属性有关的机构个数（上述例子中$N_A=3$），CSP选择一系列的常数$\left\{\omega_i \in \mathbb{Z}_p \right\}_{i \in I}$，然后重构秘密值$s=\sum_{i \in I} \omega_i \lambda_i$，然后计算$TK$如下。</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-& TK=\prod_{k \in I_A} \frac{e(C^\prime,K_{j,k}) \cdot e(R_{j,k},{C}'')^{-1}}
-{\prod _{i \in I_{A_k}} (e(C_i,GPK_j) \cdot e(D_{1,i},K_{j,\rho(j)}) \cdot e(D_{2,i},L_{j,k}))^{\omega_iN_A}} \nonumber\\
-& =\frac{e(g,g)^{au_jsN_A} \cdot \prod_{k \in I_A} e(g,g)^{\alpha_ks/z_j}}
-{e(g,g)^{u_jaN_A \sum_{i \in I} \lambda_i \omega_i}} \nonumber \\
-& =\prod_{k \in I_A} e(g,g)^{\alpha_ks/z_j}. \nonumber
-\end{aligned}</script><p>然后CSP将$TK$返回给用户$U_j$。</p>
-<h6 id="用户解密"><a href="#用户解密" class="headerlink" title="用户解密"></a>用户解密</h6><p>用户$U_j$收到$TK$后，用自己的全局私钥$GSK_j=z_j$解密对称密钥$\kappa = \frac{C}{TK^{z_j}}$。然后用对称密钥$\kappa$解密密文$m=Dec_{\kappa}(Enc_{\kappa}(m))$。</p>
-<h5 id="属性撤销"><a href="#属性撤销" class="headerlink" title="属性撤销"></a>属性撤销</h5><p>假设属性用户$U_\mu$ 的属性$\widetilde{x}_k$从$AA_k$那撤销了，那么属性撤销阶段分以下三步进行。</p>
-<h6 id="AA-s-生成更新密钥"><a href="#AA-s-生成更新密钥" class="headerlink" title="$AA_s$生成更新密钥"></a>$AA_s$生成更新密钥</h6><p>相应的$AA_k$选择一个新的属性$\widetilde{x}_k$的版本密钥$VK_{\widetilde{x}_k}^\prime = v_{\widetilde{x}_k}^\prime$，然后计算属性更新密钥$AUK_{\widetilde{x}_k}=\gamma_k(v_{\widetilde{x}_k}^\prime - v_{\widetilde{x}_k})$，进而生成密钥更新密钥$KUK_{j,\widetilde{x}_k}=g^{u_j \beta_k \cdot AUK_{\widetilde{x}_k}}$和密文更新密钥$CUK_{\widetilde{x}_k} = \beta_k \cdot AUK_{\widetilde{x}_k}/\gamma_k$。然后$AA_k$将属性$\widetilde{x}_k$的属性公钥更新为$PK_{\widetilde{x}_k}^\prime=PK_{\widetilde{x}_k} \cdot g^{AUK_{\widetilde{x}_k}}$，并全系统广播属性$\widetilde{x}_k$有关的密文密钥更新过了。</p>
-<h6 id="非撤销用户更新属性部件"><a href="#非撤销用户更新属性部件" class="headerlink" title="非撤销用户更新属性部件"></a>非撤销用户更新属性部件</h6><p>对于那些没有撤销$\widetilde{x}_k$的用户$U_j(j \in S_U,j \neq \mu)$，$AA_k$发给他们密钥更新密钥$KUK_{j,\widetilde{x}_k}$。用户拿到更新密钥后，更新自己的私钥为：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-& SK_{j,k}^\prime=( K_{j,k}^\prime=K_{j,k}, L_{j,k}^\prime=L_{j,k},R_{j,k}^\prime=R_{j,k}, \nonumber\\
-& K_{j,\widetilde{x}_k}^\prime=K_{j,\widetilde{x}_k} \cdot KUK_{j,\widetilde{x}_k}, \forall x_k \in S_u, x_k \neq \widetilde{x}_k:K_{j,x_k}^\prime=K_{j,x_k} ). \nonumber
-\end{aligned}</script><h6 id="CSP更新密文部件"><a href="#CSP更新密文部件" class="headerlink" title="CSP更新密文部件"></a>CSP更新密文部件</h6><p>$AA_k$发给CSP密文更新密钥$CUK_{\widetilde{x}_k}$，然后密文更新为：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-& CT^\prime=(En_\kappa(m), C=\kappa \cdot(\prod_{k \in I_A}e(g,g)^{\alpha_k})^s, C^\prime=g^s,{C}''=g^{s/\beta_k}, \nonumber\\
-& \forall i \in [l]: \nonumber\\
-& if \rho(i) \neq \widetilde{x}_k: C_i=g^{a\lambda_i} \cdot ((g^{v_{\rho(i)}}H(\rho(i)))^{\gamma_k})^{-r_i}, \nonumber\\ & D_{1,i}=g^{r_i/\beta_k},D_{2,i}=g^{-\gamma_kr_i/\beta_k}, \nonumber\\ 
-& if \rho(i) = \widetilde{x}_k: C_i^\prime = C_i \cdot D_{2,i}^{CUK_{\widetilde{x}_k}}, \nonumber\\
-& D_{1,i}=g^{r_i/\beta_k},D_{2,i}=g^{-\gamma_kr_i/\beta_k}). \nonumber
-\end{aligned}</script><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>从具体的构造来看，DAC-MACS设计的还是相当的复杂，这是因为ABE算法本身就需要考虑诸多属性，而与之有关的有密文和密钥两大部分，再加上要设计成多个权威机构，那么系统中与属性相关联的又多了一层实体。这可以和Chase的方案对比，很明显其复杂度不言而喻，因为Chase的ABE方案算是门限ABE，而且没有属性撤销这一安全需求。</p>
-<p>从DAC-MACS的设计中可以看到，每一个AA的主密钥有三个之多，这正是为了实现后边的属性撤销而预设的。回头看一下，DAC-MAC是将一个所谓的属性的版本密钥嵌入到属性有关部件里边，然后有属性撤销发生，则将对应的版本密钥更新，这样做的好处是，只有与撤销有关的密文密钥部件才会更新值，而不相关属性的部件不会变化，大大减少了撤销时的计算量，因此这种撤销的手段是很典型的高效撤销机制。</p>
-<p>而DAC-MACS又是如何实现解密操作外包的呢？这是由于CSP为用户计算生成解密令牌，而大大减少了用户的解密开销，之所以用户将私钥给CSP也不会产生安全隐患，这是因为密钥中嵌入了用户的全局私钥信息，这一随机数其实就是O-ABE中盲化技术里的盲化因子。</p>
-<p>DAC-MACS中提到了假定非撤销用户不会将密钥更新密钥透露给非撤销用户，这是因为如果透露了，那么撤销用户仍然能够更新自己的私钥，从而解密最近的密文。正因为如此，作者才推出EDAC-MACS来消除这一假设前提，以增强方案的安全性，但是Wu<sup><a href="ref1">5</a></sup>等人针对EDAC-MACS方案，还是分析出其中的漏洞。不过不管怎样，DAC-MACS还是一种经典的多属性权威ABE方案的构造，其中的细节值得回味，其中的技巧值得借鉴。</p>
-<p><span name="ref1">K. Yang, X. H. Jia, K. Ren, B. Zhang, and R. T. Xie, “DAC-MACS: Effective Data Access Control for Multi-authority Cloud Storage Systems,” <em>IEEE Transactions on Information Forensics and Security</em>, vol. 8, no.11, pp. 1790-1801, Nov. 2013.</span></p>
-<p><span name="ref2">M. Chase, “Multi-authority attribute based encryption,” in <em>Proc. TCC’07</em>, 2007, pp. 515–534, Springer.</span></p>
-<p><span name="ref3">B. Waters, “Ciphertext-policy attribute-based encryption: An expressive, efficient, and provably secure realization,” in <em>Proc. PKC’11</em>, 2011, pp. 53–70, Springer.</span></p>
-<p><span name="ref4">M. Green, S. Hohenberger, and B. Waters, “Outsourcing the Decryption of ABE Ciphertexts,” in <em>Proceedings of the 20th USENIX conference on Security</em>, San Francisco, CA, USA, 2011.</span></p>
-<p><span name="ref5">X. Wu, R. Jiang and B. Bhargava, “On the Security of Data Access Control for Multiauthority Cloud Storage Systems,” <em>IEEE Transactions on Services Computing</em>, vol. 10, no. 2, pp. 258-272, 1 March-April 2017.<span></span></span></p>
-]]></content>
-      <categories>
-        <category>属性基加密</category>
-      </categories>
-      <tags>
-        <tag>属性基加密</tag>
-        <tag>属性撤销</tag>
-        <tag>共谋攻击</tag>
-        <tag>多个属性机构</tag>
-        <tag>外包解密</tag>
       </tags>
   </entry>
   <entry>
@@ -452,8 +452,8 @@ A = DecryptNode(CT,SK,r)=e(g,g)^{rq_R(0)} = e(g,g)^{rs}.</script><p>最后即可
       </categories>
       <tags>
         <tag>属性基加密</tag>
-        <tag>共谋攻击</tag>
         <tag>多个属性机构</tag>
+        <tag>共谋攻击</tag>
       </tags>
   </entry>
   <entry>
@@ -676,7 +676,11 @@ E=\left ( {\omega}',{E}'=MY^s,\left \{ E_i =T_i^s\right \}_{i \in {\omega}'} \ri
     <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>前面介绍了许多ABE方案，比如说CP-ABE、Hur1-ABE、Hur2-ABE、ABE-2EPSR、O-ABE以及DAC-MACS等等，这些方案有的给出了安全性的证明，而有的却没有明确给出。一般的，ABE方案的构造都是基于某个Diffie-Hellman难题，而在证明方案的安全性的时候则将方案规约到已定的数学难题上。以下结合KP-ABE<sup><a href="ref1">1</a></sup>和ABE-2EPSR<sup><a href="ref2">2</a></sup>中的方案一这两个例子，来介绍ABE方案是如何完成其证明过程的。</p>
 <span id="more"></span>
 <p>在进入本文的主要的内容之前，首先回顾一些本文需要的预备知识，比如安全模型、难题假设等。</p>
-<h4 id="安全模型"><a href="#安全模型" class="headerlink" title="安全模型"></a>安全模型</h4><p><strong>Setup</strong> 挑战者运行Setup算法，将系统的公共参数$PK$给攻击者。<br><strong>Phase 1</strong>攻击者对一系列的属性集合$S_1,S_2,…,S_{q_1}$进行密钥问询。<br><strong>Challenge</strong>攻击者提交两个等长的明文$M_0$和$M_1$，此外，攻击者提交一个他希望挑战的访问结构$\mathbb{A}^+$，其中要求Phase 1阶段问询的属性集合$S_1,S_2,…,S_{q_1}$都不满足访问结构$\mathbb{A}^+$。挑战者抛掷一枚硬币$b \in \left \{ 0,1 \right \}$，然后用$\mathbb{A}^+$加密$M_b$。最后，挑战者将密文$CT^+$交给攻击者。<br><strong>Phase 2 </strong> Phase 1阶段重复，但是问询的属性集合$S_{q_1+1},…,S_q$还是不能满足访问结构$\mathbb{A}^+$。<br><strong>Guess</strong> 攻击者给出$b$的猜想$b^\prime$。</p>
+<h4 id="安全模型"><a href="#安全模型" class="headerlink" title="安全模型"></a>安全模型</h4><p><strong>Setup</strong> 挑战者运行Setup算法，将系统的公共参数$PK$给攻击者。</p>
+<p><strong>Phase 1</strong>攻击者对一系列的属性集合$S_1,S_2,…,S_{q_1}$进行密钥问询。</p>
+<p><strong>Challenge</strong>攻击者提交两个等长的明文$M_0$和$M_1$，此外，攻击者提交一个他希望挑战的访问结构$\mathbb{A}^+$，其中要求Phase 1阶段问询的属性集合$S_1,S_2,…,S_{q_1}$都不满足访问结构$\mathbb{A}^+$。挑战者抛掷一枚硬币$b \in \left \{ 0,1 \right \}$，然后用$\mathbb{A}^+$加密$M_b$。最后，挑战者将密文$CT^+$交给攻击者。</p>
+<p><strong>Phase 2 </strong> Phase 1阶段重复，但是问询的属性集合$S_{q_1+1},…,S_q$还是不能满足访问结构$\mathbb{A}^+$。</p>
+<p><strong>Guess</strong> 攻击者给出$b$的猜想$b^\prime$。</p>
 <p>定义上述交互游戏中攻击者的优势为$Pr\left [ {b}’-b \right ]-\frac{1}{2}$。<br>以上模型称之为ABE的选择集合模型（selective-set）。而且上述模型有两个地方需要注意：</p>
 <ul>
 <li>以上模型没有Init阶段，称之为选择明文攻击下不可区分安全（IND-CPA）。如果在Init阶段攻击者声明想要挑战的访问结构，则称之为选择安全模型。很显然，选择安全模型描述的安全性弱一些。</li>
