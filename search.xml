@@ -673,26 +673,19 @@ E=\left ( {\omega}',{E}'=MY^s,\left \{ E_i =T_i^s\right \}_{i \in {\omega}'} \ri
   <entry>
     <title>浅谈ABE里的安全性证明</title>
     <url>/2021/04/17/%E6%B5%85%E8%B0%88ABE%E9%87%8C%E7%9A%84%E5%AE%89%E5%85%A8%E6%80%A7%E8%AF%81%E6%98%8E/</url>
-    <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>前面介绍了许多ABE方案，比如说CP-ABE、Hur1-ABE、Hur2-ABE、ABE-2EPSR、O-ABE以及DAC-MACS等等，这些方案有的给出了安全性的证明，而有的却没有明确给出。一般的，ABE方案的构造都是基于某个Diffie-Hellman难题，而在证明方案的安全性的时候则将方案规约到已定的数学难题上。以下结合KP-ABE和ABE-2EPSR中的方案一这两个例子，来介绍ABE方案是如何完成其证明过程的。</p>
+    <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>前面介绍了许多ABE方案，比如说CP-ABE、Hur1-ABE、Hur2-ABE、ABE-2EPSR、O-ABE以及DAC-MACS等等，这些方案有的给出了安全性的证明，而有的却没有明确给出。一般的，ABE方案的构造都是基于某个Diffie-Hellman难题，而在证明方案的安全性的时候则将方案规约到已定的数学难题上。以下结合KP-ABE<sup><a href="ref1">1</a></sup>和ABE-2EPSR<sup><a href="ref2">2</a></sup>中的方案一这两个例子，来介绍ABE方案是如何完成其证明过程的。</p>
 <span id="more"></span>
 <p>在进入本文的主要的内容之前，首先回顾一些本文需要的预备知识，比如安全模型、难题假设等。</p>
-<h4 id="安全模型"><a href="#安全模型" class="headerlink" title="安全模型"></a>安全模型</h4><p><strong>Setup</strong> 挑战者运行Setup算法，将系统的公共参数$PK$给攻击者。</p>
-<p><strong>Phase 1</strong>攻击者对一系列的属性集合$S_1,S_2,…,S_{q_1}$进行密钥问询。</p>
-<p><strong>Challenge</strong>攻击者提交两个等长的明文$M_0$和$M_1$，此外，攻击者提交一个他希望挑战的访问结构$\mathbb{A}^+$，其中要求Phase 1阶段问询的属性集合$S_1,S_2,…,S_{q_1}$都不满足访问结构$\mathbb{A}^+$。挑战者抛掷一枚硬币$b \in \left \{ 0,1 \right \}$，然后用$\mathbb{A}^+$加密$M_b$。最后，挑战者将密文$CT^+$交给攻击者。</p>
-<p><strong>Phase 2 </strong> Phase 1阶段重复，但是问询的属性集合$S_{q_1+1},…,S_q$还是不能满足访问结构$\mathbb{A}^+$。</p>
-<p><strong>Guess</strong> 攻击者给出$b$的猜想$b^\prime$。</p>
-<p>定义上述交互游戏中攻击者的优势为$Pr\left [ {b}’-b \right ]-\frac{1}{2}$。</p>
-<p>以上模型称之为ABE的选择集合模型（selective-set）。而且上述模型有两个地方需要注意：</p>
+<h4 id="安全模型"><a href="#安全模型" class="headerlink" title="安全模型"></a>安全模型</h4><p><strong>Setup</strong> 挑战者运行Setup算法，将系统的公共参数$PK$给攻击者。<br><strong>Phase 1</strong>攻击者对一系列的属性集合$S_1,S_2,…,S_{q_1}$进行密钥问询。<br><strong>Challenge</strong>攻击者提交两个等长的明文$M_0$和$M_1$，此外，攻击者提交一个他希望挑战的访问结构$\mathbb{A}^+$，其中要求Phase 1阶段问询的属性集合$S_1,S_2,…,S_{q_1}$都不满足访问结构$\mathbb{A}^+$。挑战者抛掷一枚硬币$b \in \left \{ 0,1 \right \}$，然后用$\mathbb{A}^+$加密$M_b$。最后，挑战者将密文$CT^+$交给攻击者。<br><strong>Phase 2 </strong> Phase 1阶段重复，但是问询的属性集合$S_{q_1+1},…,S_q$还是不能满足访问结构$\mathbb{A}^+$。<br><strong>Guess</strong> 攻击者给出$b$的猜想$b^\prime$。</p>
+<p>定义上述交互游戏中攻击者的优势为$Pr\left [ {b}’-b \right ]-\frac{1}{2}$。<br>以上模型称之为ABE的选择集合模型（selective-set）。而且上述模型有两个地方需要注意：</p>
 <ul>
-<li><p>以上模型没有Init阶段，称之为选择明文攻击下不可区分安全（IND-CPA）。如果在Init阶段攻击者声明想要挑战的访问结构，则称之为选择安全模型。很显然，选择安全模型描述的安全性弱一些。</p>
-</li>
-<li><p>若是在Phase 1阶段还适应性地查询密文，则称之为适应性选择密文攻击安全模型1（CCA1），若是继续在Phase 2阶段还适应性地查询密文，则称之为适应性选择密文攻击安全模型2（CCA2)。很显然，就安全性而言，IND-CPA、CCA1、CCA2依次增强。</p>
-</li>
+<li>以上模型没有Init阶段，称之为选择明文攻击下不可区分安全（IND-CPA）。如果在Init阶段攻击者声明想要挑战的访问结构，则称之为选择安全模型。很显然，选择安全模型描述的安全性弱一些。</li>
+<li>若是在Phase 1阶段还适应性地查询密文，则称之为适应性选择密文攻击安全模型1（CCA1），若是继续在Phase 2阶段还适应性地查询密文，则称之为适应性选择密文攻击安全模型2（CCA2)。很显然，就安全性而言，IND-CPA、CCA1、CCA2依次增强。</li>
 </ul>
 <p>然后针对以上安全模型给出定义：<br>Definition: <em>A ciphertext-policy attribute-based encryption scheme is secure in the Selective-Set model if all polynomial time adversaries have at most a negligible advantage in the above game.</em></p>
 <h4 id="难题假设"><a href="#难题假设" class="headerlink" title="难题假设"></a>难题假设</h4><h5 id="DBDH-Assumption"><a href="#DBDH-Assumption" class="headerlink" title="DBDH Assumption"></a>DBDH Assumption</h5><p>DBDH难题描述为：选择一个乘法循环群 $\mathbb{G}_1$，阶数为$p$（$p$的选择依赖于具体方案的安全参数），令$a,b,c,z \in \mathbb{Z}_p$随机选取，$g$为群$\mathbb{G}_1$的生成元，有两个四元组$(A=g^a,B=g^b,C=g^c,e(g,g)^{abc}$和$(A=g^a,B=g^b,C=g^c,e(g,g)^z$，则没有多项式时间算法的攻击者$\mathcal{B}$能以不可忽略的优势分辨上述元组。攻击者$\mathcal{B}$的优势定义为：</p>
 <script type="math/tex; mode=display">
-|Pr \left\[ \mathcal{B}(A,B,C,e(g,g)^{abc} )=0 \right\]-Pr \left\[ \mathcal{B}(A,B,C,e(g,g)^z )=0 \right\]|</script><h5 id="q-PBDHE-Assumption"><a href="#q-PBDHE-Assumption" class="headerlink" title="q-PBDHE Assumption"></a>q-PBDHE Assumption</h5><p>判定型q-PBDHE假设描述为：选择一个乘法循环群 $\mathbb{G}_1$，阶数为$p$（$p$的选择依赖于具体方案的安全参数），令$a,s, b_1, …, b_q \in \mathbb{Z}_p$随机选取，$g$为群$\mathbb{G}_1$的生成元，如果攻击者获得向量$\overrightarrow{y} =$</p>
+|Pr [ \mathcal{B}(A,B,C,e(g,g)^{abc} )=0 ]-Pr [ \mathcal{B}(A,B,C,e(g,g)^z )=0 ]|</script><h5 id="q-PBDHE-Assumption"><a href="#q-PBDHE-Assumption" class="headerlink" title="q-PBDHE Assumption"></a>q-PBDHE Assumption</h5><p>判定型q-PBDHE假设描述为：选择一个乘法循环群 $\mathbb{G}_1$，阶数为$p$（$p$的选择依赖于具体方案的安全参数），令$a,s, b_1, …, b_q \in \mathbb{Z}_p$随机选取，$g$为群$\mathbb{G}_1$的生成元，如果攻击者获得向量$\overrightarrow{y} =$</p>
 <script type="math/tex; mode=display">
 \begin{align}
 &g,g^s,g^a,...,g^{a^q},,g^{a^{q+2}},...,g^{a^{2q}} \nonumber \\
@@ -708,33 +701,49 @@ E=\left ( {\omega}',{E}'=MY^s,\left \{ E_i =T_i^s\right \}_{i \in {\omega}'} \ri
 <li>难题挑战者：为难题攻击者提出挑战，生成难题参数</li>
 </ul>
 <p>实际证明中是怎么运用反证法思想的呢？既然是反证法思想，那么按照前面的直观感觉“因为方案是困难的，那么我们的方案就是不可攻破的”，现在要证明它的逆否命题是正确的，而实际规约证明也的确是这么干的。<br>实际证明首先会假定算法攻击者以某个不可忽略的优势攻破了我们的难题，然后另一边，难题攻击者想法设法要攻破难题，很显然他自己无能为力，但是他并不“笨”，虽然自己解决不了，他可以借助别人的优势，他会怎么做呢？他很狡猾，伪装成算法的挑战者，当难题挑战者扔给他“一大把”参数的时候，他就像“看天书一样”无法参透这其中的答案，然后他合理的包装“这些参数”，达到什么效果呢？达到让算法攻击者以为这是用所构造的方案正常加密的密文的形式。由于假定算法攻击者能以不可忽略的优势攻破我们的方案，那么他就能“显摆地”将答案告诉难题攻击者了，这样一来，难题攻击者根据算法攻击者的反馈，就能以不可忽略的优势解决这个特定的难题。然而这个难题已经证明是困难的了，也就是说不存在这样的多项式时间算法攻击者决定这个特定的难题，由此可见，前面的假设是错误的，即算法攻击者不能以不可忽略的优势攻破我们的方案，由此完成方案的安全性证明。<br>以下结合两个具体的方案来详细说明。</p>
-<h4 id="KP-ABE的安全性证明"><a href="#KP-ABE的安全性证明" class="headerlink" title="KP-ABE的安全性证明"></a>KP-ABE的安全性证明</h4><p>首先给出定理：<br>Theorem 1. <em> If an adversary can break our scheme in the Attribute-based Selective-Set model, then a simulator can be constructed to play the Decisional BDH game with a non-negligible advantage.</em><br>证明：假设存在一个多项式时间的攻击者$\mathcal{A}$（算法攻击者）可以在选择集合模型下以优势$\varepsilon $攻破我们的方案，那么我们就可以构造一个仿真者$\mathcal{B}$（难题攻击者）以优势$\varepsilon / 2$决定DBDH难题。<br>首先由难题挑战者生成难题参数。难题挑战者选择两个乘法循环群$\math{G}_1$和$\mathbb{B}_2$，选择一个双线性映射$e$和生成元$g \in \mathbb{G}_1$。然后难题挑战者抛掷一枚硬币$\mu \in \left\{0,1 \right\}$，如果$\mu=0$，则令$Z=e(g,g)^{abc}$，否则令$Z=e(g,g)^z$。最后将参数$(A=g^a,B=g^b,C=g^c,Z)$给难题攻击者，其中$a,b,c,z$都是随机选取。<br>下面就是难题攻击者伪装成算法挑战者与算法攻击者进行交互游戏，我们重点来看Challenge和Guess这两个步骤，其他步骤是根据自己构造的方案用给定的参数模拟的过程。<br><strong> Challenge. </strong> 攻击者$\mathcal{A}$提交两个等长的明文$m_0$和$m_1$给算法挑战者，挑战者抛掷一枚硬币$b=\left\{0,1\right\}$，然后用参数加密明文$m_b$，具体密文为：</p>
+<h4 id="KP-ABE的安全性证明"><a href="#KP-ABE的安全性证明" class="headerlink" title="KP-ABE的安全性证明"></a>KP-ABE的安全性证明</h4><p>首先给出定理：<br>Theorem 1. <em> If an adversary can break our scheme in the Attribute-based Selective-Set model, then a simulator can be constructed to play the Decisional BDH game with a non-negligible advantage.</em><br>证明：假设存在一个多项式时间的攻击者$\mathcal{A}$（算法攻击者）可以在选择集合模型下以优势$\varepsilon $攻破我们的方案，那么我们就可以构造一个仿真者$\mathcal{B}$（难题攻击者）以优势$\varepsilon / 2$决定DBDH难题。<br>首先由难题挑战者生成难题参数。难题挑战者选择两个乘法循环群$\mathbb{G}_1$和$\mathbb{B}_2$，选择一个双线性映射$e$和生成元$g \in \mathbb{G}_1$。然后难题挑战者抛掷一枚硬币$\mu \in \left\{0,1 \right\}$，如果$\mu=0$，则令$Z=e(g,g)^{abc}$，否则令$Z=e(g,g)^z$。最后将参数$(A=g^a,B=g^b,C=g^c,Z)$给难题攻击者，其中$a,b,c,z$都是随机选取。<br>下面就是难题攻击者伪装成算法挑战者与算法攻击者进行交互游戏，我们重点来看Challenge和Guess这两个步骤，其他步骤是根据自己构造的方案用给定的参数模拟的过程。</p>
+<p><strong> Challenge. </strong> 攻击者$\mathcal{A}$提交两个等长的明文$m_0$和$m_1$给算法挑战者，挑战者抛掷一枚硬币$b=\left\{0,1\right\}$，然后用参数加密明文$m_b$，具体密文为：</p>
 <script type="math/tex; mode=display">
-E=(\gamma,E^\prime=m_bZ,\left\{E_i=C^{r_i}_{i \in \gamma})</script><ul>
+E=(\gamma,E^\prime=m_bZ,\left\{E_i=C^{r_i} \right\}_{i \in \gamma})</script><ul>
 <li>如果$\mu=0$ ，也就是$Z=e(g,g)^{abc}$，我们将$s$设置为$c$，则有$Y^s=(e(g,g)^{ab})^c=e(g,g)^{abc}$，$E_i=(g^{r_i})^c=C^{r_i}$，所以这时候的密文是用方案加密$m_b$的合法密文，那么算法攻击者有一定的优势可以区分是$m_0$加密了还是$m_1$加密了。</li>
-<li>如果$\mu=1$，即$Z=e(g,g)^z$，此时$E^\prime =m_be(g,g)^z$，因为$z$是随机选取的，与$a,b,c$关系独立，明文$m_b$的信息完全被“淹没”了，换句话说，算法攻击者无法分辨是$m_0$加密了还是$m_1$加密了。<br><strong>Guess. </strong> 算法攻击者最终会输出一个$b$的猜想$b^\prime$。如果$b^\primme=b$，难题挑战者输出$\mu^\prime=0$表示给定的元组是含有关联的四元组，否则输出$\mu^\prime=1$表示给定的元组是随机四元组。</li>
+<li>如果$\mu=1$，即$Z=e(g,g)^z$，此时$E^\prime =m_be(g,g)^z$，因为$z$是随机选取的，与$a,b,c$关系独立，明文$m_b$的信息完全被“淹没”了，换句话说，算法攻击者无法分辨是$m_0$加密了还是$m_1$加密了。</li>
 </ul>
+<p><strong>Guess. </strong> 算法攻击者最终会输出一个$b$的猜想$b^\prime$。如果$b^\prime=b$，难题挑战者输出$\mu^\prime=0$表示给定的元组是含有关联的四元组，否则输出$\mu^\prime=1$表示给定的元组是随机四元组。</p>
 <p>下面分析算法挑战者决定DBDH难题的优势：</p>
 <ul>
-<li>如果$\mu=1$，算法攻击者没有任何优势分辨$b$，那么只能猜了，即$Pr\left[b=b^\prime |\mu=1 \right] = 1/2$，因为当$b \neq b^\prime$时，输出$\mu ^\prime=1$，因此$Pr\left[mu ^\prime=\mu |\mu=1 \right] = 1/2$。</li>
-<li>如果$\mu=0$，算法攻击者有$\varepsilon$的优势分辨$b$，因此$Pr\left[b=b^\prime |\mu=0 \right] = 1/2+\varepsilon$。因为当$b = b^\prime$时，输出$\mu ^\prime=0$，因此$Pr\left[mu ^\prime=\mu |\mu=0 \right] = 1/2+\varepsilon$。<br>综上得算法挑战者决定DBDH难题的总优势为:<script type="math/tex; mode=display">
-\begin{aligned}
-Adv_{\mathcal{B}}=1/2 \cdot Pr\left\[mu ^\prime=\mu |\mu=0 \right\] +1/2 \cdot Pr\left\[mu ^\prime=\mu |\mu=1 \right\] - 1/2 \nonumber \\
-=1/2 \cdot (1/2+\varepsilon) + 1/2 \cdot 1/2 -1/2 = \varepsilon/2.</script>而这一结论与DBDH难题假设相违背，因此说明前面的假设是错误的，从而完成安全性证明。</li>
+<li>如果$\mu=1$，算法攻击者没有任何优势分辨$b$，那么只能猜了，即$Pr\left[b=b^\prime |\mu=1 \right] = 1/2$，因为当$b \neq b^\prime$时，输出$\mu ^\prime=1$，因此$Pr\left[\mu ^\prime=\mu |\mu=1 \right] = 1/2$。</li>
+<li>如果$\mu=0$，算法攻击者有$\varepsilon$的优势分辨$b$，因此$Pr\left[b=b^\prime |\mu=0 \right] = 1/2+\varepsilon$。因为当$b = b^\prime$时，输出$\mu ^\prime=0$，因此$Pr\left[\mu ^\prime=\mu |\mu=0 \right] = 1/2+\varepsilon$。</li>
 </ul>
-<h4 id="ABE-2EPSR第一种构造证明"><a href="#ABE-2EPSR第一种构造证明" class="headerlink" title="ABE-2EPSR第一种构造证明"></a>ABE-2EPSR第一种构造证明</h4><p>该方案是基于q-PBDHE难题，这个难题给定的参数比较复杂，因此详细说明，证明过程是如何将难题参数嵌入到交互式游戏，从而使得密文和密钥的生成与方案相一致。<br>首先给出定理：<br>Theorem 2. <em> Suppose the decisional q-parallel BDHE assumption holds. Then no polytime adversary can selectively break our system with a challenge matrix of size $l^+ \times n^+$, where $l^+,n^+ \leq q$.</em><br>证明：假设存在一个多项式时间算法攻击者$\mathcal{A}$以不可忽略的优势$Adv_{\mathcal{A}}=\varepsilon$在上述选择安全游戏中（增加了Init阶段的指定）攻破构造的方案，而且假设挑战矩阵$M^+$的维数不超过$q$，那么我们就可以构造一个仿真者$\mathcal{B}$（难题攻击者）决定q-PBDHE难题。<br><strong> Init.</strong> 仿真者得到q-PBDHE难题参数$\overrightarrow{y},T$。算法攻击者给定想要挑战的访问结构$(M^+, \rho^+)$，其中，$M^+$有$n^+$列。<br><strong> Setup. </strong> 仿真者选择随机数$\alpha ^\prime \in \mathbb{Z}_p$，暗含着设置$\alpha = \alpha^\prime + a^{a^{q+1}}$，即$e(g,g)^\alpha = e(g^a,g^{a^q}) e(g,g)^{\alpha^\prime}$。为了模拟方案中的$h_1,…,h_U$，针对每一个$x$（其中$1\leq x\leq U$），选择随机值$z_x$，记$X$表示索引$i$的集合，其中$\pho(i) \in x$（即属性x对应矩阵行的索引）。仿真者模拟$h_x$如下：</p>
+<p>综上得算法挑战者决定DBDH难题的总优势为:</p>
 <script type="math/tex; mode=display">
-h_x=g^{z_x} \prod_{i \in X} g^{aM_{i,1}^+/b_i} \cdot g^{a^2 M_{i,2}^+/b_i} ... g^{a^{n^+} M_{i,n^+}^+/b_i}.</script><p>如果$X=\varnothing $，那么$h_x=g^{z_x}$。<br><strong> Phase 1. </strong> 该阶段仿真者响应攻击者的密钥问询。假设仿真者得到的问询是针对属性集合$S$，其中$S$不满足访问结构$M^+$。<br>仿真者首先选择随机数$r \in \mathbb{Z}_p$，然后找一个向量$\overrightarrow{\omega} =(\omega_1,…,\omega_{n^+}) \in \mathbb{Z}_p$，使得$\omega_1=-1$，而对于其他所有$i$（$\rho^+(i) \in S$）有$\overrightarrow{\omega}M_i^+ = 0$。<br>仿真者按如下定义$t$：</p>
+\begin{aligned}
+& Adv_{\mathcal{B}}=1/2 \cdot Pr[\mu ^\prime=\mu |\mu=0] +1/2 \cdot Pr[\mu ^\prime=\mu |\mu=1 ] - 1/2 \nonumber \\
+& =1/2 \cdot (1/2+\varepsilon) + 1/2 \cdot 1/2 -1/2 = \varepsilon/2.
+\end{aligned}</script><p>而这一结论与DBDH难题假设相违背，因此说明前面的假设是错误的，从而完成安全性证明。</p>
+<h4 id="ABE-2EPSR第一种构造证明"><a href="#ABE-2EPSR第一种构造证明" class="headerlink" title="ABE-2EPSR第一种构造证明"></a>ABE-2EPSR第一种构造证明</h4><p>该方案是基于q-PBDHE难题，这个难题给定的参数比较复杂，因此详细说明，证明过程是如何将难题参数嵌入到交互式游戏，从而使得密文和密钥的生成与方案相一致。<br>首先给出定理：<br>Theorem 2. <em> Suppose the decisional q-parallel BDHE assumption holds. Then no polytime adversary can selectively break our system with a challenge matrix of size $l^+ \times n^+$, where $l^+,n^+ \leq q$.</em><br>证明：假设存在一个多项式时间算法攻击者$\mathcal{A}$以不可忽略的优势$Adv_{\mathcal{A}}=\varepsilon$在上述选择安全游戏中（增加了Init阶段的指定）攻破构造的方案，而且假设挑战矩阵$M^+$的维数不超过$q$，那么我们就可以构造一个仿真者$\mathcal{B}$（难题攻击者）决定q-PBDHE难题。</p>
+<p><strong> Init.</strong> 仿真者得到q-PBDHE难题参数$\overrightarrow{y},T$。算法攻击者给定想要挑战的访问结构$(M^+, \rho^+)$，其中，$M^+$有$n^+$列。</p>
+<p><strong> Setup. </strong> 仿真者选择随机数$\alpha ^\prime \in \mathbb{Z}_p$，暗含着设置$\alpha = \alpha^\prime + a^{a^{q+1}}$，即$e(g,g)^\alpha = e(g^a,g^{a^q}) e(g,g)^{\alpha^\prime}$。为了模拟方案中的$h_1,…,h_U$，针对每一个$x$（其中$1\leq x\leq U$），选择随机值$z_x$，记$X$表示索引$i$的集合，其中$\rho^+(i) \in x$（即属性x对应矩阵行的索引）。仿真者模拟$h_x$如下：</p>
+<script type="math/tex; mode=display">
+h_x=g^{z_x} \prod_{i \in X} g^{aM_{i,1}^+/b_i} \cdot g^{a^2 M_{i,2}^+/b_i} ... g^{a^{n^+} M_{i,n^+}^+/b_i}.</script><p>如果$X=\varnothing $，那么$h_x=g^{z_x}$。</p>
+<p><strong> Phase 1. </strong> 该阶段仿真者响应攻击者的密钥问询。假设仿真者得到的问询是针对属性集合$S$，其中$S$不满足访问结构$M^+$。<br>仿真者首先选择随机数$r \in \mathbb{Z}_p$，然后找一个向量$\overrightarrow{\omega} =(\omega_1,…,\omega_{n^+}) \in \mathbb{Z}_p$，使得$\omega_1=-1$，而对于其他所有$i$（$\rho^+(i) \in S$）有$\overrightarrow{\omega}M_i^+ = 0$。<br>仿真者按如下定义$t$：</p>
 <script type="math/tex; mode=display">
 t=r+\omega_1a^q + \omega_2a^{q-1} +... +\omega_{n^+}a^{q-n^+ +1}.</script><p>计算$L=g^r \prod_{i=1,…,n+} (g^{a^{q+1-i}})^{\omega_i} = g^t$，计算$K=g^{\alpha^\prime} g^{ar} \prod_{i=2,…,n^+}(g^{a^{q+2-i}})^{\omega_i}$。<br>然后需要计算$\forall x \in S: \left\{K_x \right\}$：</p>
 <ul>
 <li>如果对于$x \in S$，没有$i$使得$\rho^+(i)=x$，$K_x=L^{z_x}$。</li>
-<li>如果对于$x \in S$，有$i$使得$\rho^+(i)=x$，令$X$表示索引$i$的集合，其中$\pho(i) \in x$，仿真者按如下方式计算$K_x$:<script type="math/tex; mode=display">
-K_x=L^{z_x} \prod_{i \in X} \prod_{j=1,...,n^+} (g^{(a^j/b_i)r} \prod_{k=1,...,n^+,k \neq j} (g^{a^{q+1+j-k}/b_i})^{\omega_k} )^{M_{i,j}^+}</script><strong> Challenge. </strong> 攻击者提交两个等长的明文$m_0,m_1$给仿真者，仿真者抛掷一枚硬币$b=\left\{ 0,1 \right\}$，得到密文部件$C=m_bT \cdot e(g^s,g^{\alpha ^\prime})$和$C^\prime = g^s$。<br>仿真者随机选择$y_2^\prime,…,y_{n^+}^\prime$，选择要分享的随机向量：<script type="math/tex; mode=display">
-\overrightarrow{v} = (s, sa+y_2^\prime,sa^2+y_3^\prime,..., sa^{n^+-1}+y_{n^+}^\prime) \in \mathbb{Z}_p^{n^+}</script>此外，他还选择$r_1^\prime,…, r_l^\prime$。<br>对于任意$i=1,…,n^+$，定义$R_i$为所有$k \neq i$且$\rhp^+(i) = \rho^+(k)$的索引集合，即所有与第$i$行对应的属性相同的其他行的行号，然后与属性有关的密文部件为：<script type="math/tex; mode=display">
-D_i = g^{-r_i^ \prime}g^{-sb_i} \nonumber \\
-C_i=h_{\rho^+(i)}^{r_i^\prime} (\prod_{j=2,...,n^+} (g^a)^{M_{i,j}^+}y_j^\prime) (g^{b_i \cdot s})^{-z_{\rho^+(i)}} \cdot (\prod_{k \in R_i} \prod_{j=1,...,n^+} (g^{a^j \cdot s \cdot (b_i/b_k)})^{M_{k,j}^+})</script><strong> Phase 2. </strong> Phase 1阶段重复。<br><strong> Guess. </strong> 攻击者最终输出对$b$的猜想$b^\prime$。如果$b=b^\prime$，则输出$b^\prime=0$表明$T=e(g,g)^{a^{q+1}s}$；否则输出$b^\prime=1$表明$T$是群$\mathbb{G}_T$上的随机值。</li>
-<li>如果$T=e(g,g)^{a^{q+1}s}$，那么仿真者完好的模拟了$m_b$的加密过程，所以$|Pr[\mathcal{B}(\overrightarrow{y},T=e(g,g)^{a^{q+1}s})=0]=1/2+Adv_{mathcal{A}}$。</li>
+<li>如果对于$x \in S$，有$i$使得$\rho^+(i)=x$，令$X$表示索引$i$的集合，其中$\rho^+(i) \in x$，仿真者按如下方式计算$K_x$:</li>
+</ul>
+<script type="math/tex; mode=display">
+K_x=L^{z_x} \prod_{i \in X} \prod_{j=1,...,n^+} (g^{(a^j/b_i)r} \prod_{k=1,...,n^+,k \neq j} (g^{a^{q+1+j-k}/b_i})^{\omega_k} )^{M_{i,j}^+}</script><p><strong> Challenge. </strong> 攻击者提交两个等长的明文$m_0,m_1$给仿真者，仿真者抛掷一枚硬币$b=\left\{ 0,1 \right\}$，得到密文部件$C=m_bT \cdot e(g^s,g^{\alpha ^\prime})$和$C^\prime = g^s$。<br>仿真者随机选择$y_2^\prime,…,y_{n^+}^\prime$，选择要分享的随机向量：</p>
+<script type="math/tex; mode=display">
+\overrightarrow{v} = (s, sa+y_2^\prime,sa^2+y_3^\prime,..., sa^{n^+-1}+y_{n^+}^\prime) \in \mathbb{Z}_p^{n^+}</script><p>此外，他还选择$r_1^\prime,…, r_l^\prime$。<br>对于任意$i=1,…,n^+$，定义$R_i$为所有$k \neq i$且$\rho^+(i) = \rho^+(k)$的索引集合，即所有与第$i$行对应的属性相同的其他行的行号，然后与属性有关的密文部件为：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+& D_i = g^{-r_i^ \prime}g^{-sb_i} \nonumber \\
+& C_i=h_{\rho^+(i)}^{r_i^\prime} (\prod_{j=2,...,n^+} (g^a)^{M_{i,j}^+}y_j^\prime) (g^{b_i \cdot s})^{-z_{\rho^+(i)}} \cdot (\prod_{k \in R_i} \prod_{j=1,...,n^+} (g^{a^j \cdot s \cdot (b_i/b_k)})^{M_{k,j}^+})
+\end{aligned}</script><p><strong> Phase 2. </strong> Phase 1阶段重复。</p>
+<p><strong> Guess. </strong> 攻击者最终输出对$b$的猜想$b^\prime$。如果$b=b^\prime$，则输出$b^\prime=0$表明$T=e(g,g)^{a^{q+1}s}$；否则输出$b^\prime=1$表明$T$是群$\mathbb{G}_T$上的随机值。</p>
+<ul>
+<li>如果$T=e(g,g)^{a^{q+1}s}$，那么仿真者完好的模拟了$m_b$的加密过程，所以$|Pr[\mathcal{B}(\overrightarrow{y},T=e(g,g)^{a^{q+1}s})=0]=1/2+Adv_{\mathcal{A}}$。</li>
 <li>如果$T$是一个随机元素，那么明文$m_b$完全“淹没”在随机值里，攻击者没有优势只能靠猜测，所以$Pr[\mathcal{B}(\overrightarrow{y},T=R)=0]=1/2$。<br>到了这一步就和KP-ABE的结果是一样的，得到的结论是：如果存在多项式时间算法的攻击者可以以不可忽略的优势攻破方案，那么就存在多项式时间算法的攻击者可以以不可忽略的优势决定q-PBDHE难题，而这与q-PBDHE是不可攻破的难题这一事实矛盾，说明前面的假设是错误的，即证明方案是安全的。</li>
 </ul>
 <h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>上边的两个例子很清晰地用反证法的思想证明出了方案的安全性。仔细对比然后思考，会发现大框架都是一样的，而且在Guess阶段计算优势的套路也是固定的，唯一有变化的是Setup、Phase 1和Challenge部分模拟成方案的参数计算相应的密文密钥的细节不同，而这些恰恰是安全性证明中的难点，即如何很好地将难题中的参数构造到方案中去，这一点在第二个例子里边得到了充分地体现。</p>
