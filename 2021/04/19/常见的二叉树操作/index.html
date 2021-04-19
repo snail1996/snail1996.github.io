@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.lug.ustc.edu.cn/css?family=Lato:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic|Roboto Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-loading-bar.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"snail1996.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","width":300,"display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":false,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="引言本文主要结合代码来介绍二叉树的有关操作，包括二叉树的深度、平衡二叉树、前序遍历、中序遍历、后序遍历、层序遍历以及打印每一个根到叶子路径节点集合等操作。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="常见的二叉树操作">
+<meta property="og:url" content="https://snail1996.github.io/2021/04/19/%E5%B8%B8%E8%A7%81%E7%9A%84%E4%BA%8C%E5%8F%89%E6%A0%91%E6%93%8D%E4%BD%9C/index.html">
+<meta property="og:site_name" content="Blog of Firstfrozen">
+<meta property="og:description" content="引言本文主要结合代码来介绍二叉树的有关操作，包括二叉树的深度、平衡二叉树、前序遍历、中序遍历、后序遍历、层序遍历以及打印每一个根到叶子路径节点集合等操作。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-04-19T02:42:33.000Z">
+<meta property="article:modified_time" content="2021-04-19T02:45:03.869Z">
+<meta property="article:author" content="Xianbin Zhou">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://snail1996.github.io/2021/04/19/%E5%B8%B8%E8%A7%81%E7%9A%84%E4%BA%8C%E5%8F%89%E6%A0%91%E6%93%8D%E4%BD%9C/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>常见的二叉树操作 | Blog of Firstfrozen</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Blog of Firstfrozen</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description"> </p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://snail1996.github.io/2021/04/19/%E5%B8%B8%E8%A7%81%E7%9A%84%E4%BA%8C%E5%8F%89%E6%A0%91%E6%93%8D%E4%BD%9C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Xianbin Zhou">
+      <meta itemprop="description" content="My universe will never be the same!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Blog of Firstfrozen">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          常见的二叉树操作
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-04-19 10:42:33 / 修改时间：10:45:03" itemprop="dateCreated datePublished" datetime="2021-04-19T10:42:33+08:00">2021-04-19</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E4%BA%8C%E5%8F%89%E6%A0%91/" itemprop="url" rel="index"><span itemprop="name">二叉树</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>本文主要结合代码来介绍二叉树的有关操作，包括二叉树的深度、平衡二叉树、前序遍历、中序遍历、后序遍历、层序遍历以及打印每一个根到叶子路径节点集合等操作。</p>
+<span id="more"></span>
+<ul>
+<li><p>二叉树的深度：从根节点到叶节点依次经过的节点（含根、叶节点）形成树的一条路径，最长路径的长度为树的深度</p>
+</li>
+<li><p>平衡二叉树：如果某二叉树中任意节点的左右子树的深度相差不超过1，那么它就是一棵平衡二叉树</p>
+</li>
+<li><p>前序遍历：先访问根节点，再访问左子树，最后访问右子树。</p>
+</li>
+<li><p>中序遍历：先访问左子树，再访问根节点，最后访问右子树。</p>
+</li>
+<li><p>后序遍历：先访问左子树，再访问右子树，最后访问根节点。</p>
+</li>
+<li><p>层序遍历：根据二叉树的层次（或者深度）从根节点逐层输出节点。</p>
+</li>
+<li><p>根到叶子路径：从根节点到每个叶子节点的路径节点集合。</p>
+</li>
+</ul>
+<p>下面首先给出本文中全部算法的测试用例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    TreeNode h4 = <span class="keyword">new</span> TreeNode(<span class="number">10</span>);</span><br><span class="line">    TreeNode h5 = <span class="keyword">new</span> TreeNode(<span class="number">30</span>);</span><br><span class="line">    TreeNode h2 = <span class="keyword">new</span> TreeNode(<span class="number">20</span>, h4, h5);</span><br><span class="line">    TreeNode h3 = <span class="keyword">new</span> TreeNode(<span class="number">50</span>);</span><br><span class="line">    TreeNode h1 = <span class="keyword">new</span> TreeNode(<span class="number">40</span>, h2, h3);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于遍历有关操作都是将值放入List数组中的，因此为了看的结果方便，编写了<u>工具类matrixOperation</u>，后续的遍历有关的操作都是默认放在<u>traverse类</u>中。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">matrixOperation</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">printMatrix2d</span><span class="params">(List&lt;List&lt;Integer&gt;&gt; list)</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;数组长度为：&quot;</span>+list.size());</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;list.size();++i)&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>; j&lt;list.get(i).size();++j)&#123;</span><br><span class="line">                System.out.print(list.get(i).get(j)+<span class="string">&quot; &quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">printMatrix1d</span><span class="params">(List&lt;Integer&gt; list)</span></span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;数组长度为：&quot;</span>+list.size());</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;list.size();++i)&#123;</span><br><span class="line">            System.out.print(list.get(i) +<span class="string">&quot; &quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="二叉树的深度和平衡性"><a href="#二叉树的深度和平衡性" class="headerlink" title="二叉树的深度和平衡性"></a>二叉树的深度和平衡性</h4><p>一般通过递归简单地计算出一个二叉树的深度，然后递归的判断二叉树是否平衡：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Balance</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">Depth</span><span class="params">(TreeNode root)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(root == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">return</span> Math.max(Depth(root.left),Depth(root.right))+<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isBalanceTree</span><span class="params">(TreeNode root)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(root == <span class="keyword">null</span>) <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">return</span> isBalanceTree(root.left) &amp;&amp; isBalanceTree(root.right) &amp;&amp; Math.abs(Depth(root.left) - Depth(root.right)) &lt;= <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    TreeNode h4 = <span class="keyword">new</span> TreeNode(<span class="number">10</span>);</span><br><span class="line">    TreeNode h5 = <span class="keyword">new</span> TreeNode(<span class="number">30</span>);</span><br><span class="line">    TreeNode h2 = <span class="keyword">new</span> TreeNode(<span class="number">20</span>, h4, h5);</span><br><span class="line">    TreeNode h3 = <span class="keyword">new</span> TreeNode(<span class="number">50</span>);</span><br><span class="line">    TreeNode h1 = <span class="keyword">new</span> TreeNode(<span class="number">40</span>, h2, h3);</span><br><span class="line">    System.out.println(Balance.Depth(h1));</span><br><span class="line">    System.out.println(Balance.isBalanceTree(h1));</span><br><span class="line">    <span class="comment">// 输出</span></span><br><span class="line">    <span class="comment">// 3</span></span><br><span class="line">    <span class="comment">// true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="二叉树的前中后序遍历"><a href="#二叉树的前中后序遍历" class="headerlink" title="二叉树的前中后序遍历"></a>二叉树的前中后序遍历</h4><p>为了节省空间，这里以中序遍历为主，以递归和迭代的方式进行介绍；因为前序遍历和后序遍历的思路是一样的，所有就只说有变化的地方。</p>
+<h5 id="中序遍历（递归）"><a href="#中序遍历（递归）" class="headerlink" title="中序遍历（递归）"></a>中序遍历（递归）</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> List&lt;Integer&gt; <span class="title">inOrder01</span><span class="params">(TreeNode root)</span></span>&#123;</span><br><span class="line">    List&lt;Integer&gt; res = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    <span class="keyword">if</span>(root == <span class="keyword">null</span>) <span class="keyword">return</span> res;</span><br><span class="line">    in(root, res);</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">in</span><span class="params">(TreeNode root, List list)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(root == <span class="keyword">null</span>) <span class="keyword">return</span>;</span><br><span class="line">    in(root.left, list);</span><br><span class="line">    list.add(root.val);</span><br><span class="line">    in(root.right, list);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">matrixOperation.printMatrix1d(traverse.inOrder01(h1));</span><br><span class="line"><span class="comment">//数组长度为：5</span></span><br><span class="line"><span class="comment">//10 20 30 40 50 </span></span><br></pre></td></tr></table></figure>
+<p>前序遍历和后序遍历与中序遍历的区别是，在list中添加root.val的时机不同，其添加顺序与对应的访问根节点的顺序一致，即前序遍历先添加根节点值，再递归左右子树；后序遍历先递归左右子树，再添加根节点值。</p>
+<h5 id="中序遍历（迭代）"><a href="#中序遍历（迭代）" class="headerlink" title="中序遍历（迭代）"></a>中序遍历（迭代）</h5><p>中序遍历是说先访问左子树，再访问根节点，最后访问右子树，但是我们是从根节点开始，而根节点却是后出的，因此想到了借助栈来迭代实现二叉树的中序遍历。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> List&lt;Integer&gt; <span class="title">inOrder02</span><span class="params">(TreeNode root)</span></span>&#123;</span><br><span class="line">    List&lt;Integer&gt; res = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    Stack&lt;TreeNode&gt; s = <span class="keyword">new</span> Stack&lt;&gt;();</span><br><span class="line">    <span class="keyword">if</span>(root == <span class="keyword">null</span>) <span class="keyword">return</span> res;</span><br><span class="line">    TreeNode tmp = root;</span><br><span class="line">    <span class="keyword">while</span>(tmp != <span class="keyword">null</span> || s.size() != <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="keyword">while</span>(tmp !=<span class="keyword">null</span>)&#123;</span><br><span class="line">            s.push(tmp);</span><br><span class="line">            tmp = tmp.left;</span><br><span class="line">        &#125;</span><br><span class="line">        tmp = s.pop();</span><br><span class="line">        res.add(tmp.val);</span><br><span class="line">        tmp = tmp.right;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">matrixOperation.printMatrix1d(traverse.inOrder02(h1));</span><br><span class="line"><span class="comment">//数组长度为：5</span></span><br><span class="line"><span class="comment">//10 20 30 40 50</span></span><br></pre></td></tr></table></figure>
+<p>对于迭代法的前序遍历，因为首先访问根节点，所以将res.add(tmp.val)操作放在s.push(tmp)之后；对于二叉树的后序遍历，因为其遍历顺序是<u>左右中</u>，而颠倒之后为<u>中右左</u>，恰恰与前序遍历的<u>中左右</u>类似，不同点是右子树的优先级高，优先遍历，所以先遍历中右左顺序，再将得到的序列逆序即为后序遍历序列。</p>
+<h4 id="层序遍历"><a href="#层序遍历" class="headerlink" title="层序遍历"></a>层序遍历</h4><h5 id="一层输出"><a href="#一层输出" class="headerlink" title="一层输出"></a>一层输出</h5><p>这里一层输出是指输出的序列为一维的list，即不区分每一层。既然是层序遍历，因而是先访问到先输出，所以要借助队列数据结构。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> List&lt;Integer&gt; <span class="title">levelT</span><span class="params">(TreeNode root)</span></span>&#123;</span><br><span class="line">    List&lt;Integer&gt; res = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    Queue&lt;TreeNode&gt; q = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line">    <span class="keyword">if</span>(root == <span class="keyword">null</span>) <span class="keyword">return</span> res;</span><br><span class="line">    q.add(root);</span><br><span class="line">    <span class="keyword">while</span>(q.size()!=<span class="number">0</span>) &#123;</span><br><span class="line">        TreeNode tmp = q.poll();</span><br><span class="line">        res.add(tmp.val);</span><br><span class="line">        <span class="keyword">if</span>(tmp.left != <span class="keyword">null</span>) q.add(tmp.left);</span><br><span class="line">        <span class="keyword">if</span>(tmp.right != <span class="keyword">null</span>) q.add(tmp.right);</span><br><span class="line">	&#125;</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">matrixOperation.printMatrix1d(traverse.levelT01(h1));</span><br><span class="line"><span class="comment">//数组长度为：5</span></span><br><span class="line"><span class="comment">//40 20 50 10 30 </span></span><br></pre></td></tr></table></figure>
+<h5 id="两层输出"><a href="#两层输出" class="headerlink" title="两层输出"></a>两层输出</h5><p>这里两层输出是指输出的序列为二维的list，即区分每一层。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> List&lt;List&lt;Integer&gt;&gt; levelT02(TreeNode root)&#123;</span><br><span class="line">    List&lt;List&lt;Integer&gt;&gt; res = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    Queue&lt;TreeNode&gt; q = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line">    <span class="keyword">if</span>(root == <span class="keyword">null</span>) <span class="keyword">return</span> res;</span><br><span class="line">    q.add(root);</span><br><span class="line">    <span class="keyword">while</span>(q.size()!=<span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">int</span> l= q.size();</span><br><span class="line">        List&lt;Integer&gt; path = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;l; ++i)&#123;</span><br><span class="line">            TreeNode tmp = q.poll();</span><br><span class="line">            path.add(tmp.val);</span><br><span class="line">            <span class="keyword">if</span>(tmp.left != <span class="keyword">null</span>) q.add(tmp.left);</span><br><span class="line">            <span class="keyword">if</span>(tmp.right != <span class="keyword">null</span>) q.add(tmp.right);</span><br><span class="line">        &#125;</span><br><span class="line">        res.add(path);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">matrixOperation.printMatrix2d(traverse.levelT02(h1));</span><br><span class="line"><span class="comment">//数组长度为：3</span></span><br><span class="line"><span class="comment">//40</span></span><br><span class="line"><span class="comment">//20 50</span></span><br><span class="line"><span class="comment">//10 30</span></span><br></pre></td></tr></table></figure>
+<h4 id="根到叶子路径集合"><a href="#根到叶子路径集合" class="headerlink" title="根到叶子路径集合"></a>根到叶子路径集合</h4><p>打印每条路径的集合，结果为二维list。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//访问根到叶子节点每一条路径</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> List&lt;List&lt;Integer&gt;&gt; everyPath(TreeNode root)&#123;</span><br><span class="line">    List&lt;List&lt;Integer&gt;&gt; res = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    List&lt;Integer&gt; path = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    backtrack(root, res, path);</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">backtrack</span><span class="params">(TreeNode root, List&lt;List&lt;Integer&gt;&gt; res, List&lt;Integer&gt; path)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(root == <span class="keyword">null</span>) <span class="keyword">return</span>;</span><br><span class="line">    List&lt;Integer&gt; tmp = <span class="keyword">new</span> ArrayList&lt;&gt;(path);</span><br><span class="line">    tmp.add(root.val);</span><br><span class="line">    <span class="keyword">if</span>(root.left == <span class="keyword">null</span> &amp;&amp; root.right == <span class="keyword">null</span>) &#123;</span><br><span class="line">        res.add(tmp);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    backtrack(root.left, res, tmp);</span><br><span class="line">    backtrack(root.right, res, tmp);</span><br><span class="line">    tmp.remove(tmp.size()-<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里用到了回溯算法来求解每一个集合，算法中传递了两个集合，一个是结果list，即res，还有一个是路径集合，即path，需要注意的是：</p>
+<ul>
+<li>方法体中的用到的tmp需要时当前path的复制，这是因为path是递归传入的，如果直接使用path作为当前方法提的tmp的话，它会动态修改里边的内容，造成在某个特定的方法体中添加的元素错误（不确定），因此传入之后复制其内容，重新记为tmp使用，使得不与传入参数path耦合，使得结果集正确。</li>
+<li>注意在结果集res中添加tmp的时机，也就是说只有当遇到了叶子节点，才将该节点加入到tmp中，进而将tmp加入到res中。</li>
+</ul>
+<p>测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">matrixOperation.printMatrix2d(traverse.everyPath(h1));</span><br><span class="line"><span class="comment">//数组长度为：3</span></span><br><span class="line"><span class="comment">//40 20 10 </span></span><br><span class="line"><span class="comment">//40 20 30 </span></span><br><span class="line"><span class="comment">//40 50 </span></span><br></pre></td></tr></table></figure>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>本文针对常见的二叉树结构的一些常见的操作进行介绍，具体包括计算二叉树的深度、判断二叉树是否平衡、递归和迭代前中后序遍历二叉树、层次遍历二叉树、回溯算法打印根到叶子节点集合。</p>
+
+    </div>
+
+    
+    
+    
+
+      <div>
+        
+          <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+        
+      </div>
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/04/17/%E6%B5%85%E8%B0%88ABE%E9%87%8C%E7%9A%84%E5%AE%89%E5%85%A8%E6%80%A7%E8%AF%81%E6%98%8E/" rel="prev" title="浅谈ABE里的安全性证明">
+      <i class="fa fa-chevron-left"></i> 浅谈ABE里的安全性证明
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%95%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%B7%B1%E5%BA%A6%E5%92%8C%E5%B9%B3%E8%A1%A1%E6%80%A7"><span class="nav-number">2.</span> <span class="nav-text">二叉树的深度和平衡性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%89%8D%E4%B8%AD%E5%90%8E%E5%BA%8F%E9%81%8D%E5%8E%86"><span class="nav-number">3.</span> <span class="nav-text">二叉树的前中后序遍历</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%B8%AD%E5%BA%8F%E9%81%8D%E5%8E%86%EF%BC%88%E9%80%92%E5%BD%92%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">中序遍历（递归）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%B8%AD%E5%BA%8F%E9%81%8D%E5%8E%86%EF%BC%88%E8%BF%AD%E4%BB%A3%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">中序遍历（迭代）</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86"><span class="nav-number">4.</span> <span class="nav-text">层序遍历</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%B8%80%E5%B1%82%E8%BE%93%E5%87%BA"><span class="nav-number">4.1.</span> <span class="nav-text">一层输出</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%B8%A4%E5%B1%82%E8%BE%93%E5%87%BA"><span class="nav-number">4.2.</span> <span class="nav-text">两层输出</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%B9%E5%88%B0%E5%8F%B6%E5%AD%90%E8%B7%AF%E5%BE%84%E9%9B%86%E5%90%88"><span class="nav-number">5.</span> <span class="nav-text">根到叶子路径集合</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Xianbin Zhou"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Xianbin Zhou</p>
+  <div class="site-description" itemprop="description">My universe will never be the same!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/snail1996" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;snail1996" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zxb340825@163.com" title="E-Mail → mailto:zxb340825@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Firstfrozen</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">60k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">54 分钟</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script color='' opacity='' zIndex='' count='' src="/lib/canvas-nest/canvas-nest-nomobile.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":140,"height":260},"moblie":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>
+<!-- 引入jQuery -->
+<script type="text/javascript" src="//libs.baidu.com/jquery/1.8.3/jquery.min.js"></script>
+<!-- 雪花特效 -->
+<script type="text/javascript" src="\js\snow.js"></script>
+<!-- 样式二（飘动的彩带） -->
+<script src="\js\ribbon_flow.js" type="text/javascript"></script>
