@@ -30,7 +30,7 @@
 <meta property="og:description" content="引言动态规划常常适用于有重叠子问题和最优子结构性质的问题，并且记录所有子问题的结果，因此动态规划方法所耗时间往往远少于朴素解法。动态规划与分治法类似，都是把大问题拆分成小问题，通过寻找大问题与小问题的递推关系，解决一个个小问题，最终达到解决原问题的效果。但不同的是，分治法在子问题和子子问题等上被重复计算了很多次，而动态规划则具有记忆性，通过填写表把所有已经解决的子问题答案纪录下来，在新问题里需要用">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-05-17T08:52:08.000Z">
-<meta property="article:modified_time" content="2021-05-17T08:58:32.448Z">
+<meta property="article:modified_time" content="2021-05-17T09:11:25.359Z">
 <meta property="article:author" content="Xianbin Zhou">
 <meta property="article:tag" content="动态规划">
 <meta property="article:tag" content="背包问题">
@@ -222,7 +222,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2021-05-17 16:52:08 / 修改时间：16:58:32" itemprop="dateCreated datePublished" datetime="2021-05-17T16:52:08+08:00">2021-05-17</time>
+              <time title="创建时间：2021-05-17 16:52:08 / 修改时间：17:11:25" itemprop="dateCreated datePublished" datetime="2021-05-17T16:52:08+08:00">2021-05-17</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -238,14 +238,7 @@
                 </span>
             </span>
 
-          
-            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span id="busuanzi_value_page_pv"></span>
-            </span><br>
+          <br>
             <span class="post-meta-item" title="本文字数">
               <span class="post-meta-item-icon">
                 <i class="far fa-file-word"></i>
@@ -428,7 +421,7 @@
 <p>利用动态规划的分析方法，首先定义$dp[i][j]$数组，表示当背包容量为$j$时，考虑前$i$件物品的最大价值。对于第$i$件物品，有两种可能性，</p>
 <ul>
 <li>包的剩余容量比$v_i$小，自然装不下，此时$dp[i][j]=dp[i-1][j]$；</li>
-<li>当包的剩余容量大于等于$v_i$时，对于第$i$件物品，仍然有两种选择，选择$k$个该物品，则$dp[i][j]=dp[i-1][j-k<em>v[i]]+k</em>w[i]$；不选择该物品，则$dp[i][j]=dp[i-1][j]$。</li>
+<li>当包的剩余容量大于等于$v_i$时，对于第$i$件物品，仍然有两种选择，选择$k$个该物品，则$dp[i][j]=dp[i-1][j-k\cdot v[i]]+k \cdot w[i]$；不选择该物品，则$dp[i][j]=dp[i-1][j]$。</li>
 </ul>
 <h5 id="代码-2"><a href="#代码-2" class="headerlink" title="代码"></a>代码</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">solveBy1D</span><span class="params">(<span class="keyword">int</span> V, <span class="keyword">int</span> N, <span class="keyword">int</span>[] w, <span class="keyword">int</span>[] v,<span class="keyword">int</span>[] s)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span>[] dp = <span class="keyword">new</span> <span class="keyword">int</span>[V+<span class="number">1</span>];</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>; i&lt;=n; ++i)&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=V; j&gt;=w[i-<span class="number">1</span>]; --j)&#123;</span><br><span class="line">            <span class="comment">//增加一层循环，比较选择k的时候的最大dp</span></span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> k=<span class="number">1</span>;k&lt;=s[i-<span class="number">1</span>] &amp;&amp; j&gt;=k*w[i-<span class="number">1</span>];k++)&#123;</span><br><span class="line">                dp[j] = Math.max(dp[j], dp[j-k*w[i-<span class="number">1</span>]]+k*v[i-<span class="number">1</span>]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> dp[V];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</span><br><span class="line">    Scanner sc = <span class="keyword">new</span> Scanner(System.in);</span><br><span class="line">    <span class="keyword">int</span> N = sc.nextInt();</span><br><span class="line">    <span class="keyword">int</span> V = sc.nextInt();</span><br><span class="line">    <span class="keyword">int</span>[] w = <span class="keyword">new</span> <span class="keyword">int</span>[N];</span><br><span class="line">    <span class="keyword">int</span>[] v = <span class="keyword">new</span> <span class="keyword">int</span>[N];</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i&lt; N; ++i)&#123;</span><br><span class="line">        w[i] = sc.nextInt();</span><br><span class="line">        v[i] = sc.nextInt();</span><br><span class="line">        s[i] = sc.nextInt();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> res1 =solveBy1D(V, N, w, v, s);</span><br><span class="line">    System.out.println(<span class="string">&quot;Max value: &quot;</span>+ res1);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 输出</span></span><br><span class="line"><span class="comment">// N=4 V=5</span></span><br><span class="line"><span class="comment">// v_1=1 w_1=2 s_1=3</span></span><br><span class="line"><span class="comment">// v_2=2 w_2=4 s_2=1</span></span><br><span class="line"><span class="comment">// v_3=3 w_3=4 s_3=3</span></span><br><span class="line"><span class="comment">// v_4=4 w_4=5 s_4=2</span></span><br><span class="line"><span class="comment">// Max value: 10</span></span><br></pre></td></tr></table></figure>
 <h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>本文通过0-1背包、完全背包以及多重背包的例子，通过问题分析和代码一览动态规划算法是如何解决问题的。动态规划算法通过存储中间结果用空间复杂度换时间复杂度，通过分析问题的状态转移方程有时可以优化算法。</p>
@@ -464,7 +457,10 @@
     <a href="/2021/04/28/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2%E6%9C%89%E5%85%B3%E7%A4%BA%E4%BE%8B/" rel="prev" title="深度优先搜索有关示例">
       <i class="fa fa-chevron-left"></i> 深度优先搜索有关示例
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2021/05/18/%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="next" title="字符串">
+      字符串 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -539,7 +535,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-count">18</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -552,7 +548,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-count">22</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -596,35 +592,15 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">82k</span>
+    <span title="站点总字数">90k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:15</span>
+    <span title="站点阅读时长">1:21</span>
 </div>
 
         
-<div class="busuanzi-count">
-  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
-      <span class="post-meta-item-icon">
-        <i class="fa fa-user"></i>
-      </span>
-      <span class="site-uv" title="总访客量">
-        <span id="busuanzi_value_site_uv"></span>
-      </span>
-    </span>
-    <span class="post-meta-divider">|</span>
-    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
-      <span class="post-meta-item-icon">
-        <i class="fa fa-eye"></i>
-      </span>
-      <span class="site-pv" title="总访问量">
-        <span id="busuanzi_value_site_pv"></span>
-      </span>
-    </span>
-</div>
 
 
 
