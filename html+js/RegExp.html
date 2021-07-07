@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>RegExp</title>
+</head>
+
+<body>
+	<script type="text/javascript">
+		window.alert("hello");
+		window.onload = function(){
+			document.getElementById("btn").onclick=function(){
+				var email=document.getElementById("email").value;
+				var emailReg = /^w+[-+.]*@\w+[-.]*\.\w+([-.]\w+)*$/;
+				window.alert(emailReg);
+				var ok=emailReg.test(email);
+				window.alert(ok);
+				if(ok){
+					document.getElementById("emailErr").innerText="邮箱地址合法";
+					window.alert("邮箱地址合法");
+				}
+				else{
+					document.getElementById("emailErr").innnerText="邮箱地址不合法";
+					window.alert("邮箱地址不合法")；
+				}
+			}
+			document.getElementById("email").onfocus=function(){
+				document.getElementById("emailErr").innerText="";
+			}
+		}
+	</script>
+	<input type="text" id="email"/>
+	<span id="emailErr" style="color: red; font-size: 12px;"></span>
+	<br>
+	<input type="button" value="邮箱验证" id="btn"/>
+</body>
+</html>
