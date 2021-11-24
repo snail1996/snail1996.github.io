@@ -54,100 +54,6 @@ SK=(K=g^\alpha g^{at},L=g^t,\forall x \in S:K_x = h_x^t).</script><h6 id="Decryp
       </tags>
   </entry>
   <entry>
-    <title>DAC-MACS</title>
-    <url>/2021/04/15/DAC-MACS/</url>
-    <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>前面介绍了ABE有关的大部分知识，包括访问结构、密钥托管、属性撤销、共谋攻击、外包解密等诸多方面，今天要介绍的这篇论文是经典的ABE构造，方案简称为DAC-MACS<sup><a href="ref1">1</a></sup>，由Yang等人构造。方案中融合了几乎所有前面讲到的这些方面的内容，属于Chase<sup><a href="ref2">2</a></sup>系列的多属性权威机构ABE，能实现属性撤销，能防止用户的共谋，能外包解密。DAC-MACS方案是基于Waters的ABE-2SPR<sup><a href="ref3">3</a></sup>的第一种构造，因此是构建在Decisional q-PBDHE难题之上，运用了Green<sup><a href="ref4">4</a></sup>的外包解密技巧，可以说是经典的多属性权威ABE方案。下面我们来一睹DAC-MACS的内部构造吧！</p>
-<span id="more"></span>
-<h4 id="系统模型"><a href="#系统模型" class="headerlink" title="系统模型"></a>系统模型</h4><p>DAC-MACS方案中涉及五类实体，分别为全局证书机构（CA）、属性权威机构（AAs)、云服务器（CSP）、数据拥有者（DO）和数据消费者（DU）。</p>
-<ul>
-<li><p>CA：系统中全局可信的证书机构，针对每一个合法用户，CA分配一个全局唯一的用户身份，并为其生成全局公私钥对。CA不参与任何属性的管理，这意味着它并不为DU生成属性密钥。</p>
-</li>
-<li><p>AA：每一个AA都是一个独立的属性权威机构，负责产生、撤销以及更新用户的属性（只要用户的该属性由它所管理）。每个AA会为其管理的每一个属性生成系统的属性公钥，并为用户生成属性密钥。</p>
-</li>
-<li>CSP：存储DO的加密的密文的地方，也为用户生成解密令牌，如果存在属性撤销，则辅助更新密文到系统的最新版本。</li>
-<li>DO：需要存储数据到CSP的用户。</li>
-<li>DU：需要从CSP获取数据的用户。</li>
-</ul>
-<h4 id="威胁模型"><a href="#威胁模型" class="headerlink" title="威胁模型"></a>威胁模型</h4><ul>
-<li><p>CA：完全可信的，但是不允许解密任何密文。</p>
-</li>
-<li><p>AA：可信的，但是可以被攻击者攻击“腐败”。</p>
-</li>
-<li>CSP：半可信的（诚实且好奇），即CSP会诚实地执行系统中它所负责的工作，但是会对存储的密文产生好奇。</li>
-<li>DU：非诚实的，存在共谋行为。</li>
-<li>所有非撤销者：不将收到的密钥更新密钥与撤销用户共享。</li>
-</ul>
-<h4 id="具体构造"><a href="#具体构造" class="headerlink" title="具体构造"></a>具体构造</h4><h5 id="系统初始化"><a href="#系统初始化" class="headerlink" title="系统初始化"></a>系统初始化</h5><p>记$S_A$和$S_U$分别表示属性权威机构的集合和系统属性的集合，记$\mathbb{G}$和$\mathbb{G}_T$为两个阶数为$p$的乘法循环群，$e:\mathbb{G} \times \mathbb{G} \rightarrow \mathbb{G}_T$为双线性映射，$g$为$\mathbb{G}$的生成元。记$H:\left\{0,1 \right\}^+ \rightarrow \mathbb{G}$为哈希函数。</p>
-<h6 id="CA-Setup"><a href="#CA-Setup" class="headerlink" title="CA Setup"></a>CA Setup</h6><p>CA首先产生一对签名和验证密钥$(sk_{CA}, vk_{CA})$，然后选择随机数$a \in \mathbb{Z}_p$作为系统的主密钥，计算系统参数为$SP=(g,g^a,\mathbb{G},\mathbb{G}_T,H)$。</p>
-<ol>
-<li>User Registration：每个用户需要向CA注册自己的信息，如果用户是系统的合法用户，则为该用户分配一个全局唯一的ID$uid$，生成全局公钥$GPK_{uid}=g^{u_{uid}}$和全局私钥$GSK_{uid}=z_{uid}$，其中$u_{uid},z_{uid} \in \mathbb{Z}_p$随机选取。CA随后产生该用户的证书$Cert(uid)$，其中包含$Sign_{sk_{CA}}(uid, u_{uid},g^{1/z_{uid}})$。最后CA将全局公私钥对$(GPK_{uid},GSK_{uid})$和证书$Cert(uid)$发送给用户$uid$。</li>
-<li>AA Registration：每一个AA需要向CA注册自己的信息，如果AA是系统的合法机构，则为该AA分配一个全局唯一ID$aid$，然后将CA的验证密钥$vk_{CA}$和系统参数$SP$发送给AA。</li>
-</ol>
-<h6 id="AA-Setup"><a href="#AA-Setup" class="headerlink" title="AA Setup"></a>AA Setup</h6><p>每一个$AA_k(k \in S_A)$运行AA Setup步骤。记$S_{A_k}$表示$AA_k$所管理的属性的集合，$AA_k$选择三个随机数$\alpha_k, \beta_k, \gamma_k \in \mathbb{Z}_p$作为该机构的私钥，即$SK_k=(\alpha_k, \beta_k, \gamma_k)$。对于每一个属性$x_k \in S_{A_k}$，$AA_k$计算产生属性公钥$PK_{x_k}=(g^{v_{x_k}}H(x_k))^{\gamma_k}$，其中$VK_{x_k}=v_{x_k}$为该属性的版本密钥，$AA_k$还计算该机构自身的公钥$PK_k=(e(g,g)^{\alpha_k},g^{1/\beta_k},g^{\gamma_k/\beta_k})$。所有的属性公钥和$AA_k$的机构公钥都可以在该机构的“公告栏”获取。</p>
-<h5 id="用户私钥生成"><a href="#用户私钥生成" class="headerlink" title="用户私钥生成"></a>用户私钥生成</h5><p>对于每一个用户$U_j(j \in S_U)$，每一个$AA_k$首先用CA的验证密钥$vk_{CA}$验证该用户的证书$Cert(uid)$来判断其是否合法，如果合法，才为其分发密钥。$AA_k$会根据该用户在自己这拥有的属性，计算一系列的用户私钥$SK_{j,k}$。针对每一个$AA_k$，选择一个随机数$t_{j,k} \in \mathbb{Z}_p$，然后计算$SK_{j,k}$如下：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-& SK_{j,k}=( K_{j,k}=g^{\alpha_k/z_j} \cdot g^{au_j} \cdot g^{at_{j,k}/\beta_k}, 
-L_{j,k}=g^{\beta_kt_{j,k}/z_j},R_{j,k}=g^{at_{j,k}},  \nonumber\\
-& \forall x_k \in S_{j,k}:K_{j,x_k} =g^{\beta_k \gamma_k t_{j,k}/z_j} \cdot (g^{v_{x_k}} \cdot H(x_k))^{\gamma_k \beta_k u_j}). \nonumber
-\end{aligned}</script><p>其中，$j \in S_U, k \in S_A$。</p>
-<h5 id="数据加密"><a href="#数据加密" class="headerlink" title="数据加密"></a>数据加密</h5><p>在DO将数据$m$外包到CSP上之前，DO为其进行加密。DO定义自己的访问结构，以线性秘密共享方案的形式，即访问结构为$(M, \rho)$，其中$M$为$l \times n$的矩阵，$l$为所有属性的个数，函数$\rho$将矩阵的每一行映射到一个属性。</p>
-<p>首先将消息$m$切分为若干数据块，即$m=\left\{m_1,…,m_n \right\}$，然后针对每一个数据块选择一个对称密钥$\left\{\kappa_1,…, \kappa_n \right\}$，用对称密钥$\kappa_i$加密数据块$m_i$。不失一般性，以下只针对某一个数据块$m$的加密过程进行描述。</p>
-<p>DO随机选择秘密值$s \in \mathbb{Z}_p$，选择随机向量$\overrightarrow{v} =(s,y_2,…,y_n) \in \mathbb{Z}_p^n$，其中$y_2,…,y_n$随机选取，其作用是分享秘密值$s$。对于$i \in [l]$，计算$\lambda_i = \overrightarrow {v}M_i$，其中$M_i$为矩阵$M$的第$i$行，然后随机选择$r_1,…,r_l \in \mathbb{Z}_p$，计算密文如下：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-&  CT=(En_\kappa(m), C=\kappa \cdot(\prod_{k \in I_A}e(g,g)^{\alpha_k})^s, C^\prime=g^s,{C}''=g^{s/\beta_k}, \nonumber\\
-&  \forall i \in [l]:C_i=g^{a\lambda_i} \cdot ((g^{v_{\rho(i)}}H(\rho(i)))^{\gamma_k})^{-r_i}, D_{1,i}=g^{r_i/\beta_k},D_{2,i}=g^{-\gamma_kr_i/\beta_k}, \rho(i) \in S_{A_k} ). \nonumber
-\end{aligned}</script><h5 id="数据解密"><a href="#数据解密" class="headerlink" title="数据解密"></a>数据解密</h5><p>系统中的合法用户可以可以从CSP查询获取任何密文，但是只有属性集合满足访问结构的用户才能够解密出对称密钥，进而恢复出消息$m$。</p>
-<h6 id="CSP计算Token"><a href="#CSP计算Token" class="headerlink" title="CSP计算Token"></a>CSP计算Token</h6><p>用户$U_j(j \in S_U)$将他的私钥$\left\{SK_{j,k} \right\}_{k \in S_A}$发送给CSP，让CSP为其计算生成解密令牌$TK$。当且仅当用户的属性集合满足密文的访问结构的时候，CSP才能正确计算出$TK$。</p>
-<p>记$I=\left\{I_{A_k} \right\}_{k \in S_A}$为与密文有关的所有索引的集合，其中$I_{A_k} \sqsubset \left\{1,2,…,l \right\}$定义为$I_{A_k}=\left\{i:\rho(i) \in S_{A_k} \right\}$。举个例子，例如矩阵$M$有6行，$\rho(1)$为属性$a_1$，……，$\rho(6)$为属性$a_6$，一共有三个属性机构$A_1,A_2,A_3$，$A_1=\left\{a_1,a_6 \right\}$，$A_2=\left\{a_2,a_4,a_5 \right\}$，$A_3=\left\{a_3 \right\}$，假设用户Alice有属性$\left\{a_1,a_2,a_3,a_4 \right\}$，则$I_{A_1}=\left\{1 \right\}$，$I_{A_2}=\left\{2,4 \right\}$，$I_{A_3}=\left\{3 \right\}$，所以$I=\left\{I_{A_1},I_{A_2},I_{A_3} \right\}=\left\{1,2,3,4\right\}$。</p>
-<p>记$N_A=|I_A|$为与密文中属性有关的机构个数（上述例子中$N_A=3$），CSP选择一系列的常数$\left\{\omega_i \in \mathbb{Z}_p \right\}_{i \in I}$，然后重构秘密值$s=\sum_{i \in I} \omega_i \lambda_i$，然后计算$TK$如下。</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-& TK=\prod_{k \in I_A} \frac{e(C^\prime,K_{j,k}) \cdot e(R_{j,k},{C}'')^{-1}}
-{\prod _{i \in I_{A_k}} (e(C_i,GPK_j) \cdot e(D_{1,i},K_{j,\rho(j)}) \cdot e(D_{2,i},L_{j,k}))^{\omega_iN_A}} \nonumber\\
-& =\frac{e(g,g)^{au_jsN_A} \cdot \prod_{k \in I_A} e(g,g)^{\alpha_ks/z_j}}
-{e(g,g)^{u_jaN_A \sum_{i \in I} \lambda_i \omega_i}} \nonumber \\
-& =\prod_{k \in I_A} e(g,g)^{\alpha_ks/z_j}. \nonumber
-\end{aligned}</script><p>然后CSP将$TK$返回给用户$U_j$。</p>
-<h6 id="用户解密"><a href="#用户解密" class="headerlink" title="用户解密"></a>用户解密</h6><p>用户$U_j$收到$TK$后，用自己的全局私钥$GSK_j=z_j$解密对称密钥$\kappa = \frac{C}{TK^{z_j}}$。然后用对称密钥$\kappa$解密密文$m=Dec_{\kappa}(Enc_{\kappa}(m))$。</p>
-<h5 id="属性撤销"><a href="#属性撤销" class="headerlink" title="属性撤销"></a>属性撤销</h5><p>假设属性用户$U_\mu$ 的属性$\widetilde{x}_k$从$AA_k$那撤销了，那么属性撤销阶段分以下三步进行。</p>
-<h6 id="AA-s-生成更新密钥"><a href="#AA-s-生成更新密钥" class="headerlink" title="$AA_s$生成更新密钥"></a>$AA_s$生成更新密钥</h6><p>相应的$AA_k$选择一个新的属性$\widetilde{x}_k$的版本密钥$VK_{\widetilde{x}_k}^\prime = v_{\widetilde{x}_k}^\prime$，然后计算属性更新密钥$AUK_{\widetilde{x}_k}=\gamma_k(v_{\widetilde{x}_k}^\prime - v_{\widetilde{x}_k})$，进而生成密钥更新密钥$KUK_{j,\widetilde{x}_k}=g^{u_j \beta_k \cdot AUK_{\widetilde{x}_k}}$和密文更新密钥$CUK_{\widetilde{x}_k} = \beta_k \cdot AUK_{\widetilde{x}_k}/\gamma_k$。然后$AA_k$将属性$\widetilde{x}_k$的属性公钥更新为$PK_{\widetilde{x}_k}^\prime=PK_{\widetilde{x}_k} \cdot g^{AUK_{\widetilde{x}_k}}$，并全系统广播属性$\widetilde{x}_k$有关的密文密钥更新过了。</p>
-<h6 id="非撤销用户更新属性部件"><a href="#非撤销用户更新属性部件" class="headerlink" title="非撤销用户更新属性部件"></a>非撤销用户更新属性部件</h6><p>对于那些没有撤销$\widetilde{x}_k$的用户$U_j(j \in S_U,j \neq \mu)$，$AA_k$发给他们密钥更新密钥$KUK_{j,\widetilde{x}_k}$。用户拿到更新密钥后，更新自己的私钥为：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-& SK_{j,k}^\prime=( K_{j,k}^\prime=K_{j,k}, L_{j,k}^\prime=L_{j,k},R_{j,k}^\prime=R_{j,k}, \nonumber\\
-& K_{j,\widetilde{x}_k}^\prime=K_{j,\widetilde{x}_k} \cdot KUK_{j,\widetilde{x}_k}, \forall x_k \in S_u, x_k \neq \widetilde{x}_k:K_{j,x_k}^\prime=K_{j,x_k} ). \nonumber
-\end{aligned}</script><h6 id="CSP更新密文部件"><a href="#CSP更新密文部件" class="headerlink" title="CSP更新密文部件"></a>CSP更新密文部件</h6><p>$AA_k$发给CSP密文更新密钥$CUK_{\widetilde{x}_k}$，然后密文更新为：</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-& CT^\prime=(En_\kappa(m), C=\kappa \cdot(\prod_{k \in I_A}e(g,g)^{\alpha_k})^s, C^\prime=g^s,{C}''=g^{s/\beta_k}, \nonumber\\
-& \forall i \in [l]: \nonumber\\
-& if \rho(i) \neq \widetilde{x}_k: C_i=g^{a\lambda_i} \cdot ((g^{v_{\rho(i)}}H(\rho(i)))^{\gamma_k})^{-r_i}, \nonumber\\ & D_{1,i}=g^{r_i/\beta_k},D_{2,i}=g^{-\gamma_kr_i/\beta_k}, \nonumber\\ 
-& if \rho(i) = \widetilde{x}_k: C_i^\prime = C_i \cdot D_{2,i}^{CUK_{\widetilde{x}_k}}, \nonumber\\
-& D_{1,i}=g^{r_i/\beta_k},D_{2,i}=g^{-\gamma_kr_i/\beta_k}). \nonumber
-\end{aligned}</script><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>从具体的构造来看，DAC-MACS设计的还是相当的复杂，这是因为ABE算法本身就需要考虑诸多属性，而与之有关的有密文和密钥两大部分，再加上要设计成多个权威机构，那么系统中与属性相关联的又多了一层实体。这可以和Chase的方案对比，很明显其复杂度不言而喻，因为Chase的ABE方案算是门限ABE，而且没有属性撤销这一安全需求。</p>
-<p>从DAC-MACS的设计中可以看到，每一个AA的主密钥有三个之多，这正是为了实现后边的属性撤销而预设的。回头看一下，DAC-MAC是将一个所谓的属性的版本密钥嵌入到属性有关部件里边，然后有属性撤销发生，则将对应的版本密钥更新，这样做的好处是，只有与撤销有关的密文密钥部件才会更新值，而不相关属性的部件不会变化，大大减少了撤销时的计算量，因此这种撤销的手段是很典型的高效撤销机制。</p>
-<p>而DAC-MACS又是如何实现解密操作外包的呢？这是由于CSP为用户计算生成解密令牌，而大大减少了用户的解密开销，之所以用户将私钥给CSP也不会产生安全隐患，这是因为密钥中嵌入了用户的全局私钥信息，这一随机数其实就是O-ABE中盲化技术里的盲化因子。</p>
-<p>DAC-MACS中提到了假定非撤销用户不会将密钥更新密钥透露给非撤销用户，这是因为如果透露了，那么撤销用户仍然能够更新自己的私钥，从而解密最近的密文。正因为如此，作者才推出EDAC-MACS来消除这一假设前提，以增强方案的安全性，但是Wu<sup><a href="ref1">5</a></sup>等人针对EDAC-MACS方案，还是分析出其中的漏洞。不过不管怎样，DAC-MACS还是一种经典的多属性权威ABE方案的构造，其中的细节值得回味，其中的技巧值得借鉴。</p>
-<p><span name="ref1">K. Yang, X. H. Jia, K. Ren, B. Zhang, and R. T. Xie, “DAC-MACS: Effective Data Access Control for Multi-authority Cloud Storage Systems,” <em>IEEE Transactions on Information Forensics and Security</em>, vol. 8, no.11, pp. 1790-1801, Nov. 2013.</span></p>
-<p><span name="ref2">M. Chase, “Multi-authority attribute based encryption,” in <em>Proc. TCC’07</em>, 2007, pp. 515–534, Springer.</span></p>
-<p><span name="ref3">B. Waters, “Ciphertext-policy attribute-based encryption: An expressive, efficient, and provably secure realization,” in <em>Proc. PKC’11</em>, 2011, pp. 53–70, Springer.</span></p>
-<p><span name="ref4">M. Green, S. Hohenberger, and B. Waters, “Outsourcing the Decryption of ABE Ciphertexts,” in <em>Proceedings of the 20th USENIX conference on Security</em>, San Francisco, CA, USA, 2011.</span></p>
-<p><span name="ref5">X. Wu, R. Jiang and B. Bhargava, “On the Security of Data Access Control for Multiauthority Cloud Storage Systems,” <em>IEEE Transactions on Services Computing</em>, vol. 10, no. 2, pp. 258-272, 1 March-April 2017.<span></span></span></p>
-]]></content>
-      <categories>
-        <category>属性基加密</category>
-      </categories>
-      <tags>
-        <tag>属性基加密</tag>
-        <tag>属性撤销</tag>
-        <tag>多个属性机构</tag>
-        <tag>外包解密</tag>
-        <tag>共谋攻击</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Hur1-ABE</title>
     <url>/2021/04/11/Hur1-ABE/</url>
     <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>前面多次提到了属性撤销和防止共谋攻击的概念，这两个安全需求在属性基加密方案的设计方面至关重要，必须得考虑到。为什么这么说呢？根据前面构造的CP-ABE方案的细节，我们知道一个用户的密钥和系统中的密文中都包含许多个部件，大致可分为两类，一类是与属性有关的，一类是与属性无关的。</p>
@@ -263,6 +169,100 @@ A = DecryptNode(CT,SK,r)=e(g,g)^{rq_R(0)} = e(g,g)^{rs}.</script><p>最后即可
         <tag>属性基加密</tag>
         <tag>属性撤销</tag>
         <tag>共谋攻击</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>DAC-MACS</title>
+    <url>/2021/04/15/DAC-MACS/</url>
+    <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>前面介绍了ABE有关的大部分知识，包括访问结构、密钥托管、属性撤销、共谋攻击、外包解密等诸多方面，今天要介绍的这篇论文是经典的ABE构造，方案简称为DAC-MACS<sup><a href="ref1">1</a></sup>，由Yang等人构造。方案中融合了几乎所有前面讲到的这些方面的内容，属于Chase<sup><a href="ref2">2</a></sup>系列的多属性权威机构ABE，能实现属性撤销，能防止用户的共谋，能外包解密。DAC-MACS方案是基于Waters的ABE-2SPR<sup><a href="ref3">3</a></sup>的第一种构造，因此是构建在Decisional q-PBDHE难题之上，运用了Green<sup><a href="ref4">4</a></sup>的外包解密技巧，可以说是经典的多属性权威ABE方案。下面我们来一睹DAC-MACS的内部构造吧！</p>
+<span id="more"></span>
+<h4 id="系统模型"><a href="#系统模型" class="headerlink" title="系统模型"></a>系统模型</h4><p>DAC-MACS方案中涉及五类实体，分别为全局证书机构（CA）、属性权威机构（AAs)、云服务器（CSP）、数据拥有者（DO）和数据消费者（DU）。</p>
+<ul>
+<li><p>CA：系统中全局可信的证书机构，针对每一个合法用户，CA分配一个全局唯一的用户身份，并为其生成全局公私钥对。CA不参与任何属性的管理，这意味着它并不为DU生成属性密钥。</p>
+</li>
+<li><p>AA：每一个AA都是一个独立的属性权威机构，负责产生、撤销以及更新用户的属性（只要用户的该属性由它所管理）。每个AA会为其管理的每一个属性生成系统的属性公钥，并为用户生成属性密钥。</p>
+</li>
+<li>CSP：存储DO的加密的密文的地方，也为用户生成解密令牌，如果存在属性撤销，则辅助更新密文到系统的最新版本。</li>
+<li>DO：需要存储数据到CSP的用户。</li>
+<li>DU：需要从CSP获取数据的用户。</li>
+</ul>
+<h4 id="威胁模型"><a href="#威胁模型" class="headerlink" title="威胁模型"></a>威胁模型</h4><ul>
+<li><p>CA：完全可信的，但是不允许解密任何密文。</p>
+</li>
+<li><p>AA：可信的，但是可以被攻击者攻击“腐败”。</p>
+</li>
+<li>CSP：半可信的（诚实且好奇），即CSP会诚实地执行系统中它所负责的工作，但是会对存储的密文产生好奇。</li>
+<li>DU：非诚实的，存在共谋行为。</li>
+<li>所有非撤销者：不将收到的密钥更新密钥与撤销用户共享。</li>
+</ul>
+<h4 id="具体构造"><a href="#具体构造" class="headerlink" title="具体构造"></a>具体构造</h4><h5 id="系统初始化"><a href="#系统初始化" class="headerlink" title="系统初始化"></a>系统初始化</h5><p>记$S_A$和$S_U$分别表示属性权威机构的集合和系统属性的集合，记$\mathbb{G}$和$\mathbb{G}_T$为两个阶数为$p$的乘法循环群，$e:\mathbb{G} \times \mathbb{G} \rightarrow \mathbb{G}_T$为双线性映射，$g$为$\mathbb{G}$的生成元。记$H:\left\{0,1 \right\}^+ \rightarrow \mathbb{G}$为哈希函数。</p>
+<h6 id="CA-Setup"><a href="#CA-Setup" class="headerlink" title="CA Setup"></a>CA Setup</h6><p>CA首先产生一对签名和验证密钥$(sk_{CA}, vk_{CA})$，然后选择随机数$a \in \mathbb{Z}_p$作为系统的主密钥，计算系统参数为$SP=(g,g^a,\mathbb{G},\mathbb{G}_T,H)$。</p>
+<ol>
+<li>User Registration：每个用户需要向CA注册自己的信息，如果用户是系统的合法用户，则为该用户分配一个全局唯一的ID$uid$，生成全局公钥$GPK_{uid}=g^{u_{uid}}$和全局私钥$GSK_{uid}=z_{uid}$，其中$u_{uid},z_{uid} \in \mathbb{Z}_p$随机选取。CA随后产生该用户的证书$Cert(uid)$，其中包含$Sign_{sk_{CA}}(uid, u_{uid},g^{1/z_{uid}})$。最后CA将全局公私钥对$(GPK_{uid},GSK_{uid})$和证书$Cert(uid)$发送给用户$uid$。</li>
+<li>AA Registration：每一个AA需要向CA注册自己的信息，如果AA是系统的合法机构，则为该AA分配一个全局唯一ID$aid$，然后将CA的验证密钥$vk_{CA}$和系统参数$SP$发送给AA。</li>
+</ol>
+<h6 id="AA-Setup"><a href="#AA-Setup" class="headerlink" title="AA Setup"></a>AA Setup</h6><p>每一个$AA_k(k \in S_A)$运行AA Setup步骤。记$S_{A_k}$表示$AA_k$所管理的属性的集合，$AA_k$选择三个随机数$\alpha_k, \beta_k, \gamma_k \in \mathbb{Z}_p$作为该机构的私钥，即$SK_k=(\alpha_k, \beta_k, \gamma_k)$。对于每一个属性$x_k \in S_{A_k}$，$AA_k$计算产生属性公钥$PK_{x_k}=(g^{v_{x_k}}H(x_k))^{\gamma_k}$，其中$VK_{x_k}=v_{x_k}$为该属性的版本密钥，$AA_k$还计算该机构自身的公钥$PK_k=(e(g,g)^{\alpha_k},g^{1/\beta_k},g^{\gamma_k/\beta_k})$。所有的属性公钥和$AA_k$的机构公钥都可以在该机构的“公告栏”获取。</p>
+<h5 id="用户私钥生成"><a href="#用户私钥生成" class="headerlink" title="用户私钥生成"></a>用户私钥生成</h5><p>对于每一个用户$U_j(j \in S_U)$，每一个$AA_k$首先用CA的验证密钥$vk_{CA}$验证该用户的证书$Cert(uid)$来判断其是否合法，如果合法，才为其分发密钥。$AA_k$会根据该用户在自己这拥有的属性，计算一系列的用户私钥$SK_{j,k}$。针对每一个$AA_k$，选择一个随机数$t_{j,k} \in \mathbb{Z}_p$，然后计算$SK_{j,k}$如下：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+& SK_{j,k}=( K_{j,k}=g^{\alpha_k/z_j} \cdot g^{au_j} \cdot g^{at_{j,k}/\beta_k}, 
+L_{j,k}=g^{\beta_kt_{j,k}/z_j},R_{j,k}=g^{at_{j,k}},  \nonumber\\
+& \forall x_k \in S_{j,k}:K_{j,x_k} =g^{\beta_k \gamma_k t_{j,k}/z_j} \cdot (g^{v_{x_k}} \cdot H(x_k))^{\gamma_k \beta_k u_j}). \nonumber
+\end{aligned}</script><p>其中，$j \in S_U, k \in S_A$。</p>
+<h5 id="数据加密"><a href="#数据加密" class="headerlink" title="数据加密"></a>数据加密</h5><p>在DO将数据$m$外包到CSP上之前，DO为其进行加密。DO定义自己的访问结构，以线性秘密共享方案的形式，即访问结构为$(M, \rho)$，其中$M$为$l \times n$的矩阵，$l$为所有属性的个数，函数$\rho$将矩阵的每一行映射到一个属性。</p>
+<p>首先将消息$m$切分为若干数据块，即$m=\left\{m_1,…,m_n \right\}$，然后针对每一个数据块选择一个对称密钥$\left\{\kappa_1,…, \kappa_n \right\}$，用对称密钥$\kappa_i$加密数据块$m_i$。不失一般性，以下只针对某一个数据块$m$的加密过程进行描述。</p>
+<p>DO随机选择秘密值$s \in \mathbb{Z}_p$，选择随机向量$\overrightarrow{v} =(s,y_2,…,y_n) \in \mathbb{Z}_p^n$，其中$y_2,…,y_n$随机选取，其作用是分享秘密值$s$。对于$i \in [l]$，计算$\lambda_i = \overrightarrow {v}M_i$，其中$M_i$为矩阵$M$的第$i$行，然后随机选择$r_1,…,r_l \in \mathbb{Z}_p$，计算密文如下：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+&  CT=(En_\kappa(m), C=\kappa \cdot(\prod_{k \in I_A}e(g,g)^{\alpha_k})^s, C^\prime=g^s,{C}''=g^{s/\beta_k}, \nonumber\\
+&  \forall i \in [l]:C_i=g^{a\lambda_i} \cdot ((g^{v_{\rho(i)}}H(\rho(i)))^{\gamma_k})^{-r_i}, D_{1,i}=g^{r_i/\beta_k},D_{2,i}=g^{-\gamma_kr_i/\beta_k}, \rho(i) \in S_{A_k} ). \nonumber
+\end{aligned}</script><h5 id="数据解密"><a href="#数据解密" class="headerlink" title="数据解密"></a>数据解密</h5><p>系统中的合法用户可以可以从CSP查询获取任何密文，但是只有属性集合满足访问结构的用户才能够解密出对称密钥，进而恢复出消息$m$。</p>
+<h6 id="CSP计算Token"><a href="#CSP计算Token" class="headerlink" title="CSP计算Token"></a>CSP计算Token</h6><p>用户$U_j(j \in S_U)$将他的私钥$\left\{SK_{j,k} \right\}_{k \in S_A}$发送给CSP，让CSP为其计算生成解密令牌$TK$。当且仅当用户的属性集合满足密文的访问结构的时候，CSP才能正确计算出$TK$。</p>
+<p>记$I=\left\{I_{A_k} \right\}_{k \in S_A}$为与密文有关的所有索引的集合，其中$I_{A_k} \sqsubset \left\{1,2,…,l \right\}$定义为$I_{A_k}=\left\{i:\rho(i) \in S_{A_k} \right\}$。举个例子，例如矩阵$M$有6行，$\rho(1)$为属性$a_1$，……，$\rho(6)$为属性$a_6$，一共有三个属性机构$A_1,A_2,A_3$，$A_1=\left\{a_1,a_6 \right\}$，$A_2=\left\{a_2,a_4,a_5 \right\}$，$A_3=\left\{a_3 \right\}$，假设用户Alice有属性$\left\{a_1,a_2,a_3,a_4 \right\}$，则$I_{A_1}=\left\{1 \right\}$，$I_{A_2}=\left\{2,4 \right\}$，$I_{A_3}=\left\{3 \right\}$，所以$I=\left\{I_{A_1},I_{A_2},I_{A_3} \right\}=\left\{1,2,3,4\right\}$。</p>
+<p>记$N_A=|I_A|$为与密文中属性有关的机构个数（上述例子中$N_A=3$），CSP选择一系列的常数$\left\{\omega_i \in \mathbb{Z}_p \right\}_{i \in I}$，然后重构秘密值$s=\sum_{i \in I} \omega_i \lambda_i$，然后计算$TK$如下。</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+& TK=\prod_{k \in I_A} \frac{e(C^\prime,K_{j,k}) \cdot e(R_{j,k},{C}'')^{-1}}
+{\prod _{i \in I_{A_k}} (e(C_i,GPK_j) \cdot e(D_{1,i},K_{j,\rho(j)}) \cdot e(D_{2,i},L_{j,k}))^{\omega_iN_A}} \nonumber\\
+& =\frac{e(g,g)^{au_jsN_A} \cdot \prod_{k \in I_A} e(g,g)^{\alpha_ks/z_j}}
+{e(g,g)^{u_jaN_A \sum_{i \in I} \lambda_i \omega_i}} \nonumber \\
+& =\prod_{k \in I_A} e(g,g)^{\alpha_ks/z_j}. \nonumber
+\end{aligned}</script><p>然后CSP将$TK$返回给用户$U_j$。</p>
+<h6 id="用户解密"><a href="#用户解密" class="headerlink" title="用户解密"></a>用户解密</h6><p>用户$U_j$收到$TK$后，用自己的全局私钥$GSK_j=z_j$解密对称密钥$\kappa = \frac{C}{TK^{z_j}}$。然后用对称密钥$\kappa$解密密文$m=Dec_{\kappa}(Enc_{\kappa}(m))$。</p>
+<h5 id="属性撤销"><a href="#属性撤销" class="headerlink" title="属性撤销"></a>属性撤销</h5><p>假设属性用户$U_\mu$ 的属性$\widetilde{x}_k$从$AA_k$那撤销了，那么属性撤销阶段分以下三步进行。</p>
+<h6 id="AA-s-生成更新密钥"><a href="#AA-s-生成更新密钥" class="headerlink" title="$AA_s$生成更新密钥"></a>$AA_s$生成更新密钥</h6><p>相应的$AA_k$选择一个新的属性$\widetilde{x}_k$的版本密钥$VK_{\widetilde{x}_k}^\prime = v_{\widetilde{x}_k}^\prime$，然后计算属性更新密钥$AUK_{\widetilde{x}_k}=\gamma_k(v_{\widetilde{x}_k}^\prime - v_{\widetilde{x}_k})$，进而生成密钥更新密钥$KUK_{j,\widetilde{x}_k}=g^{u_j \beta_k \cdot AUK_{\widetilde{x}_k}}$和密文更新密钥$CUK_{\widetilde{x}_k} = \beta_k \cdot AUK_{\widetilde{x}_k}/\gamma_k$。然后$AA_k$将属性$\widetilde{x}_k$的属性公钥更新为$PK_{\widetilde{x}_k}^\prime=PK_{\widetilde{x}_k} \cdot g^{AUK_{\widetilde{x}_k}}$，并全系统广播属性$\widetilde{x}_k$有关的密文密钥更新过了。</p>
+<h6 id="非撤销用户更新属性部件"><a href="#非撤销用户更新属性部件" class="headerlink" title="非撤销用户更新属性部件"></a>非撤销用户更新属性部件</h6><p>对于那些没有撤销$\widetilde{x}_k$的用户$U_j(j \in S_U,j \neq \mu)$，$AA_k$发给他们密钥更新密钥$KUK_{j,\widetilde{x}_k}$。用户拿到更新密钥后，更新自己的私钥为：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+& SK_{j,k}^\prime=( K_{j,k}^\prime=K_{j,k}, L_{j,k}^\prime=L_{j,k},R_{j,k}^\prime=R_{j,k}, \nonumber\\
+& K_{j,\widetilde{x}_k}^\prime=K_{j,\widetilde{x}_k} \cdot KUK_{j,\widetilde{x}_k}, \forall x_k \in S_u, x_k \neq \widetilde{x}_k:K_{j,x_k}^\prime=K_{j,x_k} ). \nonumber
+\end{aligned}</script><h6 id="CSP更新密文部件"><a href="#CSP更新密文部件" class="headerlink" title="CSP更新密文部件"></a>CSP更新密文部件</h6><p>$AA_k$发给CSP密文更新密钥$CUK_{\widetilde{x}_k}$，然后密文更新为：</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+& CT^\prime=(En_\kappa(m), C=\kappa \cdot(\prod_{k \in I_A}e(g,g)^{\alpha_k})^s, C^\prime=g^s,{C}''=g^{s/\beta_k}, \nonumber\\
+& \forall i \in [l]: \nonumber\\
+& if \rho(i) \neq \widetilde{x}_k: C_i=g^{a\lambda_i} \cdot ((g^{v_{\rho(i)}}H(\rho(i)))^{\gamma_k})^{-r_i}, \nonumber\\ & D_{1,i}=g^{r_i/\beta_k},D_{2,i}=g^{-\gamma_kr_i/\beta_k}, \nonumber\\ 
+& if \rho(i) = \widetilde{x}_k: C_i^\prime = C_i \cdot D_{2,i}^{CUK_{\widetilde{x}_k}}, \nonumber\\
+& D_{1,i}=g^{r_i/\beta_k},D_{2,i}=g^{-\gamma_kr_i/\beta_k}). \nonumber
+\end{aligned}</script><h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>从具体的构造来看，DAC-MACS设计的还是相当的复杂，这是因为ABE算法本身就需要考虑诸多属性，而与之有关的有密文和密钥两大部分，再加上要设计成多个权威机构，那么系统中与属性相关联的又多了一层实体。这可以和Chase的方案对比，很明显其复杂度不言而喻，因为Chase的ABE方案算是门限ABE，而且没有属性撤销这一安全需求。</p>
+<p>从DAC-MACS的设计中可以看到，每一个AA的主密钥有三个之多，这正是为了实现后边的属性撤销而预设的。回头看一下，DAC-MAC是将一个所谓的属性的版本密钥嵌入到属性有关部件里边，然后有属性撤销发生，则将对应的版本密钥更新，这样做的好处是，只有与撤销有关的密文密钥部件才会更新值，而不相关属性的部件不会变化，大大减少了撤销时的计算量，因此这种撤销的手段是很典型的高效撤销机制。</p>
+<p>而DAC-MACS又是如何实现解密操作外包的呢？这是由于CSP为用户计算生成解密令牌，而大大减少了用户的解密开销，之所以用户将私钥给CSP也不会产生安全隐患，这是因为密钥中嵌入了用户的全局私钥信息，这一随机数其实就是O-ABE中盲化技术里的盲化因子。</p>
+<p>DAC-MACS中提到了假定非撤销用户不会将密钥更新密钥透露给非撤销用户，这是因为如果透露了，那么撤销用户仍然能够更新自己的私钥，从而解密最近的密文。正因为如此，作者才推出EDAC-MACS来消除这一假设前提，以增强方案的安全性，但是Wu<sup><a href="ref1">5</a></sup>等人针对EDAC-MACS方案，还是分析出其中的漏洞。不过不管怎样，DAC-MACS还是一种经典的多属性权威ABE方案的构造，其中的细节值得回味，其中的技巧值得借鉴。</p>
+<p><span name="ref1">K. Yang, X. H. Jia, K. Ren, B. Zhang, and R. T. Xie, “DAC-MACS: Effective Data Access Control for Multi-authority Cloud Storage Systems,” <em>IEEE Transactions on Information Forensics and Security</em>, vol. 8, no.11, pp. 1790-1801, Nov. 2013.</span></p>
+<p><span name="ref2">M. Chase, “Multi-authority attribute based encryption,” in <em>Proc. TCC’07</em>, 2007, pp. 515–534, Springer.</span></p>
+<p><span name="ref3">B. Waters, “Ciphertext-policy attribute-based encryption: An expressive, efficient, and provably secure realization,” in <em>Proc. PKC’11</em>, 2011, pp. 53–70, Springer.</span></p>
+<p><span name="ref4">M. Green, S. Hohenberger, and B. Waters, “Outsourcing the Decryption of ABE Ciphertexts,” in <em>Proceedings of the 20th USENIX conference on Security</em>, San Francisco, CA, USA, 2011.</span></p>
+<p><span name="ref5">X. Wu, R. Jiang and B. Bhargava, “On the Security of Data Access Control for Multiauthority Cloud Storage Systems,” <em>IEEE Transactions on Services Computing</em>, vol. 10, no. 2, pp. 258-272, 1 March-April 2017.<span></span></span></p>
+]]></content>
+      <categories>
+        <category>属性基加密</category>
+      </categories>
+      <tags>
+        <tag>属性基加密</tag>
+        <tag>属性撤销</tag>
+        <tag>共谋攻击</tag>
+        <tag>多个属性机构</tag>
+        <tag>外包解密</tag>
       </tags>
   </entry>
   <entry>
@@ -383,45 +383,6 @@ A = DecryptNode(CT,SK,r)=e(g,g)^{rq_R(0)} = e(g,g)^{rs}.</script><p>最后即可
       </tags>
   </entry>
   <entry>
-    <title>O-ABE</title>
-    <url>/2021/04/14/O-ABE/</url>
-    <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>前面的几篇文章都关注在密钥托管、属性撤销以及共谋攻击这几个方面。诚然这些方面是设计ABE算法时需要考虑的地方。我们现在回想一下前面介绍的这些ABE方案，其中不管是基于什么难题，异或是访问结构是访问控制树还是线性秘密共享方案，所构造的ABE方案都有一个共同的特点，那就是解密所需要的操作数量与密文中属性个数成正比。这也就意味着，密文中的属性越多，解密的操作数就越多。而对于一些存储计算资源受限的设备，就无法胜任解密的工作。</p>
-<span id="more"></span>
-<p>Green和Waters<sup><a href="ref1">1</a></sup>（对，还是那个大佬）为了减轻用户端解密的开销，首次提出了外包ABE的原型（这也是本文取名O-ABE的原因）。方案的设想是，用户在解密的时候，不将全部的操作由自己来弄，而是将绝大部分的工作量委托给第三方代理，让第三方算出大部分的结果之后再返回结果，而用户实际的计算将会很少。设想是美好的，但是这其中有一个问题，那就是第三方如何能帮你计算出有效的部分结果，而这个结果对于他而言，完全不能得到密文有关的任何信息。</p>
-<p>那么O-ABE是如何做到既能外包大部分操作，又能保证密文的安全性呢？答案是方案中用到了所谓的“盲化”技术，即在由KGC生成用户私钥之后，用户是可以拿着私钥解密密文的，但是碍于操作量大，用户可能无法完成，因此他将自己的私钥运用“盲化“技术衍生为一个转换密钥，而第三方机构正是由这个密钥算得解密的一部分。而这个转换密钥在对于第三方机构来说一点帮助都没有，解密之后也看不到明文是什么样的。下面看看O-ABE具体是怎样构造的吧！</p>
-<h4 id="具体构造"><a href="#具体构造" class="headerlink" title="具体构造"></a>具体构造</h4><h5 id="Setup-lambda-U"><a href="#Setup-lambda-U" class="headerlink" title="Setup($\lambda,U$)"></a><strong>Setup($\lambda,U$)</strong></h5><p>Setup算法将系统的安全参数$\lambda$和系统属性域$U$作为输入。选择一个$p$阶乘法循环群$\mathbb{G}$，生成元为$g$，选择一个哈希函数$F$将$\left\{0,1\right\}^+$映射到$\mathbb{G}$。选择指数$\alpha, a \in \mathbb{Z}_p$。系统的主密钥为$MSK=(g^\alpha,a)$，系统的公共参数为$PK=(g,e(g,g)^\alpha, g^a,F)$。</p>
-<h5 id="Encrypt-PK-mathcal-M-M-rho"><a href="#Encrypt-PK-mathcal-M-M-rho" class="headerlink" title="Encrypt($PK,\mathcal{M},(M,\rho)$)"></a><strong>Encrypt($PK,\mathcal{M},(M,\rho)$)</strong></h5><p>Encrypt算法将$PK$和消息$\mathcal{M}$作为输入。选择一个线性秘密共享方案的访问结构$(M,\rho)$，函数$\rho$将矩阵$M \in \mathbb{Z}_p^{l\times n}$的每一行映射到一个属性。选择随机向量$\overrightarrow{v}=(s,v_2,…,v_n) \in \mathbb{Z}_p^n$，$\forall i \in [l]$，计算$\lambda _i = \overrightarrow{v}M_i$，其中$M_i$为矩阵$M$的第$i$行。随机选择$r_1,…,r_l \in \mathbb{Z}_p$，然后加密$\mathcal{M}$得到密文为</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-C=((M, \rho), \mathcal{M} \cdot e(g,g)^{\alpha s}, C^ \prime =g^s, \nonumber \\
-\forall i \in [l]； C_i=g^{a\lambda_i} \cdot F(\rho(i))^{-r_i},D_i=g^{r_i}). \nonumber
-\end{aligned}</script><h5 id="KeyGen-MSK-S"><a href="#KeyGen-MSK-S" class="headerlink" title="KeyGen($MSK,S$)"></a><strong>KeyGen($MSK,S$)</strong></h5><p>KeyGen算法将$MSK$和用户的属性集合$S$作为输入。首先选择随机数$t^\prime$，然后得到密钥</p>
-<script type="math/tex; mode=display">
-SK^\prime = (K^\prime = g^\alpha g^{at^\prime},L^\prime = g^{t^\prime},
-\left\{ K_x^\prime = F(x)^{t^\prime} \right\}_{x \in S}).</script><p>然后选择随机数$z \in \mathbb{Z}_p$，设置转换密钥为</p>
-<script type="math/tex; mode=display">
-TK = (K={K^\prime}^{1/z} = g^{(\alpha /z)} g^{a(t^\prime/z)}=g^{(\alpha /z)}g^{at},L={L^\prime}^{1/z} = g^{t^\prime /z} = g^t,
-\left\{ K_x \right\}_{x \in S}=\left\{ {K_x^\prime}^{1/z} \right\}_{x \in S}).</script><p>用户私钥为$SK=(z,TK)$。</p>
-<h5 id="Transform-TK-CT"><a href="#Transform-TK-CT" class="headerlink" title="Transform($TK,CT$)"></a><strong>Transform($TK,CT$)</strong></h5><p>Transfrom算法输入转换密钥$TK=(K,L,\left\{  K_x\right\}_{x \in S})$和密文$CT=(C,C^\prime, \left\{ C_i, D_i\right\}_{i \in [l]})$。如果$S$不满足访问结构，那么直接输出$\perp $。如果$S$满足访问结构，定义索引集合$I \sqsubset \left\{1,2…,l \right\}$为$I=\left\{ i:\rho(i) \in S \right\}$。然后存在一系列的常数$\left\{\omega_i \in \mathbb{Z}_p \right\}_{i \in I}$使得$\sum_{i \in I}\omega_i \lambda_i=s$。然后计算</p>
-<script type="math/tex; mode=display">
-\begin{aligned}
-&e(C^\prime,K)/( (e(\prod _{i \in I} C_i^{\omega _i},L) \prod _{i \in I} e(D_i^{\omega _i},K_{\rho(i)})))= \nonumber\\
-&e(g,g)^{\alpha s /z}e(g,g)^{ast}/( \prod _{i \in I} e(g,g)^{ta\lambda _i \omega _i})=e(g,g)^{\alpha s /z} \nonumber
-\end{aligned}</script><p>然后输出半解密的密文$CT^\prime=(C,e(g,g)^{\alpha s /z})$。</p>
-<h5 id="Decrypt-SK-CT"><a href="#Decrypt-SK-CT" class="headerlink" title="Decrypt($SK,CT$)"></a><strong>Decrypt($SK,CT$)</strong></h5><p>Decrypt算法输入用户私钥$SK=(z,TK)$和密文$CT$。如果密文没有半解密，那么将调用Transfrom算法，如果Transfrom算法输出$\perp$，则Decrypt算法输出$\perp$。否则，用户会拿到半解密密文$(T_0.T_1)$，解密只需计算$T_0/T_1^z=\mathcal{M}$。</p>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>其实我们通过O-ABE算法的构造会发现，其中大部分步骤和Waters的2SPSR方案中的第一个是差不多的，只不过多了密文转换Transfrom这个步骤。该外包ABE的实现运用的盲化的技巧，首先KGC会为用户生成正确的密钥，然后用户随机选择一个秘密值来“随机化自己的私钥”，称之为转换密钥，将此密钥发送给第三方委托半解密密文，用户最终得到的密文已经“很短”了，只需要常数级别的操作即可恢复出密文，这便是外包ABE的大体思路。O-ABE为减小密文解密开销提供了一种技巧，这种技巧广泛地被运用到ABE方案的构建上，后边要介绍的DAC-MACS<sup><a href="ref2">2</a></sup>便运用了这一技巧。</p>
-<p><span name="ref1">M. Green, S. Hohenberger, and B. Waters, “Outsourcing the Decryption of ABE Ciphertexts,” in <em>Proceedings of the 20th USENIX conference on Security</em>, San Francisco, CA, USA, 2011.</span></p>
-<p><span name="ref1">K. Yang, X. H. Jia, K. Ren, B. Zhang, and R. T. Xie, “DAC-MACS: Effective Data Access Control for Multi-authority Cloud Storage Systems,” <em>IEEE Transactions on Information Forensics and Security</em>, vol. 8, no.11, pp. 1790-1801, Nov. 2013.</span>&gt;</p>
-]]></content>
-      <categories>
-        <category>属性基加密</category>
-      </categories>
-      <tags>
-        <tag>属性基加密</tag>
-        <tag>外包解密</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>MA-ABE</title>
     <url>/2021/04/13/MA-ABE/</url>
     <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>在前面提到的Hur1-ABE和Hur2-ABE方案中都提到了密钥托管和共谋攻击的问题。密钥托管说的是密钥产生中心（KGC）为用户计算生成私钥，从而有解密任何密文的能力；而共谋攻击指的是几个实体试图“勾结起来”将自己的属性拼拼凑凑以满足访问结构达到解密密文的目的。其实在原始CP-ABE方案提出的同一年（2007年），就有学者关注这两个问题，并给出了自己的解决方案，这就是Chase的MA-ABE<sup><a href="ref1">1</a></sup>方案。</p>
@@ -491,8 +452,47 @@ TK = (K={K^\prime}^{1/z} = g^{(\alpha /z)} g^{a(t^\prime/z)}=g^{(\alpha /z)}g^{a
       </categories>
       <tags>
         <tag>属性基加密</tag>
-        <tag>多个属性机构</tag>
         <tag>共谋攻击</tag>
+        <tag>多个属性机构</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>O-ABE</title>
+    <url>/2021/04/14/O-ABE/</url>
+    <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>前面的几篇文章都关注在密钥托管、属性撤销以及共谋攻击这几个方面。诚然这些方面是设计ABE算法时需要考虑的地方。我们现在回想一下前面介绍的这些ABE方案，其中不管是基于什么难题，异或是访问结构是访问控制树还是线性秘密共享方案，所构造的ABE方案都有一个共同的特点，那就是解密所需要的操作数量与密文中属性个数成正比。这也就意味着，密文中的属性越多，解密的操作数就越多。而对于一些存储计算资源受限的设备，就无法胜任解密的工作。</p>
+<span id="more"></span>
+<p>Green和Waters<sup><a href="ref1">1</a></sup>（对，还是那个大佬）为了减轻用户端解密的开销，首次提出了外包ABE的原型（这也是本文取名O-ABE的原因）。方案的设想是，用户在解密的时候，不将全部的操作由自己来弄，而是将绝大部分的工作量委托给第三方代理，让第三方算出大部分的结果之后再返回结果，而用户实际的计算将会很少。设想是美好的，但是这其中有一个问题，那就是第三方如何能帮你计算出有效的部分结果，而这个结果对于他而言，完全不能得到密文有关的任何信息。</p>
+<p>那么O-ABE是如何做到既能外包大部分操作，又能保证密文的安全性呢？答案是方案中用到了所谓的“盲化”技术，即在由KGC生成用户私钥之后，用户是可以拿着私钥解密密文的，但是碍于操作量大，用户可能无法完成，因此他将自己的私钥运用“盲化“技术衍生为一个转换密钥，而第三方机构正是由这个密钥算得解密的一部分。而这个转换密钥在对于第三方机构来说一点帮助都没有，解密之后也看不到明文是什么样的。下面看看O-ABE具体是怎样构造的吧！</p>
+<h4 id="具体构造"><a href="#具体构造" class="headerlink" title="具体构造"></a>具体构造</h4><h5 id="Setup-lambda-U"><a href="#Setup-lambda-U" class="headerlink" title="Setup($\lambda,U$)"></a><strong>Setup($\lambda,U$)</strong></h5><p>Setup算法将系统的安全参数$\lambda$和系统属性域$U$作为输入。选择一个$p$阶乘法循环群$\mathbb{G}$，生成元为$g$，选择一个哈希函数$F$将$\left\{0,1\right\}^+$映射到$\mathbb{G}$。选择指数$\alpha, a \in \mathbb{Z}_p$。系统的主密钥为$MSK=(g^\alpha,a)$，系统的公共参数为$PK=(g,e(g,g)^\alpha, g^a,F)$。</p>
+<h5 id="Encrypt-PK-mathcal-M-M-rho"><a href="#Encrypt-PK-mathcal-M-M-rho" class="headerlink" title="Encrypt($PK,\mathcal{M},(M,\rho)$)"></a><strong>Encrypt($PK,\mathcal{M},(M,\rho)$)</strong></h5><p>Encrypt算法将$PK$和消息$\mathcal{M}$作为输入。选择一个线性秘密共享方案的访问结构$(M,\rho)$，函数$\rho$将矩阵$M \in \mathbb{Z}_p^{l\times n}$的每一行映射到一个属性。选择随机向量$\overrightarrow{v}=(s,v_2,…,v_n) \in \mathbb{Z}_p^n$，$\forall i \in [l]$，计算$\lambda _i = \overrightarrow{v}M_i$，其中$M_i$为矩阵$M$的第$i$行。随机选择$r_1,…,r_l \in \mathbb{Z}_p$，然后加密$\mathcal{M}$得到密文为</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+C=((M, \rho), \mathcal{M} \cdot e(g,g)^{\alpha s}, C^ \prime =g^s, \nonumber \\
+\forall i \in [l]； C_i=g^{a\lambda_i} \cdot F(\rho(i))^{-r_i},D_i=g^{r_i}). \nonumber
+\end{aligned}</script><h5 id="KeyGen-MSK-S"><a href="#KeyGen-MSK-S" class="headerlink" title="KeyGen($MSK,S$)"></a><strong>KeyGen($MSK,S$)</strong></h5><p>KeyGen算法将$MSK$和用户的属性集合$S$作为输入。首先选择随机数$t^\prime$，然后得到密钥</p>
+<script type="math/tex; mode=display">
+SK^\prime = (K^\prime = g^\alpha g^{at^\prime},L^\prime = g^{t^\prime},
+\left\{ K_x^\prime = F(x)^{t^\prime} \right\}_{x \in S}).</script><p>然后选择随机数$z \in \mathbb{Z}_p$，设置转换密钥为</p>
+<script type="math/tex; mode=display">
+TK = (K={K^\prime}^{1/z} = g^{(\alpha /z)} g^{a(t^\prime/z)}=g^{(\alpha /z)}g^{at},L={L^\prime}^{1/z} = g^{t^\prime /z} = g^t,
+\left\{ K_x \right\}_{x \in S}=\left\{ {K_x^\prime}^{1/z} \right\}_{x \in S}).</script><p>用户私钥为$SK=(z,TK)$。</p>
+<h5 id="Transform-TK-CT"><a href="#Transform-TK-CT" class="headerlink" title="Transform($TK,CT$)"></a><strong>Transform($TK,CT$)</strong></h5><p>Transfrom算法输入转换密钥$TK=(K,L,\left\{  K_x\right\}_{x \in S})$和密文$CT=(C,C^\prime, \left\{ C_i, D_i\right\}_{i \in [l]})$。如果$S$不满足访问结构，那么直接输出$\perp $。如果$S$满足访问结构，定义索引集合$I \sqsubset \left\{1,2…,l \right\}$为$I=\left\{ i:\rho(i) \in S \right\}$。然后存在一系列的常数$\left\{\omega_i \in \mathbb{Z}_p \right\}_{i \in I}$使得$\sum_{i \in I}\omega_i \lambda_i=s$。然后计算</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+&e(C^\prime,K)/( (e(\prod _{i \in I} C_i^{\omega _i},L) \prod _{i \in I} e(D_i^{\omega _i},K_{\rho(i)})))= \nonumber\\
+&e(g,g)^{\alpha s /z}e(g,g)^{ast}/( \prod _{i \in I} e(g,g)^{ta\lambda _i \omega _i})=e(g,g)^{\alpha s /z} \nonumber
+\end{aligned}</script><p>然后输出半解密的密文$CT^\prime=(C,e(g,g)^{\alpha s /z})$。</p>
+<h5 id="Decrypt-SK-CT"><a href="#Decrypt-SK-CT" class="headerlink" title="Decrypt($SK,CT$)"></a><strong>Decrypt($SK,CT$)</strong></h5><p>Decrypt算法输入用户私钥$SK=(z,TK)$和密文$CT$。如果密文没有半解密，那么将调用Transfrom算法，如果Transfrom算法输出$\perp$，则Decrypt算法输出$\perp$。否则，用户会拿到半解密密文$(T_0.T_1)$，解密只需计算$T_0/T_1^z=\mathcal{M}$。</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>其实我们通过O-ABE算法的构造会发现，其中大部分步骤和Waters的2SPSR方案中的第一个是差不多的，只不过多了密文转换Transfrom这个步骤。该外包ABE的实现运用的盲化的技巧，首先KGC会为用户生成正确的密钥，然后用户随机选择一个秘密值来“随机化自己的私钥”，称之为转换密钥，将此密钥发送给第三方委托半解密密文，用户最终得到的密文已经“很短”了，只需要常数级别的操作即可恢复出密文，这便是外包ABE的大体思路。O-ABE为减小密文解密开销提供了一种技巧，这种技巧广泛地被运用到ABE方案的构建上，后边要介绍的DAC-MACS<sup><a href="ref2">2</a></sup>便运用了这一技巧。</p>
+<p><span name="ref1">M. Green, S. Hohenberger, and B. Waters, “Outsourcing the Decryption of ABE Ciphertexts,” in <em>Proceedings of the 20th USENIX conference on Security</em>, San Francisco, CA, USA, 2011.</span></p>
+<p><span name="ref1">K. Yang, X. H. Jia, K. Ren, B. Zhang, and R. T. Xie, “DAC-MACS: Effective Data Access Control for Multi-authority Cloud Storage Systems,” <em>IEEE Transactions on Information Forensics and Security</em>, vol. 8, no.11, pp. 1790-1801, Nov. 2013.</span>&gt;</p>
+]]></content>
+      <categories>
+        <category>属性基加密</category>
+      </categories>
+      <tags>
+        <tag>属性基加密</tag>
+        <tag>外包解密</tag>
       </tags>
   </entry>
   <entry>
@@ -939,55 +939,6 @@ A = DecryptNode(CT,SK,r)=e(g,g)^{rq_R(0)} = e(g,g)^{rs}.</script><p>最后即可
       </tags>
   </entry>
   <entry>
-    <title>模糊身份基加密</title>
-    <url>/2021/04/08/%E6%A8%A1%E7%B3%8A%E8%BA%AB%E4%BB%BD%E5%9F%BA%E5%8A%A0%E5%AF%86/</url>
-    <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>属性基加密<sup><a href="ref1">1</a></sup> （ABE）的思想来源于模糊身份基加密<sup><a href="ref2">2</a></sup> （FIBE），那么在深入了解属性基加密之前，我们先来认识一下模糊身份基加密。模糊身份基加密的主要思想是：用户用一系列的属性$\omega $表示，密文用一系列的属性${\omega }’$表示，系统设定一个容忍值$d$，当二者属性的相交个数大于$d$，即$|{\omega }’\cap \omega|\geq d$时，方能解密成功。</p>
-<span id="more"></span>
-<h4 id="双线性映射"><a href="#双线性映射" class="headerlink" title="双线性映射"></a>双线性映射</h4><p>双线性映射是基于Diffie-Hellman难题构建属性基加密算法的数学基础，此处的模糊身份基加密也用到了该数学基础。</p>
-<p>令$\mathbb{G}_1,\mathbb{G}_2$为两个阶为$p$的乘法循环群，$g$为$\mathbb{G}_1$的生成元，一个从$\mathbb{G}_1$到$\mathbb{G}_2$的映射$e:\mathbb{G}_1 \times \mathbb{G}_1\rightarrow  \mathbb{G}_2$是双线性的，当其满足以下三点：</p>
-<ul>
-<li>双线性：$\forall g, h \in \mathbb{G}_1$和$a,b \in \mathbb{Z}_p$有$e\left ( g^a, h^b \right ) = e\left ( g, h \right )^{ab}$；</li>
-<li>非退化性：$e\left ( g, h \right ) \neq 1$；</li>
-<li>可计算性：$\forall g, h \in \mathbb{G}_1$，存在有效的算法计算$e\left ( g, h \right ) \in \mathbb{G}_2$。</li>
-</ul>
-<h4 id="FIBE具体构造"><a href="#FIBE具体构造" class="headerlink" title="FIBE具体构造"></a>FIBE具体构造</h4><h5 id="Set-up"><a href="#Set-up" class="headerlink" title="Set up"></a>Set up</h5><p>首先定义系统的属性空间$U$，为了简单起见，将$\mathbb{Z}_p$中前$|U|$个元素作为属性即整数1,…,$|U|$。然后在$\mathbb{Z}_p$中随机均匀选择$t_1,…,t_{|U|}$。最后在$\mathbb{Z}_p$中随机均匀选择$y$。系统的公共参数表示为：</p>
-<script type="math/tex; mode=display">
-T_1=g^{t_1},...,g^{t_{|U|}},Y=e\left ( g,g \right )^y.</script><p>系统的主密钥为：</p>
-<script type="math/tex; mode=display">
-t_1,...t_{|U|},y.</script><h5 id="Key-Generation"><a href="#Key-Generation" class="headerlink" title="Key Generation"></a>Key Generation</h5><p>对于某个用户身份$\omega  \in U$（属性集合），选择一个$d-1$阶多项式$q$，使得$q\left ( 0 \right )=y$。私钥部件为$\left ( D_i \right )_{i \in \omega}$，其中$D_i = g^{\frac{q\left ( i \right )}{t_i}}$。</p>
-<h5 id="Encryption"><a href="#Encryption" class="headerlink" title="Encryption"></a>Encryption</h5><p>密文的加密与一系列的属性${\omega}’$有关，将发送的消息映射到$\mathbb{G}_2$上，即$M \in \mathbb{G}_2$。然后随机选择一个$\mathbb{Z}_p$上的秘密值$s$，加密得到的密文形式如下：</p>
-<script type="math/tex; mode=display">
-E=\left ( {\omega}',{E}'=MY^s,\left \{ E_i =T_i^s\right \}_{i \in {\omega}'} \right ).</script><h5 id="Decryption"><a href="#Decryption" class="headerlink" title="Decryption"></a>Decryption</h5><p>假设用户的属性集合与蕴含在密文中的属性集合相交的属性个数多于$d$，即$|{\omega }’\cap \omega|\geq d$，那么他能按照如下方式成功解密。首先在属性交集${\omega }’\cap \omega$中任意选择$d$个属性集合$S$，然后根据拉格朗日插值算法，可以解密密文：</p>
-<script type="math/tex; mode=display">
-\begin {aligned}
-&{E}'/\prod _{i \in S}\left ( e\left ( D_i,E_i \right ) \right )^{\Delta_{i,S}\left ( 0 \right )} \nonumber \\
-&=Me\left ( g,g \right )^{sy}/ \prod _{i \in S}\left ( e\left ( g^{\frac{q\left ( i \right )}{t_i}},g^{st_i} \right ) \right )^{\Delta_{i,S}\left ( 0 \right )} \nonumber \\
-&=Me\left ( g,g \right )^{sy}/ \prod _{i \in S}\left ( e\left ( g,g \right )^{sq\left ( i \right )} \right )^{\Delta_{i,S}\left ( 0 \right )} \nonumber \\
-&=M \nonumber
-\end {aligned}</script><p>其中$\Delta_{i,S}\left ( 0 \right )$为拉格朗日系数的0值，$\Delta_{i,S}\left ( x \right ) = \prod _{j \in S,j\neq i}\frac{x-j}{i-j}$。</p>
-<h4 id="安全性证明"><a href="#安全性证明" class="headerlink" title="安全性证明"></a>安全性证明</h4><p>密码学中构建方案，通常将方案的安全性规约到某个数学困难问题，用反证法的思想，当难题是困难的，那么攻破方案就是困难的。FIBE方案是在选择身份模型下将方案规约到MBDH问题。以下描述模糊选择身份模型（Selective-ID模型，属性基加密中为Selective-Set模型）：</p>
-<p><strong>Init</strong> 攻击者声明想要挑战的身份$\alpha $（即一个属性集合）。</p>
-<p><strong>Setup</strong> 挑战者运行系统的Setup算法生成系统参数，将公共参数告诉攻击者。</p>
-<p><strong>Phase 1</strong> 攻击者可以对许多身份$\gamma _j$进行密钥询问，前提是$\forall j$，$|\gamma _j \cap \alpha |&lt;d$。</p>
-<p><strong>Challenge</strong>  攻击者提交两个等长的密文$M_0,M_1$，挑战者抛掷一枚硬币$b \in \left \{ 0,1 \right \}$，然后用$\alpha $加密$M_b$。挑战者将密文发送给攻击者。</p>
-<p><strong>Phase 2</strong> Phase 1过程重复。</p>
-<p><strong>Guess</strong> 攻击者给出$b$的猜想${b}’$。</p>
-<p>以上游戏中攻击者的优势定义为$Pr\left [ {b}’=b \right ]-\frac{1}{2}$。</p>
-<p>以后会发现证明安全性的时候，以上攻击者和挑战者的游戏经常看到。在这里就不细讲证明的过程，后面会专门写一篇文章介绍方案的安全性证明。从FIBE的构造来看，主要运用的数学技巧是双线性映射和拉格朗日插值。这两个数学技巧是构建属性基加密方案的基础，FIBE只是用了一次插值，而前面介绍的访问控制树结构本质上是多次运用拉格朗日插值，然后构造成一个访问结构供方案使用，还有一些分层的FIBE（可以理解为分层的门限属性基加密），也是多次运用拉格朗日插值，比如文献<sup><a href="ref3">3</a></sup> 等。</p>
-<p><span name="ref1">J. Bethencourt, A. Sahai, and B. Waters, “Ciphertext-Policy Attribute-Based Encryption,” in <em>IEEE Symposium on Security &amp; Privacy</em>, Oakland, USA, May 2007, pp. 321–334.</span></p>
-<p><span name="ref2">A. Sahai and B. Waters, “Fuzzy Identity-Based Encryption,” in <em>Proceedings of the 24th annual international conference on Theory and Applications of Cryptographic Techniques</em>, Arahus, Denmark, 2005, pp. 457–473.</span></p>
-<p><span name="ref3">M. Chase, “Multi-Authority Attribute Based Encryption,” in <em>Proceedings of 4th Theory of Cryptography Conference on Theory of Cryptography (TCC’07)</em>, 2007, pp. 515-534.</span></p>
-]]></content>
-      <categories>
-        <category>属性基加密</category>
-        <category>身份基加密</category>
-      </categories>
-      <tags>
-        <tag>属性基加密</tag>
-        <tag>访问结构</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>浅谈ABE里的安全性证明</title>
     <url>/2021/04/17/%E6%B5%85%E8%B0%88ABE%E9%87%8C%E7%9A%84%E5%AE%89%E5%85%A8%E6%80%A7%E8%AF%81%E6%98%8E/</url>
     <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>前面介绍了许多ABE方案，比如说CP-ABE、Hur1-ABE、Hur2-ABE、ABE-2EPSR、O-ABE以及DAC-MACS等等，这些方案有的给出了安全性的证明，而有的却没有明确给出。一般的，ABE方案的构造都是基于某个Diffie-Hellman难题，而在证明方案的安全性的时候则将方案规约到已定的数学难题上。以下结合KP-ABE<sup><a href="ref1">1</a></sup>和ABE-2EPSR<sup><a href="ref2">2</a></sup>中的方案一这两个例子，来介绍ABE方案是如何完成其证明过程的。</p>
@@ -1080,6 +1031,55 @@ K_x=L^{z_x} \prod_{i \in X} \prod_{j=1,...,n^+} (g^{(a^j/b_i)r} \prod_{k=1,...,n
       </tags>
   </entry>
   <entry>
+    <title>模糊身份基加密</title>
+    <url>/2021/04/08/%E6%A8%A1%E7%B3%8A%E8%BA%AB%E4%BB%BD%E5%9F%BA%E5%8A%A0%E5%AF%86/</url>
+    <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>属性基加密<sup><a href="ref1">1</a></sup> （ABE）的思想来源于模糊身份基加密<sup><a href="ref2">2</a></sup> （FIBE），那么在深入了解属性基加密之前，我们先来认识一下模糊身份基加密。模糊身份基加密的主要思想是：用户用一系列的属性$\omega $表示，密文用一系列的属性${\omega }’$表示，系统设定一个容忍值$d$，当二者属性的相交个数大于$d$，即$|{\omega }’\cap \omega|\geq d$时，方能解密成功。</p>
+<span id="more"></span>
+<h4 id="双线性映射"><a href="#双线性映射" class="headerlink" title="双线性映射"></a>双线性映射</h4><p>双线性映射是基于Diffie-Hellman难题构建属性基加密算法的数学基础，此处的模糊身份基加密也用到了该数学基础。</p>
+<p>令$\mathbb{G}_1,\mathbb{G}_2$为两个阶为$p$的乘法循环群，$g$为$\mathbb{G}_1$的生成元，一个从$\mathbb{G}_1$到$\mathbb{G}_2$的映射$e:\mathbb{G}_1 \times \mathbb{G}_1\rightarrow  \mathbb{G}_2$是双线性的，当其满足以下三点：</p>
+<ul>
+<li>双线性：$\forall g, h \in \mathbb{G}_1$和$a,b \in \mathbb{Z}_p$有$e\left ( g^a, h^b \right ) = e\left ( g, h \right )^{ab}$；</li>
+<li>非退化性：$e\left ( g, h \right ) \neq 1$；</li>
+<li>可计算性：$\forall g, h \in \mathbb{G}_1$，存在有效的算法计算$e\left ( g, h \right ) \in \mathbb{G}_2$。</li>
+</ul>
+<h4 id="FIBE具体构造"><a href="#FIBE具体构造" class="headerlink" title="FIBE具体构造"></a>FIBE具体构造</h4><h5 id="Set-up"><a href="#Set-up" class="headerlink" title="Set up"></a>Set up</h5><p>首先定义系统的属性空间$U$，为了简单起见，将$\mathbb{Z}_p$中前$|U|$个元素作为属性即整数1,…,$|U|$。然后在$\mathbb{Z}_p$中随机均匀选择$t_1,…,t_{|U|}$。最后在$\mathbb{Z}_p$中随机均匀选择$y$。系统的公共参数表示为：</p>
+<script type="math/tex; mode=display">
+T_1=g^{t_1},...,g^{t_{|U|}},Y=e\left ( g,g \right )^y.</script><p>系统的主密钥为：</p>
+<script type="math/tex; mode=display">
+t_1,...t_{|U|},y.</script><h5 id="Key-Generation"><a href="#Key-Generation" class="headerlink" title="Key Generation"></a>Key Generation</h5><p>对于某个用户身份$\omega  \in U$（属性集合），选择一个$d-1$阶多项式$q$，使得$q\left ( 0 \right )=y$。私钥部件为$\left ( D_i \right )_{i \in \omega}$，其中$D_i = g^{\frac{q\left ( i \right )}{t_i}}$。</p>
+<h5 id="Encryption"><a href="#Encryption" class="headerlink" title="Encryption"></a>Encryption</h5><p>密文的加密与一系列的属性${\omega}’$有关，将发送的消息映射到$\mathbb{G}_2$上，即$M \in \mathbb{G}_2$。然后随机选择一个$\mathbb{Z}_p$上的秘密值$s$，加密得到的密文形式如下：</p>
+<script type="math/tex; mode=display">
+E=\left ( {\omega}',{E}'=MY^s,\left \{ E_i =T_i^s\right \}_{i \in {\omega}'} \right ).</script><h5 id="Decryption"><a href="#Decryption" class="headerlink" title="Decryption"></a>Decryption</h5><p>假设用户的属性集合与蕴含在密文中的属性集合相交的属性个数多于$d$，即$|{\omega }’\cap \omega|\geq d$，那么他能按照如下方式成功解密。首先在属性交集${\omega }’\cap \omega$中任意选择$d$个属性集合$S$，然后根据拉格朗日插值算法，可以解密密文：</p>
+<script type="math/tex; mode=display">
+\begin {aligned}
+&{E}'/\prod _{i \in S}\left ( e\left ( D_i,E_i \right ) \right )^{\Delta_{i,S}\left ( 0 \right )} \nonumber \\
+&=Me\left ( g,g \right )^{sy}/ \prod _{i \in S}\left ( e\left ( g^{\frac{q\left ( i \right )}{t_i}},g^{st_i} \right ) \right )^{\Delta_{i,S}\left ( 0 \right )} \nonumber \\
+&=Me\left ( g,g \right )^{sy}/ \prod _{i \in S}\left ( e\left ( g,g \right )^{sq\left ( i \right )} \right )^{\Delta_{i,S}\left ( 0 \right )} \nonumber \\
+&=M \nonumber
+\end {aligned}</script><p>其中$\Delta_{i,S}\left ( 0 \right )$为拉格朗日系数的0值，$\Delta_{i,S}\left ( x \right ) = \prod _{j \in S,j\neq i}\frac{x-j}{i-j}$。</p>
+<h4 id="安全性证明"><a href="#安全性证明" class="headerlink" title="安全性证明"></a>安全性证明</h4><p>密码学中构建方案，通常将方案的安全性规约到某个数学困难问题，用反证法的思想，当难题是困难的，那么攻破方案就是困难的。FIBE方案是在选择身份模型下将方案规约到MBDH问题。以下描述模糊选择身份模型（Selective-ID模型，属性基加密中为Selective-Set模型）：</p>
+<p><strong>Init</strong> 攻击者声明想要挑战的身份$\alpha $（即一个属性集合）。</p>
+<p><strong>Setup</strong> 挑战者运行系统的Setup算法生成系统参数，将公共参数告诉攻击者。</p>
+<p><strong>Phase 1</strong> 攻击者可以对许多身份$\gamma _j$进行密钥询问，前提是$\forall j$，$|\gamma _j \cap \alpha |&lt;d$。</p>
+<p><strong>Challenge</strong>  攻击者提交两个等长的密文$M_0,M_1$，挑战者抛掷一枚硬币$b \in \left \{ 0,1 \right \}$，然后用$\alpha $加密$M_b$。挑战者将密文发送给攻击者。</p>
+<p><strong>Phase 2</strong> Phase 1过程重复。</p>
+<p><strong>Guess</strong> 攻击者给出$b$的猜想${b}’$。</p>
+<p>以上游戏中攻击者的优势定义为$Pr\left [ {b}’=b \right ]-\frac{1}{2}$。</p>
+<p>以后会发现证明安全性的时候，以上攻击者和挑战者的游戏经常看到。在这里就不细讲证明的过程，后面会专门写一篇文章介绍方案的安全性证明。从FIBE的构造来看，主要运用的数学技巧是双线性映射和拉格朗日插值。这两个数学技巧是构建属性基加密方案的基础，FIBE只是用了一次插值，而前面介绍的访问控制树结构本质上是多次运用拉格朗日插值，然后构造成一个访问结构供方案使用，还有一些分层的FIBE（可以理解为分层的门限属性基加密），也是多次运用拉格朗日插值，比如文献<sup><a href="ref3">3</a></sup> 等。</p>
+<p><span name="ref1">J. Bethencourt, A. Sahai, and B. Waters, “Ciphertext-Policy Attribute-Based Encryption,” in <em>IEEE Symposium on Security &amp; Privacy</em>, Oakland, USA, May 2007, pp. 321–334.</span></p>
+<p><span name="ref2">A. Sahai and B. Waters, “Fuzzy Identity-Based Encryption,” in <em>Proceedings of the 24th annual international conference on Theory and Applications of Cryptographic Techniques</em>, Arahus, Denmark, 2005, pp. 457–473.</span></p>
+<p><span name="ref3">M. Chase, “Multi-Authority Attribute Based Encryption,” in <em>Proceedings of 4th Theory of Cryptography Conference on Theory of Cryptography (TCC’07)</em>, 2007, pp. 515-534.</span></p>
+]]></content>
+      <categories>
+        <category>属性基加密</category>
+        <category>身份基加密</category>
+      </categories>
+      <tags>
+        <tag>属性基加密</tag>
+        <tag>访问结构</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>深度优先搜索有关示例1</title>
     <url>/2021/04/28/%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2%E6%9C%89%E5%85%B3%E7%A4%BA%E4%BE%8B1/</url>
     <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>深度优先搜索算法是遍历或者搜索树或者图问题的常用结局思路，其算法的核心思想为：对于每一个可能的分支路径深入到不能再深入为止，而且每个节点只能访问一次。本文中就四个例子来说明深度优先搜索算法的解题思路。</p>
@@ -1157,6 +1157,63 @@ int maze[5][5] = \begin{bmatrix}
       </categories>
       <tags>
         <tag>深度优先搜索</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>滑动窗口</title>
+    <url>/2021/11/24/%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3/</url>
+    <content><![CDATA[<h4 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h4><p>本文介绍滑动窗口有关问题，包括滑动窗口的最大值、无重复字符串的最长子串、串联所有单词的子串、字符串的排列、最小覆盖子串以及最长连续1的个数。</p>
+<span id="more"></span>
+<h4 id="滑动窗口的最大值1"><a href="#滑动窗口的最大值1" class="headerlink" title="滑动窗口的最大值1"></a>滑动窗口的最大值<sup><a href="ref1">1</a></sup></h4><h5 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h5><p>给你一个整数数组 <code>nums</code>，有一个大小为 <code>k</code> 的滑动窗口从数组的最左侧移动到数组的最右侧。你只可以看到在滑动窗口内的 <code>k</code>个数字。滑动窗口每次只向右移动一位。</p>
+<p>返回滑动窗口中的最大值。</p>
+<p><strong>示例输入</strong>：<code>nums = [1,3,-1,-3,5,3,6,7], k = 3</code></p>
+<p><strong>示例输出</strong>：<code>[3,3,5,5,6,7]</code></p>
+<p><strong>解释 </strong>:</p>
+<p>滑动窗口的位置                最大值</p>
+<hr>
+<p><code>[1 3 -1] -3 5 3 6 7</code>       3<br> <code>1 [3 -1 -3] 5 3 6 7</code>      3<br> <code>1 3 [-1 -3 5] 3 6 7</code>      5<br> <code>1 3 -1 [-3 5 3] 6 7</code>      5<br> <code>1 3 -1 -3 [5 3 6] 7</code>      6<br> <code>1 3 -1 -3 5 [3 6 7]</code>      7</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span>[] maxSlidingWindow(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> k) &#123;</span><br><span class="line">        <span class="keyword">int</span> n = nums.length;</span><br><span class="line">        PriorityQueue&lt;<span class="keyword">int</span>[]&gt; pq = <span class="keyword">new</span> PriorityQueue&lt;<span class="keyword">int</span>[]&gt;(<span class="keyword">new</span> Comparator&lt;<span class="keyword">int</span>[]&gt;() &#123;</span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">(<span class="keyword">int</span>[] pair1, <span class="keyword">int</span>[] pair2)</span> </span>&#123;</span><br><span class="line">                <span class="keyword">return</span> pair1[<span class="number">0</span>] != pair2[<span class="number">0</span>] ? pair2[<span class="number">0</span>] - pair1[<span class="number">0</span>] : pair2[<span class="number">1</span>] - pair1[<span class="number">1</span>];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; k; ++i) &#123;</span><br><span class="line">            pq.offer(<span class="keyword">new</span> <span class="keyword">int</span>[]&#123;nums[i], i&#125;);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span>[] ans = <span class="keyword">new</span> <span class="keyword">int</span>[n - k + <span class="number">1</span>];</span><br><span class="line">        ans[<span class="number">0</span>] = pq.peek()[<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = k; i &lt; n; ++i) &#123;</span><br><span class="line">            pq.offer(<span class="keyword">new</span> <span class="keyword">int</span>[]&#123;nums[i], i&#125;);</span><br><span class="line">            <span class="keyword">while</span> (pq.peek()[<span class="number">1</span>] &lt;= i - k) &#123;</span><br><span class="line">                pq.poll();</span><br><span class="line">            &#125;</span><br><span class="line">            ans[i - k + <span class="number">1</span>] = pq.peek()[<span class="number">0</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="无重复字符串的最长子串2"><a href="#无重复字符串的最长子串2" class="headerlink" title="无重复字符串的最长子串2"></a>无重复字符串的最长子串<sup><a href="ref2">2</a></sup></h4><h5 id="题目描述-1"><a href="#题目描述-1" class="headerlink" title="题目描述"></a>题目描述</h5><p>给定一个字符串 <code>s</code> ，请你找出其中不含有重复字符的 <strong>最长子串</strong> 的长度。</p>
+<p><strong>示例输入</strong>：<code>s = &quot;abcabcbb&quot;</code></p>
+<p><strong>示例输出</strong>：<code>3</code></p>
+<h5 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">lengthOfLongestSubstring</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(s==<span class="keyword">null</span> || s.length() == <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        Map&lt;Character, Integer&gt; m = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">int</span> l = s.length(), max = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> start=<span class="number">0</span>, end=<span class="number">0</span>; end&lt;l; end++)&#123;</span><br><span class="line">            <span class="keyword">char</span> c = s.charAt(end);</span><br><span class="line">            <span class="keyword">if</span>(m.containsKey(c))&#123;</span><br><span class="line">                start = Math.max(m.get(c), start);</span><br><span class="line">            &#125;</span><br><span class="line">            m.put(c, end+<span class="number">1</span>);</span><br><span class="line">            max = Math.max(max, end-start+<span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> max;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="串联所有单词的子串3"><a href="#串联所有单词的子串3" class="headerlink" title="串联所有单词的子串3"></a>串联所有单词的子串<sup><a href="ref3">3</a></sup></h4><h5 id="题目描述-2"><a href="#题目描述-2" class="headerlink" title="题目描述"></a>题目描述</h5><p>给定一个字符串<code>s</code>和一些 长度相同 的单词 <code>words</code> 。找出<code>s</code>中恰好可以由<code>words</code> 中所有单词串联形成的子串的起始位置。</p>
+<p>注意子串要与 <code>words</code> 中的单词完全匹配，中间不能有其他字符 ，但不需要考虑<code>words</code>中单词串联的顺序。</p>
+<p><strong>示例输入</strong>：<code>s = &quot;barfoothefoobarman&quot;, words = [&quot;foo&quot;,&quot;bar&quot;]</code></p>
+<p><strong>示例输出</strong>：<code>[0，9]</code></p>
+<h5 id="代码-1"><a href="#代码-1" class="headerlink" title="代码"></a>代码</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;Integer&gt; <span class="title">findSubstring</span><span class="params">(String s, String[] words)</span> </span>&#123;</span><br><span class="line">        List&lt;Integer&gt; res=<span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="keyword">int</span> word_count=words.length;</span><br><span class="line">        <span class="keyword">if</span>(word_count==<span class="number">0</span>) <span class="keyword">return</span> res;</span><br><span class="line">        <span class="keyword">int</span> word_len=words[<span class="number">0</span>].length();</span><br><span class="line">        <span class="keyword">int</span> windows_len=word_count*word_len;</span><br><span class="line">        Map&lt;String,Integer&gt; map=<span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;word_count;i++)&#123;</span><br><span class="line">            map.put(words[i],map.getOrDefault(words[i],<span class="number">0</span>)+<span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;=s.length()-windows_len;i++)&#123;</span><br><span class="line">            Map&lt;String,Integer&gt; tmp=<span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">            <span class="keyword">int</span> num=<span class="number">0</span>;</span><br><span class="line">            <span class="keyword">while</span>(num&lt;word_count)&#123;</span><br><span class="line">                String str=s.substring(i+num*word_len,i+(num+<span class="number">1</span>)*word_len);</span><br><span class="line">                <span class="keyword">if</span>(map.containsKey(str))&#123;</span><br><span class="line">                    tmp.put(str,tmp.getOrDefault(str,<span class="number">0</span>)+<span class="number">1</span>);</span><br><span class="line">                    <span class="keyword">if</span>(tmp.get(str)&gt;map.get(str))&#123;</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;<span class="keyword">else</span> <span class="keyword">break</span>;</span><br><span class="line">                num++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(num==word_count) res.add(i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="字符串的排列4"><a href="#字符串的排列4" class="headerlink" title="字符串的排列4"></a>字符串的排列<sup><a href="ref4">4</a></sup></h4><h5 id="题目描述-3"><a href="#题目描述-3" class="headerlink" title="题目描述"></a>题目描述</h5><p>给你两个字符串 <code>s1</code>和 <code>s2</code>，写一个函数来判断 <code>s2</code>是否包含<code>s1</code>的排列。如果是，返回 <code>true</code> ；否则，返回<code>false</code>。</p>
+<p>换句话说，<code>s1</code> 的排列之一是 <code>s2</code> 的 子串 。</p>
+<p><strong>示例输入</strong>：<code>s1 = &quot;ab&quot; s2 = &quot;eidbaooo&quot;</code></p>
+<p><strong>示例输出</strong>：<code>true</code></p>
+<h5 id="代码-2"><a href="#代码-2" class="headerlink" title="代码"></a>代码</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    Map&lt;Character,Integer&gt; source=<span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">    Map&lt;Character,Integer&gt; cnt=<span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">checkInclusion</span><span class="params">(String s1, String s2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(s1.length()&gt;s2.length()) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;s1.length();i++)&#123;</span><br><span class="line">            source.put(s1.charAt(i),source.getOrDefault(s1.charAt(i),<span class="number">0</span>)+<span class="number">1</span>);</span><br><span class="line">            cnt.put(s2.charAt(i),cnt.getOrDefault(s2.charAt(i),<span class="number">0</span>)+<span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(check()) <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=s1.length();i&lt;s2.length();i++)&#123;</span><br><span class="line">            Character c1=s2.charAt(i-s1.length());</span><br><span class="line">            <span class="keyword">if</span>(cnt.containsKey(c1))&#123;</span><br><span class="line">                Integer tmp=cnt.get(c1);</span><br><span class="line">                <span class="keyword">if</span>(tmp-<span class="number">1</span>==<span class="number">0</span>) cnt.remove(c1);</span><br><span class="line">                <span class="keyword">else</span> cnt.put(c1,tmp-<span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            cnt.put(s2.charAt(i),cnt.getOrDefault(s2.charAt(i),<span class="number">0</span>)+<span class="number">1</span>);</span><br><span class="line">            <span class="keyword">if</span>(check()) <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">check</span><span class="params">()</span></span>&#123;</span><br><span class="line">        Iterator&lt;Map.Entry&lt;Character,Integer&gt;&gt; iterator=source.entrySet().iterator();</span><br><span class="line">        <span class="keyword">while</span>(iterator.hasNext())&#123;</span><br><span class="line">            Map.Entry&lt;Character,Integer&gt; m=iterator.next();</span><br><span class="line">            Character c=m.getKey();</span><br><span class="line">            Integer i=m.getValue();</span><br><span class="line">            <span class="keyword">if</span>(cnt.getOrDefault((c),<span class="number">0</span>)&lt;i) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="最小覆盖子串5"><a href="#最小覆盖子串5" class="headerlink" title="最小覆盖子串5"></a>最小覆盖子串<sup><a href="ref5">5</a></sup></h4><h5 id="题目描述-4"><a href="#题目描述-4" class="headerlink" title="题目描述"></a>题目描述</h5><p>给你一个字符串 <code>s</code> 、一个字符串 <code>t</code> 。返回 <code>s</code> 中涵盖 <code>t</code> 所有字符的最小子串。如果 <code>s</code> 中不存在涵盖 <code>t</code> 所有字符的子串，则返回空字符串 <code>&quot;&quot;</code> 。</p>
+<p><strong>注意：</strong></p>
+<ul>
+<li>对于 <code>t</code> 中重复字符，我们寻找的子字符串中该字符数量必须不少于 <code>t</code> 中该字符数量。</li>
+<li>如果 <code>s</code> 中存在这样的子串，我们保证它是唯一的答案。</li>
+</ul>
+<p><strong>示例输入</strong>：<code>s = &quot;ADOBECODEBANC&quot;, t = &quot;ABC&quot;</code></p>
+<p><strong>示例输出</strong>：<code>&quot;BANC&quot;</code></p>
+<h5 id="代码-3"><a href="#代码-3" class="headerlink" title="代码"></a>代码</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    Map&lt;Character,Integer&gt; source=<span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">    Map&lt;Character,Integer&gt; cnt=<span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">minWindow</span><span class="params">(String s, String t)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> l1=s.length();</span><br><span class="line">        <span class="keyword">int</span> l2=t.length();</span><br><span class="line">        <span class="keyword">if</span>(l1&lt;l2) <span class="keyword">return</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">        <span class="keyword">int</span> min=Integer.MAX_VALUE;</span><br><span class="line">        <span class="keyword">int</span> start=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> end=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> l=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> r=<span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;l2;i++)&#123;</span><br><span class="line">            source.put(t.charAt(i),source.getOrDefault(t.charAt(i),<span class="number">0</span>)+<span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">while</span>(r&lt;l1)&#123;</span><br><span class="line">            Character c=s.charAt(r);</span><br><span class="line">            cnt.put(c,cnt.getOrDefault(c,<span class="number">0</span>)+<span class="number">1</span>);</span><br><span class="line">            <span class="keyword">while</span>(check())&#123;</span><br><span class="line">                </span><br><span class="line">                <span class="keyword">if</span>(min&gt;=r-l+<span class="number">1</span>)&#123;</span><br><span class="line">                    end=r;</span><br><span class="line">                    start=l;</span><br><span class="line">                    min=r-l+<span class="number">1</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                Character tmp1=s.charAt(l);</span><br><span class="line">                <span class="keyword">if</span>(cnt.containsKey(tmp1))&#123;</span><br><span class="line">                    Integer tmp2=cnt.get(tmp1);</span><br><span class="line">                    <span class="keyword">if</span>(tmp2==<span class="number">1</span>) cnt.remove(tmp1);</span><br><span class="line">                    <span class="keyword">else</span> cnt.put(tmp1,tmp2-<span class="number">1</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                l++;</span><br><span class="line">            &#125;</span><br><span class="line">            r++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> min==Integer.MAX_VALUE?<span class="string">&quot;&quot;</span>:s.substring(start,start+min);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">check</span><span class="params">()</span></span>&#123;</span><br><span class="line">        Iterator&lt;Map.Entry&lt;Character,Integer&gt;&gt; iterator=source.entrySet().iterator();</span><br><span class="line">        <span class="keyword">while</span>(iterator.hasNext())&#123;</span><br><span class="line">            Map.Entry&lt;Character,Integer&gt; m=iterator.next();</span><br><span class="line">            Character c=m.getKey();</span><br><span class="line">            Integer i=m.getValue();</span><br><span class="line">            <span class="keyword">if</span>(cnt.getOrDefault(c,<span class="number">0</span>)&lt;i) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="最长连续1的个数6"><a href="#最长连续1的个数6" class="headerlink" title="最长连续1的个数6"></a>最长连续1的个数<sup><a href="ref6">6</a></sup></h4><h5 id="题目描述-5"><a href="#题目描述-5" class="headerlink" title="题目描述"></a>题目描述</h5><p>给定一个由若干 <code>0</code> 和 <code>1</code> 组成的数组 <code>A</code>，我们最多可以将 <code>K</code> 个值从 <code>0</code> 变成<code>1</code>。</p>
+<p>返回仅包含<code>1</code>的最长（连续）子数组的长度。</p>
+<p><strong>示例输入</strong>：<code>A = [1,1,1,0,0,0,1,1,1,1,0], K = 2</code></p>
+<p><strong>示例输出</strong>：<code>6</code></p>
+<h5 id="代码-4"><a href="#代码-4" class="headerlink" title="代码"></a>代码</h5><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">longestOnes</span><span class="params">(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> n = nums.length;</span><br><span class="line">        <span class="keyword">int</span> left = <span class="number">0</span>, lsum = <span class="number">0</span>, rsum = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> ans = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> right = <span class="number">0</span>; right &lt; n; ++right) &#123;</span><br><span class="line">            rsum += <span class="number">1</span> - nums[right];</span><br><span class="line">            <span class="keyword">while</span> (lsum &lt; rsum - k) &#123;</span><br><span class="line">                lsum += <span class="number">1</span> - nums[left];</span><br><span class="line">                ++left;</span><br><span class="line">            &#125;</span><br><span class="line">            ans = Math.max(ans, right - left + <span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><span name="ref1"><a href="https://leetcode-cn.com/problems/sliding-window-maximum/">https://leetcode-cn.com/problems/sliding-window-maximum/</a></span></p>
+<p><span name="ref2"><a href="https://leetcode-cn.com/problems/longest-substring-without-repeating-characters/">https://leetcode-cn.com/problems/longest-substring-without-repeating-characters/</a></span></p>
+<p><span name="ref3"><a href="https://leetcode-cn.com/problems/substring-with-concatenation-of-all-words/">https://leetcode-cn.com/problems/substring-with-concatenation-of-all-words/</a></span></p>
+<p><span name="ref4"><a href="https://leetcode-cn.com/problems/permutation-in-string/">https://leetcode-cn.com/problems/permutation-in-string/</a></span></p>
+<p><span name="ref5"><a href="https://leetcode-cn.com/problems/minimum-window-substring/">https://leetcode-cn.com/problems/minimum-window-substring/</a></span></p>
+<p><span name="ref6"><a href="https://leetcode-cn.com/problems/max-consecutive-ones-iii/">https://leetcode-cn.com/problems/max-consecutive-ones-iii/</a></span></p>
+]]></content>
+      <categories>
+        <category>算法</category>
+        <category>滑动窗口</category>
+      </categories>
+      <tags>
+        <tag>滑动窗口</tag>
       </tags>
   </entry>
   <entry>
